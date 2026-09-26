@@ -77,7 +77,7 @@
       '<label class="field"><span>Tu reseña</span><textarea name="text" rows="3" maxlength="500" placeholder="Cuéntanos cómo te quedaron"></textarea></label>' +
       '<div class="cm-look"><label class="field"><span>Instagram (opcional)</span><input name="instagram" placeholder="@tuusuario" autocapitalize="off" autocomplete="off"></label>' +
       '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MARLON FOOTWEAR a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
-      '<p class="err" role="alert"></p><button class="btn btn-solid btn-block" type="submit" style="margin-top:24px">Enviar</button>' +
+      '<p class="err" role="alert"></p><button class="btn btn-solid btn-block" type="submit" style="margin-top:24px">Enviar para revisión</button>' +
       '<p class="co-fine cm-look">Revisamos cada fotografía antes de publicarla.</p></form></div>';
     document.body.appendChild(dlg);
     var f = $("form", dlg);
@@ -103,7 +103,7 @@
     sel.innerHTML = o.products.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.name) + "</option>"; }).join("");
     $(".cm-sel", f).hidden = o.products.length === 1;
     $("#cmT", dlg).textContent = look ? "Comparte tu look" : "Califica tu compra";
-    var b = $('button[type="submit"]', f); b.disabled = false; b.textContent = "Enviar";
+    var b = $('button[type="submit"]', f); b.disabled = false; b.textContent = "Enviar para revisión";
     if (!dlg.open) dlg.showModal();
   }
 
@@ -127,7 +127,7 @@
         "<small>" + (look ? "Tu fotografía quedó pendiente de revisión. Si la aprobamos, aparecerá en Comunidad Marlon." : "Tu reseña se publicará después de una revisión rápida.") + "</small></p>" +
         '<button class="btn btn-block" type="button" data-close style="margin-top:28px">Cerrar</button>';
       $("[data-close]", f).addEventListener("click", function () { dlg.close(); });
-    }).catch(function (x) { err.textContent = x.message || "No pudimos enviarlo. Inténtalo de nuevo."; btn.disabled = false; btn.textContent = "Enviar"; });
+    }).catch(function (x) { err.textContent = x.message || "No pudimos enviarlo. Inténtalo de nuevo."; btn.disabled = false; btn.textContent = "Enviar para revisión"; });
   }
 
   /* ---------- Eventos ---------- */
