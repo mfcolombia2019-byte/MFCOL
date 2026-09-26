@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paga tu pedido — MF Colombia</title>
+<meta name="description" content="Completa tu pago en línea de forma segura. MF Colombia, tacones y plataformas.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MF Colombia">
+<meta property="og:title" content="Paga tu pedido — MF Colombia">
+<meta property="og:description" content="Completa tu pago en línea de forma segura con Bold.">
+<meta property="og:image" content="https://marlonfootwearcol.netlify.app/assets/026-ff2341dac0.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1500">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B89B6A' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
+<style>
+  :root{--ivory:#FAF8F5;--ink:#111111;--muted:#6B665F;--champagne:#B89B6A}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;padding:32px;text-align:center}
+  .card{max-width:380px}
+  h1{font-family:Georgia,serif;font-size:28px;letter-spacing:.04em;margin:0 0 12px}
+  p{color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 28px}
+  .spinner{width:26px;height:26px;border:2px solid #DDD8D0;border-top-color:var(--ink);border-radius:50%;margin:0 auto 20px;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .btn{display:inline-block;min-height:52px;line-height:52px;padding:0 28px;background:var(--ink);color:#fff;text-decoration:none;font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+  .err{display:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner" id="spin"></div>
+    <h1>MF Colombia</h1>
+    <p id="msg">Estamos abriendo tu página de pago seguro con Bold. Si no se abre sola, toca el botón.</p>
+    <a class="btn" id="goBtn" href="#" rel="noopener">Ir a pagar ahora</a>
+  </div>
+  <script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var target = params.get("url") || "";
+    var isValid = /^https:\/\/checkout\.bold\.co\//.test(target);
+    var btn = document.getElementById("goBtn");
+    if (isValid) {
+      btn.href = target;
+      setTimeout(function () { window.location.href = target; }, 1200);
+    } else {
+      document.getElementById("spin").style.display = "none";
+      document.getElementById("msg").textContent = "Este link de pago no es válido o ya expiró. Escríbenos por WhatsApp para generarte uno nuevo.";
+      btn.remove();
+    }
+  })();
+  </script>
+</body>
+</html>

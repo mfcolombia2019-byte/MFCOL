@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Comunidad Marlon — MF Colombia</title>
+<meta name="description" content="Visto en nuestras clientas: looks reales con Marlon Footwear.">
+<meta name="theme-color" content="#FAF8F5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B89B6A' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="comunidad.css">
+</head>
+<body class="cm-page">
+<header class="cm-hdr">
+  <a class="logo" href="/" aria-label="Marlon Footwear, MF Colombia. Ir a la tienda">
+    <span class="logo-mf">MF</span><span class="logo-word">MARLON FOOTWEAR</span>
+  </a>
+  <a class="link-u" href="/#productos">Ver colección</a>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <!-- Solo aparece con un enlace post-compra: /comunidad.html?t=TOKEN -->
+    <div class="cm-token" id="cmToken" hidden>
+      <h2>Gracias por tu compra</h2>
+      <button class="btn btn-solid" type="button" data-cm-open="rate">Calificar mi compra</button>
+      <button class="btn" type="button" data-cm-open="look">Compartir mi look</button>
+    </div>
+
+    <div class="sec-head">
+      <h1 class="h-sec">Visto en nuestras clientas</h1>
+      <p class="sub">Looks reales. Estilo propio.</p>
+    </div>
+    <div class="cm-grid" id="cmGrid"></div>
+  </div>
+</main>
+<script src="comunidad.js" defer></script>
+</body>
+</html>

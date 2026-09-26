@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¡Gracias por tu compra! — MF Colombia</title>
+<meta name="description" content="Confirma tu pedido con MF Colombia.">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B89B6A' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
+<style>
+  :root{--ivory:#FAF8F5;--ink:#111111;--muted:#6B665F;--champagne:#B89B6A}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;padding:32px;text-align:center}
+  .card{max-width:420px}
+  h1{font-family:Georgia,serif;font-size:26px;letter-spacing:.02em;margin:0 0 12px}
+  p{color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 20px}
+  .summary{background:#fff;border:1px solid #EAE5DD;border-radius:4px;padding:16px;text-align:left;font-size:13.5px;color:var(--ink);white-space:pre-line;margin:0 0 24px}
+  .btn{display:inline-block;min-height:52px;line-height:52px;padding:0 28px;background:#25D366;color:#fff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-radius:4px}
+  .muted-link{display:block;margin-top:18px;color:var(--muted);font-size:13px;text-decoration:underline}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>¡Gracias por tu compra!</h1>
+    <p id="intro">Para que quede un registro de tu pedido, puedes enviarnos la confirmación por WhatsApp — quedará guardada en tu propio chat.</p>
+    <div class="summary" id="resumen"></div>
+    <a class="btn" id="waBtn" href="#" target="_blank" rel="noopener">Confirmar pedido por WhatsApp</a>
+    <a class="muted-link" href="/">Volver a la tienda</a>
+  </div>
+  <script>
+  (function () {
+    var WHATSAPP_NUMBER = "573115752334";
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get("ref") || "";
+    var resumenEl = document.getElementById("resumen");
+    var waBtn = document.getElementById("waBtn");
+    var msg;
+
+    var raw = ref ? localStorage.getItem("mf_order_" + ref) : null;
+    if (raw) {
+      try {
+        var o = JSON.parse(raw);
+        resumenEl.textContent = o.pedidoTxt + "\nTotal: " + o.total +
+          "\n\nNombre: " + o.name + "\nDirección: " + o.address + "\nCiudad: " + o.city + "\nTeléfono: " + o.phone;
+        msg = "Hola, MF Colombia. Ya realicé el pago de mi pedido con Bold (referencia " + ref + "):\n" +
+          o.pedidoTxt + "\nTotal: " + o.total +
+          "\n\nDatos de entrega\nNombre: " + o.name + "\nDirección: " + o.address + "\nCiudad: " + o.city + "\nTeléfono: " + o.phone;
+        localStorage.removeItem("mf_order_" + ref);
+      } catch (e) { raw = null; }
+    }
+    if (!raw) {
+      resumenEl.style.display = "none";
+      document.getElementById("intro").textContent = "Cuéntanos por WhatsApp que ya completaste tu pago para darle seguimiento a tu pedido.";
+      msg = "Hola, MF Colombia. Ya realicé un pago con Bold" + (ref ? " (referencia " + ref + ")" : "") + ".";
+    }
+    waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+  })();
+  </script>
+</body>
+</html>
