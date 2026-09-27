@@ -1240,6 +1240,62 @@ body{background:var(--wrong-paper);color:var(--wrong-ink);font-family:var(--sans
   .card-media:hover img,.fcard-media:hover img,.cat-tile:hover .r45{transform:none}
 }
 </style>
+<style id="mf-theme-reconstruction">
+/* MF THEME RECONSTRUCTION — based on the supplied Shopify theme */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+:root{
+  --mf-bg:#fff;--mf-fg:#111;--mf-muted:#737373;--mf-line:#e6e6e6;
+  --mf-heading:"Poppins",sans-serif;--mf-body:"DM Sans",sans-serif;
+}
+body{font-family:var(--mf-body)!important;background:var(--mf-bg)!important;color:var(--mf-fg)!important}
+h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.contact h2.brand,
+.pd-info h2,.editorial-copy h2,.cat-name,.ph-mf{font-family:var(--mf-heading)!important;font-weight:800!important;text-transform:uppercase;letter-spacing:-.025em}
+.hdr{background:#fff!important;border-bottom:1px solid #111!important;backdrop-filter:none}
+.hdr-in{height:74px}
+.logo-brand{font-family:var(--mf-heading)!important;font-weight:800!important;letter-spacing:.03em;text-transform:uppercase}
+.nav a,.btn,.link-u,.top,.tabs button,.card .cat,.hero-kicker,.spot .cat,.card-actions .btn{
+  font-family:var(--mf-body)!important;font-weight:700!important;letter-spacing:.08em;text-transform:uppercase
+}
+.top{background:#111;color:#fff;padding:8px var(--gutter);font-weight:700}
+.hero{min-height:calc(100svh - 74px);background:#fff}
+.hero h1{font-size:clamp(46px,7vw,92px)!important;line-height:.93!important}
+.hero-tag{font-family:var(--mf-body);font-size:14px}
+.hero-copy{padding:48px clamp(28px,5vw,72px)}
+.hero-media{background:#f5f5f5}
+.btn{border-radius:4px!important;min-height:48px}
+.btn-solid{background:#111!important;border-color:#111!important;color:#fff!important}
+.btn:hover{transform:none!important}
+.media{border-radius:0}
+.tag{border-radius:2px!important;font-family:var(--mf-body);font-weight:700}
+.grid{gap:34px 16px}
+.card-body{padding-top:10px}
+.card h3{font-size:clamp(16px,1.7vw,21px)!important;line-height:1.08!important}
+.price{font-family:var(--mf-body);font-weight:700}
+.card-actions .btn{font-size:9px}
+.feature-section,.collection,.collection-section{background:#fff}
+.sec-head{margin-bottom:30px}
+.h-sec{font-size:clamp(30px,4vw,48px)!important}
+.sub{font-family:var(--mf-body)}
+.editorial,.spot,.footer{background:#111}
+.editorial-copy h2,.spot h2,.footer h1,.footer h2,.footer h3{color:#fff}
+.editorial-copy p,.spot .desc{font-family:var(--mf-body)}
+.tabs{gap:28px}
+.tabs button{font-size:10px}
+.chip span{border-radius:4px}
+.pd{border-radius:4px}
+.pd-info h2{font-size:clamp(30px,4vw,54px)!important}
+.pd-btns .btn{border-radius:4px}
+.footer{padding-top:64px}
+@media(max-width:819px){
+  .hero{grid-template-columns:1fr}
+  .hero-copy{padding:38px var(--gutter) 52px}
+  .hero h1{font-size:clamp(42px,12vw,68px)!important}
+  .grid{gap:30px 9px}
+}
+@media(min-width:1150px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:56px 20px}
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
