@@ -6,7 +6,7 @@
 <title>Marlon Footwear | MF Colombia — Calzado femenino</title>
 <meta name="description" content="Marlon Footwear, MF Colombia: tacones, plataformas y calzado femenino de alto impacto. Elige tu modelo y tu talla (34 a 40) y compra directo por WhatsApp. Envíos a Colombia.">
 <meta name="theme-color" content="#FFFFFF">
-<meta name="version" content="Marlon Footwear V3 — Clean Direct">
+<meta name="version" content="Marlon Footwear V5 — Product Led">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Marlon Footwear | MF Colombia">
 <meta property="og:title" content="Marlon Footwear | MF Colombia – Tacones y plataformas para mujer">
@@ -979,7 +979,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 @media(max-width:560px){.brand-logo{width:150px}.menu .brand-logo{width:158px}.footer .brand-logo{width:175px}}
 
 
-/* V4 — centered brand header */
+/* V5 — centered brand header */
 .hdr{
   position:sticky;
   top:0;
@@ -1080,6 +1080,28 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   .hdr .actions{right:48px}
 }
 
+
+/* V5 — real product imagery + clean header spacing */
+.hdr-in{height:142px!important;align-items:flex-end!important}
+.hdr .logo{top:8px!important}
+.hdr .brand-logo{width:138px!important}
+.hdr .nav{padding-bottom:14px!important}
+.hdr .actions{bottom:10px!important}
+.hero{min-height:calc(100svh - 142px)!important}
+.hero-copy{padding-top:42px!important;padding-bottom:52px!important}
+.hero h1{font-size:clamp(46px,6vw,84px)!important;max-width:10ch!important;letter-spacing:-.035em!important}
+.hero-tag{font-size:14px!important;margin:18px 0 24px!important}
+@media(max-width:819px){
+ .hdr-in{height:82px!important;align-items:center!important}
+ .hdr .logo{top:50%!important;transform:translate(-50%,-50%)!important}
+ .hdr .brand-logo{width:118px!important}
+ .hero{min-height:calc(100svh - 82px)!important}
+ .hero-copy{padding:26px 20px 34px!important}
+ .hero h1{font-size:clamp(42px,13vw,64px)!important}
+}
+/* Product-led category images: keep them clean and fully visible. */
+.cats .r45,.editorial-media,.about-image{background:#fff!important}
+
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -1148,10 +1170,10 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 <section class="hero" id="inicio" aria-labelledby="hero-title">
   <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
   <div class="hero-copy">
-    <p class="hero-kicker">MF Colombia · Colección 2026</p>
-    <h1 id="hero-title">Tu presencia empieza en tus pies.</h1>
-    <p class="hero-tag">Tacones y plataformas para mujeres que no pasan desapercibidas.</p>
-    <a class="hero-link" href="#productos" data-filter="todos">Ver la colección&nbsp; →</a>
+    <p class="hero-kicker">Nueva colección</p>
+    <h1 id="hero-title">Marlon Footwear</h1>
+    <p class="hero-tag">Tacones y plataformas para destacar.</p>
+    <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
   </div>
 </section>
 
@@ -1415,17 +1437,17 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     // Fotos de portada, categorías, nosotros e Instagram (las de cada producto están en PRODUCTS > imgs).
     // Para cambiar una, escribe la ruta de otra imagen; si dejas "" se muestra un placeholder.
     slots: {
-      "hero": "assets/hero-plataforma-crema.jpg",
-      "cat-tacones": "assets/066-e49793ccc1.jpg",
-      "cat-plataformas": "assets/083-82a82bdcfb.jpg",
-      "cat-destacada": "assets/016-1f924fd122.jpg",
-      "nosotros": "assets/022-a2375478ec.jpg",
-      "insta1": "assets/019-b2f3dbeae8.jpg",
-      "insta2": "assets/049-3438f6f30c.jpg",
-      "insta3": "assets/031-e2e359fbc4.jpg",
-      "insta4": "assets/103-ff1388b9b9.jpg",
-      "insta5": "assets/068-6e9598f10e.jpg",
-      "insta6": "assets/091-176648dd89.jpg"
+      "hero": "assets/049-3438f6f30c.jpg",
+      "cat-tacones": "assets/041-74fa31ee51.jpg",
+      "cat-plataformas": "assets/001-cf6101ceaa.jpg",
+      "cat-destacada": "assets/026-ff2341dac0.jpg",
+      "nosotros": "assets/019-b2f3dbeae8.jpg",
+      "insta1": "assets/041-74fa31ee51.jpg",
+      "insta2": "assets/043-a84f22e16f.jpg",
+      "insta3": "assets/048-9b19fc342f.jpg",
+      "insta4": "assets/055-cf7e577bab.jpg",
+      "insta5": "assets/010-1ccb8fce41.jpg",
+      "insta6": "assets/022-a2375478ec.jpg"
     },
     photos: { folder: "img/", ext: ".jpg" },   // solo para el nombre que muestran los placeholders
 
