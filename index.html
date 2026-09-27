@@ -1102,6 +1102,41 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 /* Product-led category images: keep them clean and fully visible. */
 .cats .r45,.editorial-media,.about-image{background:#fff!important}
 
+
+/* V6 — opiniones horizontales */
+.reviews{border-top:1px solid var(--line);overflow:hidden}
+.reviews-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:28px}
+.reviews-head .h-sec{max-width:680px}
+.reviews-controls{display:flex;gap:8px;flex:0 0 auto}
+.review-arrow{
+  width:42px;height:42px;border:1px solid #ddd;background:#fff;color:#111;
+  border-radius:50%;display:grid;place-items:center;font-size:17px;cursor:pointer;
+  transition:background .2s ease,color .2s ease,border-color .2s ease
+}
+.review-arrow:hover{background:#111;color:#fff;border-color:#111}
+.reviews-track{
+  display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);
+  gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  scrollbar-width:none;padding:2px 2px 10px
+}
+.reviews-track::-webkit-scrollbar{display:none}
+.review-card{
+  scroll-snap-align:start;min-height:205px;border:1px solid #e4e4e4;
+  background:#fff;padding:30px 28px;display:flex;flex-direction:column;
+  justify-content:space-between
+}
+.review-stars{font-size:15px;letter-spacing:3px;line-height:1;color:#111}
+.review-card blockquote{margin:22px 0 24px;font-size:15px;line-height:1.7;max-width:42ch}
+.review-name{margin:0;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#777}
+.reviews-note{margin:14px 0 0;font-size:10px;letter-spacing:.05em;color:#999}
+@media(max-width:800px){
+  .reviews-head{align-items:flex-start}
+  .reviews-controls{display:none}
+  .reviews-track{grid-auto-columns:86%;gap:12px;padding-right:14%}
+  .review-card{min-height:190px;padding:24px 22px}
+  .review-card blockquote{font-size:14px}
+}
+
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -1268,6 +1303,75 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
       <a class="btn" href="comunidad.html">Ver comunidad</a>
     </div>
     <div class="cm-grid" id="cmHome"></div>
+  </div>
+</section>
+
+
+<section class="section reviews" id="opiniones" aria-labelledby="reviews-title">
+  <div class="wrap">
+    <div class="reviews-head">
+      <div>
+        <p class="hero-kicker">Opiniones</p>
+        <h2 class="h-sec" id="reviews-title">Lo que dicen nuestras clientas.</h2>
+      </div>
+      <div class="reviews-controls" aria-label="Navegar opiniones">
+        <button class="review-arrow" id="reviewsPrev" type="button" aria-label="Opiniones anteriores">←</button>
+        <button class="review-arrow" id="reviewsNext" type="button" aria-label="Siguientes opiniones">→</button>
+      </div>
+    </div>
+    <div class="reviews-track" id="reviewsTrack" tabindex="0" aria-label="Carrusel horizontal de opiniones">
+      <article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Me encantó el diseño y la calidad. El pedido llegó perfecto.”</blockquote>
+      <p class="review-name">— Valentina R.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Los zapatos son incluso más bonitos en persona. Súper recomendados.”</blockquote>
+      <p class="review-name">— Laura M.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“La atención fue excelente y el proceso de compra muy fácil.”</blockquote>
+      <p class="review-name">— Camila P.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Me encantó cómo quedan puestos. Definitivamente volvería a comprar.”</blockquote>
+      <p class="review-name">— Daniela G.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“El diseño es hermoso y se sienten muy cómodos.”</blockquote>
+      <p class="review-name">— Mariana S.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Pedí mi talla habitual y me quedó perfecta. Estoy feliz con mi compra.”</blockquote>
+      <p class="review-name">— Sofía C.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“La calidad superó mis expectativas. Se ven increíbles.”</blockquote>
+      <p class="review-name">— Natalia V.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Me encantaron desde que los vi. En persona son preciosos.”</blockquote>
+      <p class="review-name">— Paula A.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Todo llegó muy bien empacado y el pedido fue rápido.”</blockquote>
+      <p class="review-name">— Andrea T.</p>
+    </article>
+<article class="review-card" data-review>
+      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
+      <blockquote>“Una marca que definitivamente volvería a elegir. Me encantaron.”</blockquote>
+      <p class="review-name">— Juliana F.</p>
+    </article>
+    </div>
+    <p class="reviews-note">Opiniones de muestra · reemplazables por reseñas reales de Instagram.</p>
   </div>
 </section>
 
@@ -1978,6 +2082,21 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     <input name="medio_pago">
     <input name="estado">
   </form>
-<script src="comunidad.js" defer></script>
+<script src="comunidad.js" defer>
+/* V6 reviews carousel */
+(() => {
+  const track = document.getElementById('reviewsTrack');
+  const prev = document.getElementById('reviewsPrev');
+  const next = document.getElementById('reviewsNext');
+  if (!track) return;
+  const step = () => {
+    const card = track.querySelector('.review-card');
+    return card ? card.getBoundingClientRect().width + 16 : track.clientWidth;
+  };
+  prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
+  next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
+})();
+
+</script>
 </body>
 </html>
