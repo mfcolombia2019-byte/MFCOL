@@ -2292,8 +2292,8 @@ html{scroll-padding-top:82px}
     <input name="medio_pago">
     <input name="estado">
   </form>
-<script src="comunidad.js" defer>
-/* V6 reviews carousel */
+<script src="comunidad.js" defer></script>
+<script>
 (() => {
   const track = document.getElementById('reviewsTrack');
   const prev = document.getElementById('reviewsPrev');
@@ -2306,7 +2306,6 @@ html{scroll-padding-top:82px}
   prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
   next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
 })();
-
 </script>
 </body>
 </html>
