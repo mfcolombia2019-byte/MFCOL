@@ -383,546 +383,6 @@ dialog[open]{animation:dialogIn .22s ease}
  html{scroll-behavior:auto}
  *,*::before,*::after{animation:none!important;transition:none!important}
 }
-
-/* =========================================================
-   MARLON FOOTWEAR — V2 PREMIUM EDITORIAL
-   Visual layer only. Business logic remains untouched.
-   ========================================================= */
-
-:root{
-  --white:#FFFFFF;
-  --ink:#090909;
-  --muted:#6f6f6f;
-  --line:#dedede;
-  --soft:#f7f7f7;
-  --gutter:clamp(18px,3.1vw,54px);
-  --section:clamp(88px,10vw,168px);
-  --serif:"Fraunces",Georgia,"Times New Roman",serif;
-  --sans:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
-}
-
-html{scroll-behavior:smooth}
-body{
-  background:#fff;
-  color:#090909;
-  font-size:14px;
-  letter-spacing:.005em;
-}
-body:before{
-  content:"";
-  position:fixed;
-  z-index:100;
-  top:0;left:0;
-  width:100%;height:2px;
-  background:#111;
-  transform:scaleX(0);
-  transform-origin:left;
-  pointer-events:none;
-}
-
-/* ---------- Header ---------- */
-.top{
-  background:#fff;
-  color:#777;
-  border-bottom:0;
-  font-size:9px;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  text-align:center;
-  padding:8px 14px;
-}
-.hdr{
-  position:sticky;
-  top:0;
-  background:rgba(255,255,255,.92);
-  border-bottom:1px solid rgba(0,0,0,.10);
-  backdrop-filter:blur(16px) saturate(120%);
-}
-.hdr-in{
-  height:72px;
-  max-width:1600px;
-  margin:auto;
-}
-.logo-brand{
-  font-family:var(--sans);
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.22em;
-}
-.nav ul{gap:34px}
-.nav a{
-  font-size:9px!important;
-  letter-spacing:.17em!important;
-  position:relative;
-}
-.nav a:after{
-  content:"";
-  position:absolute;
-  left:0;right:0;bottom:-8px;
-  height:1px;background:#111;
-  transform:scaleX(0);
-  transform-origin:right;
-  transition:transform .35s ease;
-}
-.nav a:hover:after{transform:scaleX(1);transform-origin:left}
-.icon-btn{transition:opacity .25s,transform .25s}
-.icon-btn:hover{transform:translateY(-1px)}
-.badge{font-size:9px}
-
-/* ---------- Hero: campaign image first ---------- */
-.hero{
-  position:relative;
-  display:block;
-  min-height:calc(100svh - 80px);
-  background:#fff;
-  overflow:hidden;
-}
-.hero-media{
-  position:absolute;
-  inset:0;
-  min-height:0;
-  order:initial;
-}
-.hero-media:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg,rgba(0,0,0,.30) 0%,rgba(0,0,0,.08) 42%,rgba(0,0,0,0) 72%);
-  pointer-events:none;
-}
-.hero-media img{
-  object-position:center center;
-  transition:transform 1.4s cubic-bezier(.2,.65,.2,1);
-}
-.hero:hover .hero-media img{transform:scale(1.025)}
-.hero-copy{
-  position:relative;
-  z-index:2;
-  min-height:calc(100svh - 80px);
-  padding:clamp(42px,7vw,100px) var(--gutter);
-  display:flex;
-  align-items:flex-start;
-  justify-content:flex-end;
-  flex-direction:column;
-  color:#fff;
-  max-width:900px;
-  background:transparent;
-}
-.hero-kicker{
-  font-size:9px;
-  letter-spacing:.22em;
-  margin-bottom:22px;
-}
-.hero h1{
-  font-family:var(--serif);
-  font-weight:300;
-  font-size:clamp(66px,9.5vw,150px);
-  line-height:.82;
-  letter-spacing:-.045em;
-  max-width:7ch;
-  text-shadow:0 2px 25px rgba(0,0,0,.08);
-}
-.hero-tag{
-  font-size:13px;
-  line-height:1.55;
-  max-width:35ch;
-  color:rgba(255,255,255,.88);
-  margin:26px 0 30px;
-}
-.hero-copy .btn{
-  min-width:205px;
-  border-color:#fff;
-  background:#fff;
-  color:#111;
-}
-.hero-copy .btn:hover{
-  background:#111;
-  color:#fff;
-  border-color:#111;
-}
-
-/* ---------- Editorial typography ---------- */
-.brand-intro{
-  padding:clamp(105px,15vw,230px) var(--gutter);
-}
-.brand-intro p{
-  max-width:14ch;
-  font-size:clamp(38px,6.4vw,92px);
-  font-weight:300;
-  line-height:.94;
-}
-.section{padding:var(--section) 0}
-.h-sec{
-  font-weight:300;
-  font-size:clamp(40px,5.7vw,82px);
-  letter-spacing:-.04em;
-}
-.sec-head{margin-bottom:48px}
-.sec-head.row{align-items:end}
-.sub{font-size:12px;color:#707070}
-
-/* ---------- Featured rail ---------- */
-.feature-section{padding-top:0}
-.feature-grid{
-  gap:22px;
-  grid-auto-columns:82%;
-}
-.fcard-media,
-.card-media{
-  overflow:hidden;
-}
-.fcard-body,.card-body{
-  padding-top:15px;
-}
-.fcard h3,.card h3{
-  font-size:clamp(17px,1.7vw,23px);
-  letter-spacing:-.02em;
-}
-.fcard .meta,.card .cat{
-  font-size:9px;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  color:#777;
-}
-.fcard-btns .btn,.card-actions .btn{
-  font-size:9px;
-  letter-spacing:.16em;
-}
-@media(min-width:700px){
-  .feature-grid{grid-template-columns:repeat(3,1fr);gap:24px}
-}
-@media(min-width:1100px){
-  .feature-grid{grid-template-columns:repeat(4,1fr);gap:30px}
-}
-
-/* ---------- Editorial image block ---------- */
-.editorial{
-  position:relative;
-  min-height:88svh;
-  display:block;
-  background:#111;
-  overflow:hidden;
-}
-.editorial-media{
-  position:absolute;
-  inset:0;
-  min-height:0;
-}
-.editorial-media:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg,rgba(0,0,0,.62),rgba(0,0,0,.15) 65%,rgba(0,0,0,.05));
-}
-.editorial-media img{
-  transition:transform 1.1s cubic-bezier(.2,.65,.2,1);
-}
-.editorial:hover .editorial-media img{transform:scale(1.02)}
-.editorial-copy{
-  position:relative;
-  z-index:2;
-  min-height:88svh;
-  max-width:650px;
-  padding:var(--gutter);
-  justify-content:flex-end;
-}
-.editorial-copy h2{
-  font-family:var(--serif);
-  font-weight:300;
-  font-size:clamp(48px,7vw,105px);
-  line-height:.88;
-  letter-spacing:-.04em;
-  max-width:8ch;
-}
-.editorial-copy p:not(.hero-kicker){
-  max-width:42ch;
-  color:#ddd;
-  font-size:13px;
-}
-.editorial-copy .btn{margin-top:8px}
-
-/* ---------- Category campaign ---------- */
-.cats-wrap{padding-top:var(--section)}
-.cats{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:3px;
-}
-.cat-tile{position:relative;overflow:hidden}
-.cat-tile .r45{
-  aspect-ratio:1/1.08;
-}
-.cat-tile .media img{
-  transition:transform 1s cubic-bezier(.2,.65,.2,1);
-}
-.cat-tile:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(transparent 45%,rgba(0,0,0,.38));
-}
-.cat-tile:hover .media img{transform:scale(1.035)}
-.cat-name{
-  position:absolute;
-  z-index:2;
-  left:24px;
-  bottom:22px;
-  color:#fff;
-  font-family:var(--serif);
-  font-size:clamp(34px,4vw,58px);
-  font-weight:300;
-  letter-spacing:-.035em;
-}
-@media(min-width:760px){
-  .cats{grid-template-columns:1fr 1fr;gap:4px}
-  .cat-tile .r45{aspect-ratio:1/1.18}
-}
-
-/* ---------- Collection ---------- */
-.collection-head{margin-bottom:34px}
-.tabs{
-  border-bottom:1px solid #111;
-  display:flex;
-  gap:26px;
-  margin-bottom:28px;
-}
-.tabs button{
-  border:0;
-  background:none;
-  padding:0 0 12px;
-  font-size:9px;
-  letter-spacing:.17em;
-  text-transform:uppercase;
-  color:#888;
-  position:relative;
-}
-.tabs button[aria-pressed=true]{color:#111}
-.tabs button[aria-pressed=true]:after{
-  content:"";
-  position:absolute;
-  bottom:-1px;left:0;right:0;height:1px;background:#111;
-}
-.grid{
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:58px 12px;
-}
-.card-media{
-  aspect-ratio:4/5;
-  background:#f5f5f5;
-}
-.card-media .media img{
-  transition:opacity .55s ease,transform .8s cubic-bezier(.2,.65,.2,1);
-}
-@media(hover:hover) and (pointer:fine){
-  .card-media:hover .media img{transform:scale(1.025)}
-  .card-media:hover .media-b{opacity:1}
-}
-.tag{
-  top:12px;left:12px;
-  background:#fff;
-  padding:7px 9px;
-  font-size:8px;
-  letter-spacing:.15em;
-}
-.price{font-size:12px;font-weight:500}
-@media(min-width:720px){
-  .grid{grid-template-columns:repeat(3,1fr);gap:72px 18px}
-}
-@media(min-width:1120px){
-  .grid{grid-template-columns:repeat(4,1fr);gap:90px 26px}
-}
-
-/* ---------- Spotlight ---------- */
-.spot{background:#090909}
-.spot-media .media img{transition:transform 1.1s cubic-bezier(.2,.65,.2,1)}
-.spot:hover .spot-media .media img{transform:scale(1.02)}
-.spot h2{
-  font-weight:300;
-  letter-spacing:-.04em;
-}
-.spot-info{padding-left:clamp(30px,6vw,100px);padding-right:clamp(30px,6vw,100px)}
-.spot .desc{font-size:13px;line-height:1.65}
-
-/* ---------- Philosophy ---------- */
-.about{padding-top:var(--section)}
-.about-grid{gap:50px}
-.about-copy{max-width:620px}
-.about p.lead{
-  font-size:clamp(34px,4.7vw,68px);
-  font-weight:300;
-  line-height:.97;
-  letter-spacing:-.035em;
-}
-.about-image{
-  min-height:75svh;
-  overflow:hidden;
-}
-.about-image img{transition:transform 1s cubic-bezier(.2,.65,.2,1)}
-.about-image:hover img{transform:scale(1.025)}
-@media(min-width:820px){
-  .about-grid{grid-template-columns:.72fr 1.28fr;gap:9vw}
-}
-
-/* ---------- Instagram / support ---------- */
-.ig-grid{gap:4px}
-.ig-grid .media{transition:opacity .35s,transform .6s}
-.ig-grid a:hover .media{opacity:1;transform:scale(.985)}
-.support{padding-top:0}
-.steps-inline{
-  border-top:1px solid #111;
-  border-bottom:1px solid #111;
-}
-.steps-inline li{padding:22px 12px 22px 0;font-size:10px;letter-spacing:.05em}
-.steps-inline b{font-size:16px}
-.policy-inline{font-size:10px;line-height:1.6}
-
-/* ---------- Contact ---------- */
-.contact{border-top:1px solid #111}
-.contact h2.brand{
-  font-size:clamp(55px,9vw,130px);
-  font-weight:300;
-  letter-spacing:-.055em;
-}
-.contact-grid{gap:60px}
-
-/* ---------- Footer ---------- */
-.footer{
-  background:#090909;
-  padding:72px 0 25px;
-}
-.footer .logo-brand{letter-spacing:.20em}
-.foot-links a{font-size:10px;letter-spacing:.12em;text-transform:uppercase}
-.foot-copy{font-size:9px;letter-spacing:.04em}
-
-/* ---------- Dialogs / commerce ---------- */
-dialog::backdrop{background:rgba(0,0,0,.68)}
-.pd{
-  width:min(1280px,100%);
-  height:min(96dvh,940px);
-}
-.pd-gal{background:#f6f6f6}
-.pd-info{
-  padding:clamp(32px,5vw,72px);
-}
-.pd-info h2{
-  font-weight:300;
-  font-size:clamp(42px,5vw,76px);
-}
-.pd-btns .btn{min-height:56px}
-.thumb{height:96px}
-.drawer{
-  width:min(500px,100%);
-}
-.dr-head{padding:14px 18px 14px 28px}
-.dr-head h2{font-size:32px;font-weight:300}
-.dr-foot{padding:22px 28px calc(24px + env(safe-area-inset-bottom))}
-.co{
-  width:min(760px,100%);
-}
-.co-in{padding:10px 34px calc(42px + env(safe-area-inset-bottom))}
-.co-head h2{font-size:40px;font-weight:300}
-.pay{
-  min-height:120px;
-  padding:20px;
-  justify-content:center;
-  transition:transform .25s,border-color .25s,background .25s;
-}
-.pay:hover{transform:translateY(-2px)}
-.pay-name{font-size:21px}
-.pay-desc{font-size:11px}
-.co-submit{min-height:58px}
-
-/* ---------- Floating WhatsApp ---------- */
-.wa-float{
-  width:48px;height:48px;
-  bottom:20px;right:20px;
-  background:#111;
-  box-shadow:0 12px 30px rgba(0,0,0,.16);
-  transition:transform .25s,box-shadow .25s;
-}
-.wa-float:hover{
-  transform:translateY(-3px);
-  box-shadow:0 16px 35px rgba(0,0,0,.22);
-}
-
-/* ---------- Reveal / motion ---------- */
-.reveal{
-  opacity:0;
-  transform:translateY(24px);
-  transition:opacity .8s ease,transform .9s cubic-bezier(.2,.65,.2,1);
-}
-.reveal.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    scroll-behavior:auto!important;
-    animation-duration:.01ms!important;
-    animation-iteration-count:1!important;
-    transition-duration:.01ms!important;
-  }
-  .reveal{opacity:1;transform:none}
-}
-
-/* ---------- Mobile: intentionally redesigned ---------- */
-@media(max-width:819px){
-  .top{font-size:8px;padding:7px 10px}
-  .hdr-in{height:64px}
-  .hero{min-height:calc(100svh - 71px)}
-  .hero-copy{min-height:calc(100svh - 71px);padding:34px 20px 38px}
-  .hero h1{font-size:clamp(60px,18vw,90px)}
-  .hero-tag{font-size:12px;max-width:30ch}
-  .brand-intro{padding:110px 20px}
-  .brand-intro p{font-size:clamp(38px,11vw,58px)}
-  .section{padding:100px 0}
-  .wrap{padding-left:20px;padding-right:20px}
-  .sec-head.row{align-items:flex-start;flex-direction:column}
-  .feature-grid{
-    grid-auto-columns:86%;
-    gap:10px;
-  }
-  .editorial,.editorial-copy{min-height:82svh}
-  .editorial-copy{padding:28px 20px 34px}
-  .editorial-copy h2{font-size:clamp(50px,14vw,76px)}
-  .cats{gap:3px}
-  .cat-name{left:18px;bottom:17px}
-  .grid{gap:48px 9px}
-  .card-body{padding-top:10px}
-  .card h3{font-size:17px}
-  .card-actions{display:none}
-  .price{font-size:11px}
-  .pd{
-    width:100%;
-    height:100dvh;
-    margin:0;
-  }
-  .pd-grid{display:block}
-  .pd-gal>.media{aspect-ratio:4/5}
-  .pd-info{padding:25px 20px 35px}
-  .pd-info h2{font-size:43px}
-  .thumb{height:72px}
-  .drawer{width:100%;height:100dvh}
-  .co{width:100%;height:100dvh}
-  .co-in{padding-left:20px;padding-right:20px}
-  .co-head h2{font-size:34px}
-  .pays{gap:7px}
-  .pay{min-height:112px}
-  .pay-name{font-size:19px}
-  .steps-inline{margin-left:20px;margin-right:20px}
-  .policy-inline{margin-left:20px;margin-right:20px}
-  .contact-grid{gap:42px}
-  .wa-float{right:15px;bottom:15px}
-}
-
-/* ---------- Large screens ---------- */
-@media(min-width:1440px){
-  .hdr-in{padding-left:48px;padding-right:48px}
-  .hero-copy{padding-left:clamp(50px,6vw,100px)}
-  .brand-intro{padding-top:180px;padding-bottom:190px}
-}
-
-/* ---------- Fine details ---------- */
-::selection{background:#111;color:#fff}
-button,.btn,a{ -webkit-tap-highlight-color:transparent }
-
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -991,15 +451,15 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 <section class="hero" id="inicio" aria-labelledby="hero-title">
   <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
   <div class="hero-copy">
-    <p class="hero-kicker">MF Colombia · Colección 2026</p>
-    <h1 id="hero-title">Tu presencia empieza en tus pies.</h1>
-    <p class="hero-tag">Tacones y plataformas para mujeres que no pasan desapercibidas.</p>
-    <a class="btn btn-solid" href="#productos" data-filter="todos">Ver la colección</a>
+    <p class="hero-kicker">MF Colombia · Nueva colección</p>
+    <h1 id="hero-title">Haz que tu paso hable.</h1>
+    <p class="hero-tag">Tacones y plataformas creados para entrar, destacar y quedarse en la memoria.</p>
+    <a class="btn btn-solid" href="#productos" data-filter="todos">Descubrir colección</a>
   </div>
 </section>
 
 <section class="brand-intro reveal" aria-label="Manifiesto Marlon Footwear">
-  <p>Diseño que se ve. Presencia que se siente.</p>
+  <p>Calzado con presencia. Diseño que no necesita explicación.</p>
 </section>
 
 <section class="section feature-section" id="coleccion" aria-labelledby="col-title">
@@ -1007,7 +467,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     <div class="sec-head row reveal">
       <div>
         <p class="hero-kicker" style="margin:0 0 10px">Selección MF</p>
-        <h2 class="h-sec" id="col-title">La colección, sin distracciones.</h2>
+        <h2 class="h-sec" id="col-title">Los modelos que definen la colección.</h2>
       </div>
       <a class="link-u" href="#productos" data-filter="todos">Ver toda la colección</a>
     </div>
@@ -1019,9 +479,9 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   <div class="editorial-media" data-slot="cat-destacada" data-alt="Editorial Marlon Footwear"></div>
   <div class="editorial-copy">
     <p class="hero-kicker">Marlon Footwear</p>
-    <h2>El paso cambia el gesto.</h2>
-    <p>Siluetas protagonistas, acabados que capturan la luz y una actitud que empieza por los pies.</p>
-    <a class="btn btn-light" href="#productos" data-filter="todos">Explorar la colección</a>
+    <h2>El calzado cambia el gesto.</h2>
+    <p>Una colección pensada alrededor de siluetas protagonistas, acabados llamativos y una forma de vestir que empieza por los pies.</p>
+    <a class="btn btn-light" href="#productos" data-filter="todos">Explorar modelos</a>
   </div>
 </section>
 
@@ -1029,7 +489,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="hero-kicker" style="margin:0 0 10px">Explora por silueta</p>
-      <h2 class="h-sec" id="cat-title">Elige tu silueta.</h2>
+      <h2 class="h-sec" id="cat-title">Encuentra tu forma.</h2>
     </div>
     <div class="cats reveal">
       <a class="cat-tile" href="#productos" data-filter="tacones">
@@ -1049,8 +509,8 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     <div class="collection-head reveal">
       <div>
         <p class="hero-kicker" style="margin:0 0 10px">Shop MF</p>
-        <h2 class="h-sec" id="prod-title">Todos los modelos.</h2>
-        <p class="sub">Explora cada silueta, descubre sus detalles y elige cómo quieres comprar.</p>
+        <h2 class="h-sec" id="prod-title">Toda la colección.</h2>
+        <p class="sub">Elige modelo, color y talla. Entra al producto para ver todas sus fotografías.</p>
       </div>
     </div>
     <div class="tabs" role="group" aria-label="Filtrar por categoría">
@@ -1071,8 +531,8 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   <div class="wrap about-grid">
     <div class="about-copy reveal">
       <p class="hero-kicker">La marca</p>
-      <h2 class="h-sec" id="about-title">Hecho para dejar huella.</h2>
-      <p class="lead">Marlon Footwear nace alrededor de una idea sencilla: el calzado no completa el look. Lo transforma.</p>
+      <h2 class="h-sec" id="about-title">Diseñamos presencia desde el primer paso.</h2>
+      <p class="lead">Marlon Footwear nace para mujeres que buscan piezas con carácter. Seleccionamos y desarrollamos calzado que combina presencia, feminidad y actitud.</p>
       <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
     </div>
     <div class="about-image r45 reveal" data-slot="nosotros" data-alt="Marlon Footwear, filosofía de marca"></div>
