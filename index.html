@@ -1137,200 +1137,6 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   .review-card blockquote{font-size:14px}
 }
 
-
-/* ===== MARLON / EGO-INSPIRED VISUAL LAYER — structure untouched ===== */
-:root{--mf-black:#0a0a0a;--mf-line:#e7e7e7;--mf-soft:#f7f7f7}
-html{scroll-behavior:smooth}
-body{background:#fff;color:var(--mf-black)}
-.hdr{background:rgba(255,255,255,.97);border-bottom:1px solid var(--mf-line);z-index:1000}
-.hdr-in{height:auto;min-height:108px;padding:14px 24px 12px;display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto;align-items:center}
-.hdr .brand-logo{grid-column:2;grid-row:1;width:128px!important;margin:0 auto 10px}
-.hdr .nav{grid-column:1/-1;grid-row:2;display:block!important;padding:0!important}
-.hdr .nav ul{justify-content:center;gap:30px;flex-wrap:wrap}
-.hdr .nav a{font-size:10px!important;letter-spacing:.14em!important;color:#111}
-.hero{min-height:calc(100svh - 108px);height:min(86svh,900px);background:#fff}
-.hero-media img{object-fit:cover;object-position:center center}
-.hero-media:after{background:linear-gradient(90deg,rgba(0,0,0,.34),rgba(0,0,0,.06) 52%,transparent 78%)}
-.hero-copy{max-width:620px;padding:56px clamp(24px,6vw,88px);justify-content:flex-end}
-.hero-kicker{font-size:9px;letter-spacing:.22em}
-.hero h1{font-size:clamp(56px,8vw,108px);letter-spacing:-.055em}
-.hero-tag{font-size:14px;margin:18px 0 24px}
-.hero-link{font-size:10px;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:8px}
-.section{padding-block:clamp(68px,9vw,120px)}
-.section-head,.collection-head,.reviews-head{margin-bottom:34px}
-.h-sec{font-size:clamp(34px,5vw,62px);letter-spacing:-.045em;font-weight:400}
-.collection-head{display:flex;justify-content:space-between;align-items:end;gap:24px}
-.collection-head .section-intro{max-width:520px}
-.tabs{gap:24px;margin-bottom:30px;border-bottom:1px solid #111}
-.grid{gap:48px 14px}
-.card{min-width:0}
-.card-media{background:#f5f5f5;aspect-ratio:4/5;overflow:hidden}
-.card-media .media img{transition:transform .8s cubic-bezier(.2,.65,.2,1),opacity .45s ease}
-.card:hover .card-media .media img{transform:scale(1.025)}
-.card-info{padding-top:13px}
-.card-name{font-size:13px;letter-spacing:.01em}
-.card-price{font-size:11px;color:#666}
-.cats{gap:4px}
-.cat-tile .r45{aspect-ratio:1/1.15}
-.reviews{border-top:1px solid var(--mf-line);border-bottom:1px solid var(--mf-line)}
-.reviews-track{grid-auto-columns:minmax(280px,32%);gap:14px}
-.review-card{border:1px solid var(--mf-line);background:#fff;padding:28px;min-height:210px;transition:transform .35s ease}
-.review-card:hover{transform:translateY(-4px)}
-.instagram-grid{gap:4px}
-.footer{margin-top:0}
-@media(max-width:759px){
- .hdr-in{min-height:104px;padding:12px 16px 10px}
- .hdr .brand-logo{width:112px!important;margin-bottom:8px}
- .hdr .nav ul{gap:15px 18px}
- .hdr .nav a{font-size:8px!important;letter-spacing:.11em!important}
- .hero{height:calc(100svh - 104px);min-height:600px}
- .hero-copy{padding:34px 20px 44px}
- .hero h1{font-size:clamp(48px,15vw,76px)}
- .section{padding-block:62px}
- .collection-head{display:block}
- .grid{gap:34px 10px}
- .reviews-track{grid-auto-columns:86%;gap:12px}
-}
-
-/* ===== MOBILE WIDTH LOCK / no horizontal page drift ===== */
-html,body{
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden!important;
-}
-body{
-  position:relative;
-}
-*,*::before,*::after{box-sizing:border-box}
-main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
-  max-width:100%;
-  overflow-x:clip;
-}
-.hdr-in{
-  width:100%;
-  max-width:1600px;
-}
-.nav ul{max-width:100%;padding-inline:0}
-.cats,.grid,.reviews-track{min-width:0}
-@media(max-width:759px){
-  .hdr{width:100%;overflow:hidden}
-  .hdr-in{width:100%;max-width:100%;padding-inline:12px}
-  .hdr .nav{width:100%;overflow:hidden}
-  .hdr .nav ul{width:100%;max-width:100%;overflow:hidden}
-  .hero,.hero-media{width:100%;max-width:100%}
-  .section{width:100%;max-width:100%}
-}
-
-/* ===== HEADER MOBILE ACTIONS — keep search/bag clear of navigation ===== */
-@media(max-width:1023px){
-  .hdr-in{
-    position:relative;
-    grid-template-columns:1fr auto 1fr!important;
-    grid-template-rows:auto auto!important;
-    row-gap:8px;
-  }
-  .hdr .logo{
-    grid-column:2!important;
-    grid-row:1!important;
-    z-index:2;
-  }
-  .hdr .actions{
-    grid-column:3!important;
-    grid-row:1!important;
-    justify-self:end!important;
-    align-self:center!important;
-    display:flex!important;
-    gap:10px!important;
-    z-index:5;
-  }
-  .hdr .actions .icon-btn{
-    width:40px!important;
-    height:40px!important;
-    flex:0 0 40px;
-  }
-  .hdr .nav{
-    grid-column:1/-1!important;
-    grid-row:2!important;
-    width:100%;
-    padding-right:0!important;
-    z-index:1;
-  }
-  .hdr .nav ul{
-    justify-content:center;
-    gap:14px 22px!important;
-    padding-right:0!important;
-  }
-}
-
-/* ===== CATALOG / EGO-LIKE SHOP CONTROLS ===== */
-.catalog-tools{
-  display:flex;
-  align-items:end;
-  justify-content:space-between;
-  gap:24px;
-  border-bottom:1px solid var(--line);
-  margin-bottom:18px;
-}
-.catalog-tools .tabs{
-  border-bottom:0;
-  margin-bottom:0;
-  flex:1;
-}
-.sort-control{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  flex:0 0 auto;
-  padding-bottom:11px;
-}
-.sort-control span{
-  font-size:10px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:#777;
-}
-.sort-control select{
-  appearance:none;
-  border:0;
-  background:#fff;
-  color:#111;
-  font:inherit;
-  font-size:11px;
-  min-width:118px;
-  padding:0 18px 0 0;
-  outline:0;
-  cursor:pointer;
-  background-image:linear-gradient(45deg,transparent 50%,#111 50%),linear-gradient(135deg,#111 50%,transparent 50%);
-  background-position:calc(100% - 8px) 5px,calc(100% - 3px) 5px;
-  background-size:5px 5px,5px 5px;
-  background-repeat:no-repeat;
-}
-.card-body{min-height:70px}
-.card-link{
-  grid-column:1/-1;
-  font-size:9px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:#777;
-  opacity:0;
-  transform:translateY(3px);
-  transition:opacity .25s ease,transform .25s ease;
-}
-.card:hover .card-link,.fcard:hover .card-link{opacity:1;transform:none}
-@media(max-width:719px){
-  .catalog-tools{align-items:stretch;display:block;margin-bottom:14px}
-  .catalog-tools .tabs{overflow-x:auto;scrollbar-width:none;gap:24px}
-  .catalog-tools .tabs::-webkit-scrollbar{display:none}
-  .catalog-tools .tabs button{white-space:nowrap}
-  .sort-control{
-    border-top:1px solid var(--line);
-    margin-top:2px;
-    padding:12px 0;
-    justify-content:space-between;
-  }
-  .sort-control select{font-size:11px}
-  .count{margin-bottom:20px}
-}
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -1461,21 +1267,10 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
         <p class="sub">Explora cada silueta, descubre sus detalles y elige cómo quieres comprar.</p>
       </div>
     </div>
-    <div class="catalog-tools">
-      <div class="tabs" role="group" aria-label="Filtrar por categoría">
-        <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
-        <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
-        <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
-      </div>
-      <label class="sort-control">
-        <span>Ordenar</span>
-        <select id="sortProducts" aria-label="Ordenar productos">
-          <option value="relevance">Relevancia</option>
-          <option value="price-low">Precio: menor a mayor</option>
-          <option value="price-high">Precio: mayor a menor</option>
-          <option value="name">Nombre</option>
-        </select>
-      </label>
+    <div class="tabs" role="group" aria-label="Filtrar por categoría">
+      <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
+      <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
+      <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
     </div>
     <p class="count" id="resultCount" role="status" aria-live="polite"></p>
     <div class="grid" id="productGrid"></div>
@@ -1922,16 +1717,13 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
   }
 
   /* ---------- Render ---------- */
-  var state = { group: "todos", sort: "relevance" };
+  var state = { group: "todos" };
 
   function renderGrid() {
-    var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; }).slice();
-    if (state.sort === "price-low") list.sort(function(a,b){ return (a.price == null ? Infinity : a.price) - (b.price == null ? Infinity : b.price); });
-    if (state.sort === "price-high") list.sort(function(a,b){ return (b.price == null ? -Infinity : b.price) - (a.price == null ? -Infinity : a.price); });
-    if (state.sort === "name") list.sort(function(a,b){ return a.name.localeCompare(b.name, "es", {sensitivity:"base"}); });
+    var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; });
     $("#productGrid").innerHTML = list.map(cardHTML).join("");
     $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos");
-    $(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
+    $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
   }
   function renderFeatured() {
     $("#featureGrid").innerHTML = CONFIG.collectionIds.map(byId).filter(Boolean).map(featureHTML).join("");
@@ -2175,11 +1967,6 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
 
   /* ---------- Eventos globales ---------- */
   function setFilter(g) { state.group = g; renderGrid(); }
-
-  $("#sortProducts").addEventListener("change", function () {
-    state.sort = this.value;
-    renderGrid();
-  });
 
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
