@@ -2528,7 +2528,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) setFilter(el.dataset.filter);
