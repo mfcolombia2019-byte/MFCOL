@@ -972,6 +972,12 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 .spot-btns .btn-light{background:#fff;color:#111;border-color:#111}
 .hero-copy .hero-link{margin-top:2px}
 
+
+.brand-logo{display:block;width:176px;height:auto;object-fit:contain}
+.menu .brand-logo{width:172px}
+.footer .brand-logo{width:190px}
+@media(max-width:560px){.brand-logo{width:150px}.menu .brand-logo{width:158px}.footer .brand-logo{width:175px}}
+
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -988,7 +994,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     </button>
 
     <a class="logo" href="#inicio" aria-label="Marlon Footwear, ir al inicio">
-      <span class="logo-brand">MARLON FOOTWEAR</span>
+      <img class="brand-logo brand-logo-black" src="assets/marlon-logo-black.png" alt="Marlon Footwear">
     </a>
 
     <nav class="nav" aria-label="Principal">
@@ -1016,7 +1022,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú">
   <div class="menu-top">
     <a class="logo" href="#inicio" data-menu-close aria-label="Marlon Footwear, ir al inicio">
-      <span class="logo-brand">MARLON FOOTWEAR</span>
+      <img class="brand-logo brand-logo-white" src="assets/marlon-logo-white.png" alt="Marlon Footwear">
     </a>
     <button class="icon-btn" id="menuClose" type="button" aria-label="Cerrar menú">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
@@ -1193,7 +1199,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     <div class="foot-grid">
       <div>
         <a class="logo" href="#inicio" aria-label="Marlon Footwear, ir al inicio">
-          <span class="logo-brand">MARLON FOOTWEAR</span>
+          <img class="brand-logo brand-logo-white" src="assets/marlon-logo-white.png" alt="Marlon Footwear">
         </a>
         <p style="margin-top:18px;max-width:34ch;color:#aaa">Tacones, plataformas y piezas de alto impacto para mujeres que dejan huella.</p>
       </div>
@@ -1470,7 +1476,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
         (p.isNew ? '<span class="tag">Novedad</span>' : "") + mediaHover(p.name + ", " + p.cat, "r45", p) +
       "</button>" +
       '<div class="card-body"><p class="cat">' + esc(p.cat) + "</p><h3>" + esc(p.name) + "</h3>" + priceHTML(p) +
-        '<span class="card-link" aria-hidden="true">Ver producto&nbsp; →</span></div></article>";
+        '<span class="card-link" aria-hidden="true">Ver producto&nbsp; →</span></div></article>';
   }
 
   function featureHTML(p, i) {
