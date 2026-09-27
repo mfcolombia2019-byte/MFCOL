@@ -1527,24 +1527,32 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   }
 }
 
-/* Remove the tiny descriptor beneath the header mark; keep the symbol itself. */
+/* Header brand name beside the logo mark. */
 .hdr .logo{
-  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  overflow:visible!important;
 }
 .hdr .brand-logo-black{
-  clip-path:inset(0 0 30% 0)!important;
-  margin-bottom:-12%!important;
+  clip-path:none!important;
+  margin-bottom:0!important;
+  width:82px!important;
 }
-@media(max-width:819px){
-  .hdr .brand-logo-black{
-    clip-path:inset(0 0 30% 0)!important;
-    margin-bottom:-12%!important;
-  }
+.hdr .logo::after{
+  content:"MARLON FOOTWEAR";
+  font-family:var(--mf-heading,var(--sans));
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  line-height:1;
+  white-space:nowrap;
+  color:#111;
 }
-
-/* Remove the small brand kicker inside the editorial block. */
-.editorial-copy > .hero-kicker{
-  display:none!important;
+@media(max-width:560px){
+  .hdr .logo{gap:7px!important}
+  .hdr .brand-logo-black{width:68px!important}
+  .hdr .logo::after{font-size:8px;letter-spacing:.09em}
 }
 </style>
 <style id="mf-hero-rebuild">
