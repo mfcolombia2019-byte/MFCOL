@@ -1191,6 +1191,35 @@ body{background:#fff;color:var(--mf-black)}
  .grid{gap:34px 10px}
  .reviews-track{grid-auto-columns:86%;gap:12px}
 }
+
+/* ===== MOBILE WIDTH LOCK / no horizontal page drift ===== */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden!important;
+}
+body{
+  position:relative;
+}
+*,*::before,*::after{box-sizing:border-box}
+main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
+  max-width:100%;
+  overflow-x:clip;
+}
+.hdr-in{
+  width:100%;
+  max-width:1600px;
+}
+.nav ul{max-width:100%;padding-inline:0}
+.cats,.grid,.reviews-track{min-width:0}
+@media(max-width:759px){
+  .hdr{width:100%;overflow:hidden}
+  .hdr-in{width:100%;max-width:100%;padding-inline:12px}
+  .hdr .nav{width:100%;overflow:hidden}
+  .hdr .nav ul{width:100%;max-width:100%;overflow:hidden}
+  .hero,.hero-media{width:100%;max-width:100%}
+  .section{width:100%;max-width:100%}
+}
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
