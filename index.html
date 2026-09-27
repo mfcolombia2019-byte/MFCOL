@@ -1207,7 +1207,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   <div class="hero-copy">
     <p class="hero-kicker">Nueva colección</p>
     <h1 id="hero-title">Marlon Footwear</h1>
-    <p class="hero-tag">Tacones y plataformas para destacar.</p>
+    <p class="hero-tag" id="heroTag">Tacones y plataformas para destacar.</p>
     <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
   </div>
 </section>
@@ -1884,6 +1884,26 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 
     var orderRef = "MF" + Date.now();
 
+    function guardarPedidoAdmin(linkPagoMostrar, boldPaymentLink) {
+      fetch("/.netlify/functions/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference: orderRef,
+          name: v.name,
+          address: v.address,
+          city: v.city,
+          phone: v.phone,
+          pedido: pedidoTxt,
+          totalNumber: total,
+          totalFormatted: fmt(total),
+          paymentMethod: pay || "por definir",
+          paymentLink: linkPagoMostrar || "",
+          boldPaymentLink: boldPaymentLink || ""
+        })
+      }).catch(function () {});
+    }
+
     function guardarPedido(linkPagoMostrar) {
       f.elements["pedido"].value = pedidoTxt;
       f.elements["total"].value = fmt(total);
@@ -1917,6 +1937,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
                 pedidoTxt: pedidoTxt, total: fmt(total), name: v.name, address: v.address, city: v.city, phone: v.phone
               }));
             } catch (e) {}
+            guardarPedidoAdmin(location.origin + "/pagar.html?ref=" + encodeURIComponent(d.url.split("/").pop()), d.payment_link || d.referencia || "");
             guardarPedido(location.origin + "/pagar.html?ref=" + encodeURIComponent(d.url.split("/").pop()));
             window.location.href = d.url;
           } else {
@@ -1931,6 +1952,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
       return;
     }
 
+    guardarPedidoAdmin("", "");
     guardarPedido("");
     var msg = "Hola, MF Colombia. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(total) +
       "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address + "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
@@ -2062,6 +2084,54 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     els.forEach(function (el) { io.observe(el); });
   }
 
+  async function loadStoreConfig() {
+    try {
+      var r = await fetch("/.netlify/functions/store-config", { cache: "no-store" });
+      if (!r.ok) return;
+      var cfg = await r.json();
+
+      (cfg.products || []).forEach(function (o) {
+        var p = byId(o.id);
+        if (!p) return;
+        if (o.name) p.name = o.name;
+        if (o.price !== undefined) p.price = o.price;
+        if (o.category) p.cat = o.category;
+        p.adminActive = o.active !== false;
+      });
+
+      renderFeatured();
+      renderGrid();
+
+      $("#productGrid [data-product]").forEach(function (card) {
+        var p = byId(card.dataset.product);
+        if (p && p.adminActive === false) card.hidden = true;
+      });
+
+      if (cfg.settings && cfg.settings.brandMessage) {
+        var heroTag = $("#heroTag");
+        if (heroTag) heroTag.textContent = cfg.settings.brandMessage;
+      }
+
+      var track = $("#reviewsTrack");
+      if (track) {
+        (cfg.reviews || []).forEach(function (review) {
+          if (track.querySelector('[data-admin-review="' + review.id + '"]')) return;
+          var article = document.createElement("article");
+          article.className = "review-card";
+          article.dataset.adminReview = review.id;
+          article.innerHTML =
+            '<div class="review-stars" aria-label="' + esc(review.rating + " de 5 estrellas") + '">' +
+            "★★★★★".slice(0, review.rating) + '</div>' +
+            '<blockquote>“' + esc(review.text) + '”</blockquote>' +
+            '<p class="review-name">— ' + esc(review.name) + "</p>";
+          track.appendChild(article);
+        });
+      }
+    } catch (e) {
+      console.warn("No se pudo cargar configuración administrativa", e);
+    }
+  }
+
   /* ---------- Inicio ---------- */
   renderInstagram();
   hydrateSlots();
@@ -2071,6 +2141,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   renderBag();
   initLinks();
   initReveal();
+  loadStoreConfig();
 })();
 </script>
 
