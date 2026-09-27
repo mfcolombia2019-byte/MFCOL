@@ -1547,6 +1547,113 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   display:none!important;
 }
 </style>
+<style id="mf-hero-rebuild">
+/* Hero rebuild: product-led, modern, no lifestyle feet. */
+.hero{
+  display:grid!important;
+  grid-template-columns:minmax(330px,.72fr) minmax(0,1.28fr)!important;
+  min-height:calc(100svh - 80px)!important;
+  background:#0b0b0b!important;
+}
+.hero-media{
+  grid-column:2!important;
+  grid-row:1!important;
+  position:relative!important;
+  inset:auto!important;
+  min-height:calc(100svh - 80px)!important;
+  background:#f3f1ee!important;
+  overflow:hidden!important;
+}
+.hero-media:after{
+  display:none!important;
+}
+.hero-media img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+}
+.hero-copy{
+  grid-column:1!important;
+  grid-row:1!important;
+  position:relative!important;
+  z-index:2!important;
+  min-height:calc(100svh - 80px)!important;
+  padding:clamp(45px,7vw,100px) clamp(28px,5vw,78px)!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  flex-direction:column!important;
+  color:#fff!important;
+  max-width:none!important;
+  background:#0b0b0b!important;
+}
+.hero-copy .hero-kicker{
+  color:#fff!important;
+  opacity:.72!important;
+  border-left:1px solid #fff;
+  padding-left:12px;
+  margin-bottom:28px!important;
+}
+.hero h1{
+  font-family:var(--sans)!important;
+  font-weight:700!important;
+  font-size:clamp(48px,6vw,92px)!important;
+  line-height:.88!important;
+  letter-spacing:-.055em!important;
+  max-width:8ch!important;
+  color:#fff!important;
+  text-transform:uppercase!important;
+  text-shadow:none!important;
+}
+.hero-tag{
+  color:rgba(255,255,255,.7)!important;
+  font-size:13px!important;
+  line-height:1.55!important;
+  max-width:30ch!important;
+  margin:28px 0 34px!important;
+}
+.hero-link{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:48px!important;
+  padding:0 18px!important;
+  border:1px solid rgba(255,255,255,.55)!important;
+  color:#fff!important;
+  text-decoration:none!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.16em!important;
+  text-transform:uppercase!important;
+}
+.hero-link:hover{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#fff!important;
+}
+@media(max-width:819px){
+  .hero{
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:auto!important;
+  }
+  .hero-media{
+    order:1!important;
+    width:100%!important;
+    height:min(78svh,680px)!important;
+    min-height:0!important;
+  }
+  .hero-copy{
+    order:2!important;
+    min-height:390px!important;
+    padding:48px 24px 56px!important;
+  }
+  .hero h1{
+    font-size:clamp(46px,13vw,72px)!important;
+  }
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
@@ -1613,8 +1720,8 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
   <div class="hero-copy">
     <p class="hero-kicker">Nueva colección</p>
-    <h1 id="hero-title">Marlon Footwear</h1>
-    <p class="hero-tag" id="heroTag">Tacones y plataformas para destacar.</p>
+    <h1 id="hero-title">El paso<br>cambia el<br>gesto.</h1>
+    <p class="hero-tag" id="heroTag">Siluetas protagonistas para una presencia que no pasa desapercibida.</p>
     <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
   </div>
 </section>
@@ -1948,7 +2055,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
     // Fotos de portada, categorías, nosotros e Instagram (las de cada producto están en PRODUCTS > imgs).
     // Para cambiar una, escribe la ruta de otra imagen; si dejas "" se muestra un placeholder.
     slots: {
-      "hero": "assets/049-3438f6f30c.jpg",
+      "hero": "assets/017-e43d68d2c4.jpg",
       "cat-tacones": "assets/041-74fa31ee51.jpg",
       "cat-plataformas": "assets/001-cf6101ceaa.jpg",
       "cat-destacada": "assets/026-ff2341dac0.jpg",
