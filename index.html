@@ -1683,7 +1683,7 @@ section{scroll-margin-top:90px}
     if (!p || !p.imgs || !p.imgs.length) return media(alt, cls, p);
     var multi = p.imgs.length > 1, im0 = p.imgs[0], im1 = multi ? p.imgs[1] : null;
     var ph = '<span class="ph" aria-hidden="true"><span class="ph-mf">MF</span><span>Foto pendiente</span><small>' + esc(CONFIG.photos.folder + p.id + CONFIG.photos.ext) + '</small></span>';
-    var img0 = '<img src="' + esc(im0[0]) + '" alt="' + esc(im0[1]) + '" loading="eager" fetchpriority="high" decoding="async" onerror="this.remove()">';
+    var img0 = '<img src="' + esc(im0[0]) + '" alt="' + esc(im0[1]) + '" loading="lazy" decoding="async" onerror="this.remove()">';
     var img1 = im1 ? '<img class="media-b" src="' + esc(im1[0]) + '" alt="" aria-hidden="true" loading="lazy" decoding="async" onerror="this.remove()">' : "";
     var dots = multi ? '<span class="photo-dots" aria-hidden="true">' + p.imgs.length + ' fotos</span>' : "";
     return '<span class="media ' + (cls || "") + (multi ? " media-swap" : "") + '">' + ph + img0 + img1 + dots + "</span>";
