@@ -978,6 +978,108 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 .footer .brand-logo{width:190px}
 @media(max-width:560px){.brand-logo{width:150px}.menu .brand-logo{width:158px}.footer .brand-logo{width:175px}}
 
+
+/* V4 — centered brand header */
+.hdr{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:rgba(255,255,255,.98);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  backdrop-filter:blur(14px);
+}
+.hdr-in{
+  position:relative;
+  height:104px;
+  max-width:1600px;
+  margin:0 auto;
+  padding:0 34px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.hdr .logo{
+  position:absolute;
+  left:50%;
+  top:10px;
+  transform:translateX(-50%);
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hdr .brand-logo{
+  width:150px;
+  height:auto;
+}
+.hdr .nav{
+  padding-bottom:14px;
+}
+.hdr .nav ul{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:34px;
+  margin:0;
+  padding:0;
+}
+.hdr .nav a{
+  font-size:10px!important;
+  letter-spacing:.16em!important;
+  white-space:nowrap;
+}
+.hdr .actions{
+  position:absolute;
+  right:34px;
+  bottom:9px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.hdr .burger{display:none}
+
+/* Give the shoe campaign a clean, definite separation from the brand header */
+.hero{
+  margin-top:0;
+  border-top:0;
+}
+.hero-media{
+  inset:0;
+}
+@media(max-width:819px){
+  .hdr-in{
+    height:66px;
+    padding:0 16px;
+    align-items:center;
+  }
+  .hdr .logo{
+    top:50%;
+    transform:translate(-50%,-50%);
+  }
+  .hdr .brand-logo{width:126px}
+  .hdr .nav{display:none}
+  .hdr .burger{
+    display:inline-flex;
+    position:absolute;
+    left:16px;
+    bottom:10px;
+  }
+  .hdr .actions{
+    right:16px;
+    bottom:10px;
+  }
+  .hero{
+    min-height:calc(100svh - 66px);
+  }
+  .hero-copy{
+    min-height:calc(100svh - 66px);
+  }
+}
+@media(min-width:1440px){
+  .hdr-in{padding-left:48px;padding-right:48px}
+  .hdr .actions{right:48px}
+}
+
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
