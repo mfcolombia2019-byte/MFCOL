@@ -1365,6 +1365,26 @@ body{background:var(--wrong-paper);color:var(--wrong-ink);font-family:var(--sans
 @media(prefers-reduced-motion:reduce){
   .card-media:hover img,.fcard-media:hover img,.cat-tile:hover .r45{transform:none}
 }
+
+</style>
+<style id="mf-collection-links">
+.fcard-body .card-link{
+  display:inline-flex!important;
+  align-items:center;
+  grid-column:1/-1;
+  margin-top:4px;
+  width:max-content;
+  color:#111!important;
+  text-decoration:none!important;
+  border-bottom:1px solid #111;
+  padding-bottom:3px;
+  font-family:var(--mf-body,var(--sans));
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.fcard-body .card-link:hover{opacity:.55}
 </style>
 <style id="mf-theme-reconstruction">
 /* MF THEME RECONSTRUCTION — based on the supplied Shopify theme */
@@ -1713,6 +1733,8 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
     <a href="#coleccion" data-menu-close>Colección</a>
     <a href="#productos" data-filter="tacones" data-menu-close>Tacones</a>
     <a href="#productos" data-filter="plataformas" data-menu-close>Plataformas</a>
+    <a href="#productos" data-filter="mules" data-menu-close>Mules</a>
+    <a href="#productos" data-filter="cuñas" data-menu-close>Cuñas</a>
     <a href="#nosotros" data-menu-close>Nosotros</a>
     <a href="comunidad.html" data-menu-close>Comunidad</a>
   </nav>
@@ -1730,7 +1752,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
     <p class="hero-kicker">Nueva colección</p>
     <h1 id="hero-title">El paso<br>cambia el<br>gesto.</h1>
     <p class="hero-tag" id="heroTag">Siluetas protagonistas para una presencia que no pasa desapercibida.</p>
-    <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
+    <a class="hero-link" href="#productos" data-filter="cuñas">Explorar cuñas&nbsp; →</a>
   </div>
 </section>
 
@@ -1757,7 +1779,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
     <p class="hero-kicker">Marlon Footwear</p>
     <h2>El paso cambia el gesto.</h2>
     <p>Siluetas protagonistas, acabados que capturan la luz y una actitud que empieza por los pies.</p>
-    <a class="editorial-link" href="#productos" data-filter="todos">Explorar la colección&nbsp; →</a>
+    <a class="editorial-link" href="#productos" data-filter="plataformas">Explorar plataformas&nbsp; →</a>
   </div>
 </section>
 
@@ -1786,13 +1808,15 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
       <div>
         <p class="hero-kicker" style="margin:0 0 10px">Shop MF</p>
         <h2 class="h-sec" id="prod-title">Todos los modelos.</h2>
-        <p class="sub">Explora cada silueta, descubre sus detalles y elige cómo quieres comprar.</p>
+        <p class="sub">Un solo catálogo para verlo todo. Las demás entradas te llevan a modelos de la misma silueta y características.</p>
       </div>
     </div>
     <div class="tabs" role="group" aria-label="Filtrar por categoría">
       <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
       <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
       <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
+      <button type="button" data-filter="mules" aria-pressed="false">Mules</button>
+      <button type="button" data-filter="cuñas" aria-pressed="false">Cuñas</button>
     </div>
     <p class="count" id="resultCount" role="status" aria-live="polite"></p>
     <div class="grid" id="productGrid"></div>
@@ -2234,21 +2258,53 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   }
 
   function featureHTML(p, i) {
+    var key = collectionOf(p), label = collectionLabel(key), count = similarProducts(p);
     return '<article class="fcard" style="animation-delay:' + (i * 70) + 'ms">' +
       '<button class="fcard-media" type="button" data-view="' + p.id + '" aria-label="Ver producto: ' + esc(p.name) + '">' +
         mediaHover(p.name + ", " + p.cat, "r45", p) + "</button>" +
       '<div class="fcard-body"><h3>' + esc(p.name) + "</h3>" + priceHTML(p) +
-        '<p class="meta">Tallas ' + CONFIG.sizes[0] + " a " + CONFIG.sizes[CONFIG.sizes.length - 1] + "</p>" +
-        '<span class="card-link" aria-hidden="true">Ver producto&nbsp; →</span></div></article>';
+        '<p class="meta">' + esc(label) + ' · ' + count + (count === 1 ? ' modelo' : ' modelos') + '</p>' +
+        '<a class="card-link" href="#productos" data-filter="' + esc(key) + '">Explorar ' + esc(label.toLowerCase()) + '&nbsp; →</a></div></article>';
   }
 
   /* ---------- Render ---------- */
   var state = { group: "todos" };
 
+  function collectionOf(p) {
+    var c = norm(p.cat || "");
+    if (c.indexOf("mule") !== -1) return "mules";
+    if (c.indexOf("cuña") !== -1) return "cuñas";
+    if (c.indexOf("tacón aguja") !== -1) return "tacones-aguja";
+    if (c.indexOf("tacón fino") !== -1) return "tacones-finos";
+    if (p.group === "plataformas") return "plataformas";
+    return "tacones";
+  }
+
+  function collectionLabel(key) {
+    return {
+      "todos":"Todos los modelos",
+      "plataformas":"Plataformas",
+      "mules":"Mules",
+      "cuñas":"Cuñas",
+      "tacones-aguja":"Tacones de aguja",
+      "tacones-finos":"Tacones finos",
+      "tacones":"Tacones"
+    }[key] || "Colección";
+  }
+
+  function similarProducts(p) {
+    var key = collectionOf(p);
+    return PRODUCTS.filter(function (x) { return collectionOf(x) === key; }).length;
+  }
+
   function renderGrid() {
-    var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; });
+    var list = PRODUCTS.filter(function (p) {
+      if (state.group === "todos") return true;
+      if (state.group === "tacones" || state.group === "plataformas") return p.group === state.group;
+      return collectionOf(p) === state.group;
+    });
     $("#productGrid").innerHTML = list.map(cardHTML).join("");
-    $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos");
+    $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos") + " · " + collectionLabel(state.group);
     $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
   }
   function renderFeatured() {
@@ -2529,7 +2585,12 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   });
 
   /* ---------- Eventos globales ---------- */
-  function setFilter(g) { state.group = g; renderGrid(); }
+  function setFilter(g) {
+    state.group = g;
+    renderGrid();
+    var target = $("#productos");
+    if (target && location.hash !== "#productos") target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
