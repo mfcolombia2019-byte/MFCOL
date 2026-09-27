@@ -1139,193 +1139,8 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 
 </style>
 
-<style id="mf-hero-reviews-refinement">
-/* Portada: mensaje de marca, sin repetir el nombre en el hero */
-.hero-copy{align-items:center!important;text-align:center!important}
-.hero-copy .hero-kicker{margin-bottom:16px!important}
-.hero-copy h1{max-width:9ch!important}
-.hero-copy .hero-tag{max-width:30ch!important;margin:20px 0 26px!important}
-
-/* Opiniones: carrusel editorial de ancho completo en teléfono */
-.reviews{padding-left:0!important;padding-right:0!important;overflow:hidden}
-.reviews .wrap{max-width:none!important;padding-left:0!important;padding-right:0!important}
-.reviews-head{padding-left:var(--gutter);padding-right:var(--gutter)}
-.reviews-track{
-  width:100%;
-  grid-auto-columns:calc((100% - 32px)/3);
-  padding:2px var(--gutter) 14px;
-  gap:16px;
-}
-.review-card{border:1px solid #e4e4e4;border-radius:0}
-@media(max-width:800px){
-  .reviews-head{padding-left:20px;padding-right:20px;margin-bottom:22px}
-  .reviews-track{
-    grid-auto-columns:100%;
-    gap:0;
-    padding:0;
-    scroll-padding-left:0;
-  }
-  .review-card{
-    width:100%;
-    min-height:240px;
-    border-left:0;
-    border-right:0;
-    padding:34px 24px 32px;
-    scroll-snap-align:start;
-  }
-  .review-card blockquote{
-    max-width:none;
-    font-size:16px;
-    line-height:1.75;
-    margin:24px 0 30px;
-  }
-  .reviews-note{padding:0 20px}
-}
-</style>
 <link rel="stylesheet" href="comunidad.css">
-
-<style id="marlon-ego-visual-v1">
-/* Marlon Footwear — EGO-inspired visual language only */
-:root{--mf-black:#111;--mf-muted:#777;--mf-line:#e8e8e8;--mf-white:#fff}
-html,body{background:#fff!important;color:var(--mf-black)}
-body{overflow-x:hidden}
-header,.site-header,.header{background:#fff!important}
-.brand-logo{max-height:58px;width:auto;object-fit:contain}
-nav a,.nav a{font-size:11px!important;letter-spacing:.14em!important;text-transform:uppercase}
-.hero{background:#fff!important}
-.hero-media{min-height:clamp(430px,68vh,760px);background:#fff!important}
-.hero-media img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-copy{text-align:center;padding:30px 20px 42px!important}
-.hero-kicker{font-size:10px!important;letter-spacing:.2em;text-transform:uppercase;color:var(--mf-muted)}
-.hero-tag{font-size:13px!important;letter-spacing:.04em}
-.hero-link{display:inline-flex!important;margin-top:12px;border-bottom:1px solid #111;padding:0 0 7px!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase}
-.catalog-tools{display:flex!important;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid var(--mf-line);border-bottom:1px solid var(--mf-line);padding:14px 0;margin:0 0 28px}
-.catalog-tools select{border:0!important;background:#fff!important;font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;padding:8px 2px;outline:0}
-.product-grid{gap:28px 14px!important}
-.product-card{background:#fff!important;border:0!important}
-.product-card .product-media{background:#f7f7f7;overflow:hidden}
-.product-card img{transition:transform .55s cubic-bezier(.2,.7,.2,1)!important}
-.product-card:hover img{transform:scale(1.035)}
-.product-card .product-info{padding:12px 2px 0!important}
-.product-card .product-name{font-size:12px!important;letter-spacing:.04em}
-.product-card .product-price{font-size:12px!important;margin-top:5px}
-.product-card button,.product-card a{transition:opacity .2s ease,transform .2s ease}
-.product-card:hover .view-product{opacity:1;transform:translateY(0)}
-.view-product{opacity:.72;transform:translateY(2px);font-size:10px!important;letter-spacing:.12em;text-transform:uppercase}
-section{scroll-margin-top:90px}
-@media(max-width:700px){
- .brand-logo{max-height:48px}
- .catalog-tools{margin-bottom:20px;padding:11px 0;overflow:hidden}
- .catalog-tools select{max-width:145px}
- .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px 10px!important}
- .product-card .product-info{padding-top:9px!important}
- .product-card .product-name{font-size:10.5px!important}
- .product-card .product-price{font-size:10.5px!important}
- .hero-media{min-height:58vh}
-}
-</style>
-<style id="marlon-editorial-v2">.collection-head{padding-bottom:24px!important;border-bottom:1px solid #e7e7e7}.collection-head .h-sec{font-size:clamp(28px,4vw,46px)!important;letter-spacing:-.035em!important}.tabs{border-bottom:0!important;display:flex!important;gap:22px!important;overflow:auto;scrollbar-width:none}.tabs button{background:none!important;border:0!important;border-bottom:1px solid transparent!important;border-radius:0!important;padding:17px 0!important;font-size:10px!important;letter-spacing:.12em!important;text-transform:uppercase;white-space:nowrap;color:#777}.tabs button[aria-pressed="true"]{color:#111!important;border-bottom-color:#111!important}</style><style id="marlon-grid-v2">.grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:38px 14px!important;margin-top:22px!important}.grid img{transition:transform .6s cubic-bezier(.2,.7,.2,1)!important}.grid>div:hover img{transform:scale(1.025)}@media(max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:650px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:28px 9px!important;margin-top:18px!important}}</style><style id="marlon-premium-fix-v3">html,body{width:100%;max-width:100%;overflow-x:hidden!important}main,#contenido,.wrap{max-width:100%;min-width:0}.feature-section,.editorial,.cats-wrap{display:none!important}.hero{overflow:hidden}.hero-media{width:100%;overflow:hidden}.hero-media img{object-position:center center}.grid,.card,.card-media,.card-body{min-width:0;max-width:100%}.card-media{overflow:hidden}.pd{width:min(1180px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;overflow-x:hidden!important}.pd-grid{width:100%;max-width:100%;min-width:0}.pd-info{min-width:0;overflow:hidden}.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{display:inline-flex!important}.chip span{min-height:38px;padding:9px 13px;border:1px solid #ddd;background:#fff;display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:border-color .2s,background .2s}.chip input:checked+span{border-color:#111;background:#111;color:#fff}.chip input{position:absolute;opacity:0;pointer-events:none}.sizes{margin-top:10px}.sizes legend{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#777;margin-bottom:8px}.pd-btns{position:relative;z-index:2}@media(max-width:759px){.pd{margin:0!important;width:100%!important;max-width:100%!important}.pd-grid{grid-template-columns:minmax(0,1fr)!important}.pd-info{padding:25px 18px 30px}.pd-info h2{font-size:34px!important}.thumbs{overflow:hidden}.thumb{min-width:0}}<style id="marlon-catalog-rebuild">
-/* Catálogo reconstruido: experiencia editorial y de descubrimiento inspirada en patrones de ecommerce de moda, sin copiar identidad de EGO. */
-.catalog-section{padding-top:clamp(58px,7vw,100px)!important;background:#fff}
-.catalog-wrap{width:min(1440px,100%);margin:0 auto;padding:0 clamp(18px,3vw,48px)}
-.catalog-breadcrumb{display:flex;gap:9px;align-items:center;color:#888;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:28px}
-.catalog-breadcrumb a{text-decoration:none;color:#111}
-.catalog-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #111;padding-bottom:28px}
-.catalog-title{max-width:760px}
-.catalog-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#777;margin-bottom:12px}
-.catalog-title h2{font-family:var(--serif);font-size:clamp(48px,7vw,92px);font-weight:400;line-height:.88;letter-spacing:-.045em;margin:0}
-.catalog-title p{max-width:650px;color:#666;font-size:13px;line-height:1.7;margin-top:20px}
-.catalog-toolbar{display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid #e7e7e7;padding:18px 0}
-.catalog-filters{display:flex;gap:24px;align-items:center;overflow-x:auto;scrollbar-width:none}
-.catalog-filters::-webkit-scrollbar{display:none}
-.catalog-filters button{border:0;background:none;padding:4px 0;color:#777;font-size:10px;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap;position:relative}
-.catalog-filters button[aria-pressed="true"]{color:#111}
-.catalog-filters button[aria-pressed="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#111}
-.catalog-sort{display:flex;align-items:center;gap:9px;flex:none}
-.catalog-sort label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#777}
-.catalog-sort select{appearance:none;border:0;background:#fff;color:#111;font:inherit;font-size:10px;letter-spacing:.08em;padding:5px 18px 5px 2px;outline:none;cursor:pointer}
-.catalog-meta{display:flex;justify-content:space-between;align-items:center;padding:20px 0 26px;gap:20px}
-.catalog-meta .count{margin:0;color:#111;font-size:10px;letter-spacing:.11em;text-transform:uppercase}
-.catalog-note{font-size:11px;color:#999}
-.catalog-section .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:46px 12px!important;margin:0!important}
-.catalog-section .card-media{aspect-ratio:4/5;background:#f7f7f7}
-.catalog-section .card-body{padding-top:11px}
-.catalog-section .card .cat{font-size:9px;letter-spacing:.12em}
-.catalog-section .card h3{font-family:var(--sans);font-size:12px;font-weight:500;line-height:1.25;letter-spacing:.01em}
-.catalog-section .price{font-family:var(--sans);font-size:12px;font-weight:500}
-.catalog-section .card-actions{display:none}
-.catalog-section .card-media::after{content:"VER PRODUCTO";position:absolute;left:12px;bottom:12px;z-index:4;background:#fff;color:#111;padding:8px 10px;font-size:8px;letter-spacing:.13em;opacity:0;transform:translateY(5px);transition:opacity .2s,transform .2s}
-@media(hover:hover) and (pointer:fine){.catalog-section .card-media:hover::after{opacity:1;transform:none}}
-@media(min-width:700px){.catalog-section .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:64px 18px!important}}
-@media(min-width:1120px){.catalog-section .grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:78px 24px!important}}
-@media(max-width:650px){
- .catalog-head{padding-bottom:22px}
- .catalog-title h2{font-size:58px}
- .catalog-title p{font-size:12px;line-height:1.6}
- .catalog-toolbar{align-items:flex-end}
- .catalog-filters{gap:18px;max-width:100%}
- .catalog-sort label{display:none}
- .catalog-sort select{font-size:9px;padding-right:8px}
- .catalog-meta{padding:16px 0 22px}
- .catalog-note{display:none}
- .catalog-section .grid{gap:34px 9px!important}
- .catalog-section .card h3,.catalog-section .price{font-size:11px}
-}
-</style><style id="mf-compact-layout">
-/* MF compact editorial pass — conserva productos y funciones, reduce espacios */
-.section{padding:clamp(42px,5vw,72px) 0}
-.brand-intro{padding:clamp(44px,6vw,82px) var(--gutter)}
-.brand-intro p{font-size:clamp(25px,3.5vw,46px)}
-.sec-head{margin-bottom:24px}
-.collection-head{margin-bottom:22px}
-.feature-section{padding-top:0}
-.feature-grid{gap:10px}
-.editorial{min-height:auto}
-.editorial-media{min-height:48svh}
-.editorial-copy{padding:38px var(--gutter)}
-.cats{gap:6px}
-.about-image{min-height:55svh}
-.contact{padding-top:42px}
-.ig-grid{gap:2px}
-.hero{min-height:auto}
-.hero-media{min-height:58svh}
-.hero-copy{padding:28px var(--gutter) 34px}
-.hero-kicker{margin-bottom:14px}
-.hero-tag{margin:16px 0 22px}
-@media(min-width:820px){
- .hero{min-height:calc(82svh - 78px)}
- .hero-media{min-height:0}
- .hero-copy{padding:42px clamp(28px,4vw,60px)}
- .editorial{min-height:62svh}
- .editorial-media{min-height:62svh}
- .spot{min-height:68svh}
- .spot-media{min-height:68svh}
- .about-image{min-height:62svh}
-}
-</style><style id="mf-tight-catalog">
-/* Catálogo compacto: títulos y productos quedan juntos */
-.catalog-section{padding-top:28px!important;padding-bottom:36px!important}
-.catalog-breadcrumb{margin-bottom:12px}
-.catalog-head{padding-bottom:14px;border-bottom:0}
-.catalog-title h2{font-size:clamp(36px,5vw,64px);line-height:.95}
-.catalog-title p{margin-top:8px;line-height:1.45}
-.catalog-toolbar{padding:10px 0;border-top:1px solid #e7e7e7}
-.catalog-meta{padding:8px 0 14px}
-.catalog-note{display:none}
-.catalog-section .grid{margin-top:0!important;gap:34px 12px!important}
-@media(max-width:650px){
- .catalog-section{padding-top:20px!important}
- .catalog-breadcrumb{margin-bottom:8px}
- .catalog-head{padding-bottom:8px}
- .catalog-title h2{font-size:42px}
- .catalog-title p{margin-top:6px}
- .catalog-toolbar{padding:8px 0}
- .catalog-meta{padding:6px 0 10px}
- .catalog-section .grid{gap:28px 8px!important}
-}
-/* Si se elige una categoría desde el menú, el catálogo queda enfocado en sus productos */
-html{scroll-padding-top:82px}
-</style></head>
+</head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
 
@@ -1390,9 +1205,9 @@ html{scroll-padding-top:82px}
 <section class="hero" id="inicio" aria-labelledby="hero-title">
   <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
   <div class="hero-copy">
-    <p class="hero-kicker">Una forma de presencia</p>
-    <h1 id="hero-title">Camina con intención.</h1>
-    <p class="hero-tag">Diseño que se ve. Presencia que se siente.</p>
+    <p class="hero-kicker">Nueva colección</p>
+    <h1 id="hero-title">Marlon Footwear</h1>
+    <p class="hero-tag">Tacones y plataformas para destacar.</p>
     <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
   </div>
 </section>
@@ -1443,43 +1258,26 @@ html{scroll-padding-top:82px}
   </div>
 </section>
 
-<section class="section catalog-section" id="productos" aria-labelledby="prod-title">
-  <div class="catalog-wrap">
-    <nav class="catalog-breadcrumb" aria-label="Ruta de navegación">
-      <a href="#inicio">Inicio</a><span>·</span><span>Catálogo</span>
-    </nav>
-    <div class="catalog-head reveal">
-      <div class="catalog-title">
-        <p class="catalog-eyebrow">Marlon Footwear</p>
-        <h2 id="prod-title">Colección</h2>
-        <p>Descubre tacones y plataformas diseñados para destacar. Explora la colección completa y abre cada modelo para ver sus detalles.</p>
+<section class="section" id="productos" aria-labelledby="prod-title">
+  <div class="wrap">
+    <div class="collection-head reveal">
+      <div>
+        <p class="hero-kicker" style="margin:0 0 10px">Shop MF</p>
+        <h2 class="h-sec" id="prod-title">Todos los modelos.</h2>
+        <p class="sub">Explora cada silueta, descubre sus detalles y elige cómo quieres comprar.</p>
       </div>
     </div>
-    <div class="catalog-toolbar">
-      <div class="catalog-filters" role="group" aria-label="Filtrar por categoría">
-        <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
-        <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
-        <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
-      </div>
-      <div class="catalog-sort">
-        <label for="sortProducts">Ordenar</label>
-        <select id="sortProducts" aria-label="Ordenar productos">
-          <option value="relevancia">Relevancia</option>
-          <option value="nombre">Nombre</option>
-          <option value="precio-asc">Precio: menor a mayor</option>
-          <option value="precio-desc">Precio: mayor a menor</option>
-        </select>
-      </div>
+    <div class="tabs" role="group" aria-label="Filtrar por categoría">
+      <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
+      <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
+      <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
     </div>
-    <div class="catalog-meta">
-      <p class="count" id="resultCount" role="status" aria-live="polite"></p>
-      <span class="catalog-note">Selecciona un modelo para ver tallas, colores y compra.</span>
-    </div>
+    <p class="count" id="resultCount" role="status" aria-live="polite"></p>
     <div class="grid" id="productGrid"></div>
   </div>
 </section>
 
-<section class="spot" id="destacado" aria-label="Producto destacado" hidden>
+<section class="spot" id="destacado" aria-label="Producto destacado">
   <div class="spot-inner" id="spot"></div>
 </section>
 
@@ -1743,7 +1541,7 @@ html{scroll-padding-top:82px}
     // Fotos de portada, categorías, nosotros e Instagram (las de cada producto están en PRODUCTS > imgs).
     // Para cambiar una, escribe la ruta de otra imagen; si dejas "" se muestra un placeholder.
     slots: {
-      "hero": "assets/026-ff2341dac0.jpg",
+      "hero": "assets/049-3438f6f30c.jpg",
       "cat-tacones": "assets/041-74fa31ee51.jpg",
       "cat-plataformas": "assets/001-cf6101ceaa.jpg",
       "cat-destacada": "assets/026-ff2341dac0.jpg",
@@ -1919,18 +1717,13 @@ html{scroll-padding-top:82px}
   }
 
   /* ---------- Render ---------- */
-  var state = { group: "todos", sort: "relevancia" };
+  var state = { group: "todos" };
 
   function renderGrid() {
     var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; });
-    if (state.sort === "nombre") list.sort(function (a,b) { return a.name.localeCompare(b.name, "es"); });
-    if (state.sort === "precio-asc") list.sort(function (a,b) { return (a.price == null ? Infinity : a.price) - (b.price == null ? Infinity : b.price); });
-    if (state.sort === "precio-desc") list.sort(function (a,b) { return (b.price == null ? -Infinity : b.price) - (a.price == null ? -Infinity : a.price); });
     $("#productGrid").innerHTML = list.map(cardHTML).join("");
     $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos");
-    $("[data-filter]").forEach(function (b) {
-      if (b.dataset.filter) b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false");
-    });
+    $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
   }
   function renderFeatured() {
     $("#featureGrid").innerHTML = CONFIG.collectionIds.map(byId).filter(Boolean).map(featureHTML).join("");
@@ -2175,9 +1968,6 @@ html{scroll-padding-top:82px}
   /* ---------- Eventos globales ---------- */
   function setFilter(g) { state.group = g; renderGrid(); }
 
-  var sortProducts = $("#sortProducts");
-  if (sortProducts) sortProducts.addEventListener("change", function () { state.sort = sortProducts.value; renderGrid(); });
-
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
   });
@@ -2292,8 +2082,8 @@ html{scroll-padding-top:82px}
     <input name="medio_pago">
     <input name="estado">
   </form>
-<script src="comunidad.js" defer></script>
-<script>
+<script src="comunidad.js" defer>
+/* V6 reviews carousel */
 (() => {
   const track = document.getElementById('reviewsTrack');
   const prev = document.getElementById('reviewsPrev');
@@ -2306,6 +2096,7 @@ html{scroll-padding-top:82px}
   prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
   next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
 })();
+
 </script>
 </body>
 </html>
