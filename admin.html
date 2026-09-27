@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — Marlon Footwear</title>
+<style>
+:root{--ink:#111;--muted:#777;--line:#e8e8e8;--paper:#fff;--soft:#f7f7f7;--serif:Georgia,"Times New Roman",serif}
+*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.5 Inter,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.shell{max-width:1400px;margin:auto;padding:22px}
+.login{min-height:100svh;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(420px,100%);padding:34px;border:1px solid var(--line)}
+h1,h2,h3{font-family:var(--serif);font-weight:400}.login h1{font-size:38px;margin:0 0 8px}.muted{color:var(--muted)}
+input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;padding:11px 12px;margin:6px 0 12px}textarea{min-height:110px;resize:vertical}
+.btn{border:1px solid #111;background:#111;color:#fff;padding:11px 16px}.btn.light{background:#fff;color:#111}.btn.danger{border-color:#a22;background:#a22}
+.hidden{display:none!important}
+.app-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-family:var(--serif);font-size:30px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--line);background:#fff;padding:9px 12px}.nav button.active{background:#111;color:#fff;border-color:#111}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);padding:18px}.metric b{display:block;font:400 30px var(--serif);margin-top:4px}
+.panel{background:#fff;border:1px solid var(--line);padding:20px;margin-top:16px}.panel h2{margin:0 0 16px;font-size:26px}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 8px;text-align:left;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.status{display:inline-block;padding:4px 7px;background:var(--soft);font-size:11px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spaced{justify-content:space-between}
+.review{border-top:1px solid var(--line);padding:14px 0}.review:first-child{border-top:0}
+pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monospace;background:var(--soft);padding:12px}
+.toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:12px 15px;display:none;z-index:20}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.shell{padding:14px}.app-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <form class="login-card" id="loginForm">
+    <h1>Admin</h1>
+    <p class="muted">Marlon Footwear · gestión de tienda</p>
+    <input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <button class="btn" style="width:100%">Entrar</button>
+    <p id="loginMsg" class="muted"></p>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <div class="shell">
+    <header class="app-head">
+    <div><div class="brand">Marlon Footwear</div><div class="muted">Panel de administración</div></div>
+    <div class="row"><a class="btn light" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light" id="logout">Salir</button></div>
+    </header>
+    <nav class="nav" id="nav">
+      <button data-view="dashboard" class="active">Resumen</button>
+      <button data-view="orders">Pedidos</button>
+      <button data-view="products">Productos</button>
+      <button data-view="reviews">Reseñas</button>
+      <button data-view="settings">Marca</button>
+      <button data-view="bold">Bold</button>
+    </nav>
+    <main id="content"></main>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",2400)}
+async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok)throw new Error(d.error||"Error");return d}
+function showLogin(){ $("#app").classList.add("hidden");$("#login").classList.remove("hidden"); }
+function showApp(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard"); }
+$("#loginForm").addEventListener("submit",async e=>{e.preventDefault();$("#loginMsg").textContent="";try{await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value})});}catch(_){}});
+async function login(){
+ const r=await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value}),credentials:"same-origin"});
+ const d=await r.json().catch(()=>({}));
+ if(!r.ok){$("#loginMsg").textContent=d.error||"No se pudo iniciar sesión";return}
+ showApp();
+}
+$("#loginForm").onsubmit=e=>{e.preventDefault();login()};
+$("#logout").onclick=async()=>{await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"logout"}),credentials:"same-origin"});showLogin()};
+async function load(view){
+ $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+ const c=$("#content");c.innerHTML='<div class="panel">Cargando…</div>';
+ try{
+  if(view==="dashboard"){const d=await api("/.netlify/functions/admin-api?section=dashboard");c.innerHTML=
+   '<div class="cards"><div class="metric">Pedidos<b>'+d.stats.orders+'</b></div><div class="metric">Pendientes<b>'+d.stats.pending+'</b></div><div class="metric">Pagados<b>'+d.stats.paid+'</b></div><div class="metric">Ingresos<b>'+money(d.stats.revenue)+'</b></div></div>'+
+   '<div class="panel"><h2>Pedidos recientes</h2>'+orderTable(d.recentOrders)+'</div>';return}
+  if(view==="orders"){const d=await api("/.netlify/functions/orders");c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><button class="btn light" onclick="load(\'orders\')">Actualizar</button></div>'+orderTable(d.orders)+'</div>';return}
+  if(view==="products"){const d=await api("/.netlify/functions/admin-api?section=products");c.innerHTML='<div class="panel"><h2>Ajustes de productos</h2><p class="muted">Los 32 productos actuales siguen en el catálogo. Aquí puedes guardar ajustes por ID sin borrar el catálogo original.</p><form id="productForm" class="form-grid"><div><label>ID del producto</label><input name="id" placeholder="ej. mf-01" required></div><div><label>Nombre opcional</label><input name="name"></div><div><label>Precio</label><input name="price" type="number" min="0"></div><div><label>Stock</label><input name="stock" type="number" min="0"></div><div><label>Categoría</label><input name="category" placeholder="Tacones / Plataformas"></div><div class="row" style="align-self:end"><label><input name="active" type="checkbox" checked> Activo</label></div><div class="full"><button class="btn">Guardar ajuste</button></div></form><div class="table-wrap">'+(d.products.length?'<table class="table"><tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Stock</th></tr>'+d.products.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+money(p.price)+'</td><td>'+esc(p.active?'Activo':'Oculto')+'</td><td>'+esc(p.stock??'—')+'</td></tr>').join('')+'</table>':'<p class="muted">Todavía no hay ajustes guardados.</p>')+'</div></div>';
+   $("#productForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-product",id:f.get("id"),name:f.get("name"),price:f.get("price"),stock:f.get("stock"),category:f.get("category"),active:f.get("active")==="on"})});toast("Producto actualizado");load("products")};return}
+  if(view==="reviews"){const d=await api("/.netlify/functions/admin-api?section=reviews");c.innerHTML='<div class="panel"><h2>Reseñas</h2><form id="reviewForm"><div class="form-grid"><div><label>ID</label><input name="id" placeholder="review-01"></div><div><label>Nombre</label><input name="name" required></div><div class="full"><label>Reseña</label><textarea name="text" required></textarea></div><div><label>Calificación</label><select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div><div><label><input name="active" type="checkbox" checked> Visible</label></div></div><button class="btn">Guardar reseña</button></form><div>'+d.reviews.map(r=>'<div class="review"><div class="row spaced"><strong>'+esc(r.name)+'</strong><button class="btn danger" onclick="deleteReview(\''+esc(r.id)+'\')">Eliminar</button></div><div>★★★★★ · '+esc(r.rating)+'/5</div><p>'+esc(r.text)+'</p></div>').join('')+'</div></div>';
+   $("#reviewForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-review",id:f.get("id"),name:f.get("name"),text:f.get("text"),rating:f.get("rating"),active:f.get("active")==="on"})});toast("Reseña guardada");load("reviews")};return}
+  if(view==="settings"){const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';$("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Guardado");};return}
+  if(view==="bold"){c.innerHTML='<div class="panel"><h2>Bold</h2><p class="muted">Consulta un link de pago o una referencia sin exponer la API key en el navegador.</p><form id="boldForm"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."><label>o referencia externa</label><input name="reference" placeholder="MF..."><button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>';$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message}};return}
+ }catch(e){c.innerHTML='<div class="panel"><p>'+esc(e.message)+'</p></div>'}
+}
+function orderTable(rows){if(!rows?.length)return'<p class="muted">No hay pedidos todavía.</p>';return'<div class="table-wrap"><table class="table"><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Pedido</th><th>Acciones</th></tr>'+rows.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt)+'</span></td><td>'+esc(o.name)+'<br>'+esc(o.phone)+'<br>'+esc(o.city)+'</td><td>'+money(o.total)+'</td><td><span class="status">'+esc(o.paymentStatus)+'</span><br>'+esc(o.boldPaymentMethod||o.paymentMethod)+'</td><td><pre>'+esc(o.pedido||"")+'</pre></td><td><select onchange="updateOrder(\''+esc(o.reference)+'\',this.value)"><option value="">Estado…</option><option value="confirmado">Confirmado</option><option value="preparando">Preparando</option><option value="enviado">Enviado</option><option value="entregado">Entregado</option><option value="cancelado">Cancelado</option></select></td></tr>').join('')+'</table></div>'}
+async function updateOrder(ref,status){if(!status)return;await api("/.netlify/functions/orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,status})});toast("Pedido actualizado");load("orders")}
+async function deleteReview(id){if(!confirm("¿Eliminar esta reseña?"))return;await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"delete-review",id})});load("reviews")}
+$$("#nav button").forEach(b=>b.addEventListener("click",()=>load(b.dataset.view)));
+(async()=>{const r=await fetch("/.netlify/functions/admin-auth",{credentials:"same-origin"});if(r.ok)showApp()})();
+</script>
+</body>
+</html>
