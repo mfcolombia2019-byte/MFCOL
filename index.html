@@ -1220,6 +1220,47 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
   .hero,.hero-media{width:100%;max-width:100%}
   .section{width:100%;max-width:100%}
 }
+
+/* ===== HEADER MOBILE ACTIONS — keep search/bag clear of navigation ===== */
+@media(max-width:1023px){
+  .hdr-in{
+    position:relative;
+    grid-template-columns:1fr auto 1fr!important;
+    grid-template-rows:auto auto!important;
+    row-gap:8px;
+  }
+  .hdr .logo{
+    grid-column:2!important;
+    grid-row:1!important;
+    z-index:2;
+  }
+  .hdr .actions{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    align-self:center!important;
+    display:flex!important;
+    gap:10px!important;
+    z-index:5;
+  }
+  .hdr .actions .icon-btn{
+    width:40px!important;
+    height:40px!important;
+    flex:0 0 40px;
+  }
+  .hdr .nav{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    width:100%;
+    padding-right:0!important;
+    z-index:1;
+  }
+  .hdr .nav ul{
+    justify-content:center;
+    gap:14px 22px!important;
+    padding-right:0!important;
+  }
+}
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
