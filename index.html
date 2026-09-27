@@ -1695,6 +1695,57 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   }
 }
 </style>
+<style id="mf-final-wordmark">
+/* Final brand mark: only MARLON FOOTWEAR, small and centered. No signature/symbol. */
+.hdr .logo,
+.menu .logo{
+  justify-content:center!important;
+  align-items:center!important;
+}
+.hdr .brand-wordmark,
+.menu .brand-wordmark{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:baseline!important;
+  justify-content:center!important;
+  gap:.55em!important;
+  color:#111!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  line-height:1!important;
+}
+.hdr .brand-wordmark::before,
+.hdr .brand-wordmark::after,
+.menu .brand-wordmark::before,
+.menu .brand-wordmark::after{
+  display:none!important;
+  content:none!important;
+}
+.hdr .brand-wordmark strong{
+  font-family:var(--serif)!important;
+  font-size:19px!important;
+  font-weight:500!important;
+  letter-spacing:.09em!important;
+  line-height:1!important;
+}
+.hdr .brand-wordmark span{
+  margin:0!important;
+  padding:0!important;
+  font-family:var(--sans)!important;
+  font-size:6.5px!important;
+  font-weight:600!important;
+  letter-spacing:.28em!important;
+  line-height:1!important;
+}
+.menu .brand-wordmark{color:#fff!important}
+.menu .brand-wordmark strong{font-size:18px!important}
+.menu .brand-wordmark span{font-size:6.5px!important;letter-spacing:.28em!important}
+@media(max-width:819px){
+  .hdr .brand-wordmark{gap:.48em!important}
+  .hdr .brand-wordmark strong{font-size:17px!important;letter-spacing:.08em!important}
+  .hdr .brand-wordmark span{font-size:6px!important;letter-spacing:.24em!important}
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
