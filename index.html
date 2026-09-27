@@ -1140,6 +1140,47 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
+
+<style id="marlon-ego-visual-v1">
+/* Marlon Footwear — EGO-inspired visual language only */
+:root{--mf-black:#111;--mf-muted:#777;--mf-line:#e8e8e8;--mf-white:#fff}
+html,body{background:#fff!important;color:var(--mf-black)}
+body{overflow-x:hidden}
+header,.site-header,.header{background:#fff!important}
+.brand-logo{max-height:58px;width:auto;object-fit:contain}
+nav a,.nav a{font-size:11px!important;letter-spacing:.14em!important;text-transform:uppercase}
+.hero{background:#fff!important}
+.hero-media{min-height:clamp(430px,68vh,760px);background:#fff!important}
+.hero-media img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-copy{text-align:center;padding:30px 20px 42px!important}
+.hero-kicker{font-size:10px!important;letter-spacing:.2em;text-transform:uppercase;color:var(--mf-muted)}
+.hero-tag{font-size:13px!important;letter-spacing:.04em}
+.hero-link{display:inline-flex!important;margin-top:12px;border-bottom:1px solid #111;padding:0 0 7px!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase}
+.catalog-tools{display:flex!important;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid var(--mf-line);border-bottom:1px solid var(--mf-line);padding:14px 0;margin:0 0 28px}
+.catalog-tools select{border:0!important;background:#fff!important;font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;padding:8px 2px;outline:0}
+.product-grid{gap:28px 14px!important}
+.product-card{background:#fff!important;border:0!important}
+.product-card .product-media{background:#f7f7f7;overflow:hidden}
+.product-card img{transition:transform .55s cubic-bezier(.2,.7,.2,1)!important}
+.product-card:hover img{transform:scale(1.035)}
+.product-card .product-info{padding:12px 2px 0!important}
+.product-card .product-name{font-size:12px!important;letter-spacing:.04em}
+.product-card .product-price{font-size:12px!important;margin-top:5px}
+.product-card button,.product-card a{transition:opacity .2s ease,transform .2s ease}
+.product-card:hover .view-product{opacity:1;transform:translateY(0)}
+.view-product{opacity:.72;transform:translateY(2px);font-size:10px!important;letter-spacing:.12em;text-transform:uppercase}
+section{scroll-margin-top:90px}
+@media(max-width:700px){
+ .brand-logo{max-height:48px}
+ .catalog-tools{margin-bottom:20px;padding:11px 0;overflow:hidden}
+ .catalog-tools select{max-width:145px}
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px 10px!important}
+ .product-card .product-info{padding-top:9px!important}
+ .product-card .product-name{font-size:10.5px!important}
+ .product-card .product-price{font-size:10.5px!important}
+ .hero-media{min-height:58vh}
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
