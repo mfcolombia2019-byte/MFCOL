@@ -2078,7 +2078,8 @@ section{scroll-margin-top:90px}
   /* ---------- Eventos globales ---------- */
   function setFilter(g) { state.group = g; renderGrid(); }
 
-  var sortProducts = $("#sortProducts");\n  if (sortProducts) sortProducts.addEventListener("change", function () { state.sort = sortProducts.value; renderGrid(); });
+  var sortProducts = $("#sortProducts");
+  if (sortProducts) sortProducts.addEventListener("change", function () { state.sort = sortProducts.value; renderGrid(); });
 
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
