@@ -1137,6 +1137,60 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   .review-card blockquote{font-size:14px}
 }
 
+
+/* ===== MARLON / EGO-INSPIRED VISUAL LAYER — structure untouched ===== */
+:root{--mf-black:#0a0a0a;--mf-line:#e7e7e7;--mf-soft:#f7f7f7}
+html{scroll-behavior:smooth}
+body{background:#fff;color:var(--mf-black)}
+.hdr{background:rgba(255,255,255,.97);border-bottom:1px solid var(--mf-line);z-index:1000}
+.hdr-in{height:auto;min-height:108px;padding:14px 24px 12px;display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto;align-items:center}
+.hdr .brand-logo{grid-column:2;grid-row:1;width:128px!important;margin:0 auto 10px}
+.hdr .nav{grid-column:1/-1;grid-row:2;display:block!important;padding:0!important}
+.hdr .nav ul{justify-content:center;gap:30px;flex-wrap:wrap}
+.hdr .nav a{font-size:10px!important;letter-spacing:.14em!important;color:#111}
+.hero{min-height:calc(100svh - 108px);height:min(86svh,900px);background:#fff}
+.hero-media img{object-fit:cover;object-position:center center}
+.hero-media:after{background:linear-gradient(90deg,rgba(0,0,0,.34),rgba(0,0,0,.06) 52%,transparent 78%)}
+.hero-copy{max-width:620px;padding:56px clamp(24px,6vw,88px);justify-content:flex-end}
+.hero-kicker{font-size:9px;letter-spacing:.22em}
+.hero h1{font-size:clamp(56px,8vw,108px);letter-spacing:-.055em}
+.hero-tag{font-size:14px;margin:18px 0 24px}
+.hero-link{font-size:10px;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:8px}
+.section{padding-block:clamp(68px,9vw,120px)}
+.section-head,.collection-head,.reviews-head{margin-bottom:34px}
+.h-sec{font-size:clamp(34px,5vw,62px);letter-spacing:-.045em;font-weight:400}
+.collection-head{display:flex;justify-content:space-between;align-items:end;gap:24px}
+.collection-head .section-intro{max-width:520px}
+.tabs{gap:24px;margin-bottom:30px;border-bottom:1px solid #111}
+.grid{gap:48px 14px}
+.card{min-width:0}
+.card-media{background:#f5f5f5;aspect-ratio:4/5;overflow:hidden}
+.card-media .media img{transition:transform .8s cubic-bezier(.2,.65,.2,1),opacity .45s ease}
+.card:hover .card-media .media img{transform:scale(1.025)}
+.card-info{padding-top:13px}
+.card-name{font-size:13px;letter-spacing:.01em}
+.card-price{font-size:11px;color:#666}
+.cats{gap:4px}
+.cat-tile .r45{aspect-ratio:1/1.15}
+.reviews{border-top:1px solid var(--mf-line);border-bottom:1px solid var(--mf-line)}
+.reviews-track{grid-auto-columns:minmax(280px,32%);gap:14px}
+.review-card{border:1px solid var(--mf-line);background:#fff;padding:28px;min-height:210px;transition:transform .35s ease}
+.review-card:hover{transform:translateY(-4px)}
+.instagram-grid{gap:4px}
+.footer{margin-top:0}
+@media(max-width:759px){
+ .hdr-in{min-height:104px;padding:12px 16px 10px}
+ .hdr .brand-logo{width:112px!important;margin-bottom:8px}
+ .hdr .nav ul{gap:15px 18px}
+ .hdr .nav a{font-size:8px!important;letter-spacing:.11em!important}
+ .hero{height:calc(100svh - 104px);min-height:600px}
+ .hero-copy{padding:34px 20px 44px}
+ .hero h1{font-size:clamp(48px,15vw,76px)}
+ .section{padding-block:62px}
+ .collection-head{display:block}
+ .grid{gap:34px 10px}
+ .reviews-track{grid-auto-columns:86%;gap:12px}
+}
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
