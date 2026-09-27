@@ -1296,6 +1296,15 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:56px 20px}
 }
 </style>
+<style id="mf-image-placeholder-fix">
+/* Fix: product photos were loading correctly but the fallback "Foto pendiente"
+   remained layered above them. The placeholder now disappears only when an
+   actual image is present; if the image fails, the placeholder remains. */
+.media:has(> img) > .ph{display:none!important}
+.media > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.media > .ph{z-index:0}
+.media > .media-b{z-index:2}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
