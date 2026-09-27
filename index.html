@@ -1547,34 +1547,47 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
   }
 }
 
-/* Header brand name beside the logo mark. */
+/* Header — centered MARLON FOOTWEAR wordmark, no symbol */
 .hdr .logo{
   display:flex!important;
   align-items:center!important;
-  gap:10px!important;
+  justify-content:center!important;
+  gap:0!important;
   overflow:visible!important;
 }
-.hdr .brand-logo-black{
-  clip-path:none!important;
-  margin-bottom:0!important;
-  width:82px!important;
+.hdr .brand-wordmark{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  color:#111!important;
+  white-space:nowrap!important;
+  text-align:center!important;
 }
-.hdr .logo::after{
-  content:"MARLON FOOTWEAR";
-  font-family:var(--mf-heading,var(--sans));
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:.12em;
-  line-height:1;
-  white-space:nowrap;
-  color:#111;
+.hdr .brand-wordmark strong{
+  font-family:var(--serif)!important;
+  font-size:25px!important;
+  font-weight:500!important;
+  letter-spacing:.14em!important;
+  line-height:.9!important;
 }
-@media(max-width:560px){
-  .hdr .logo{gap:7px!important}
-  .hdr .brand-logo-black{width:68px!important}
-  .hdr .logo::after{font-size:8px;letter-spacing:.09em}
+.hdr .brand-wordmark span{
+  margin-top:7px!important;
+  font-family:var(--mf-body,var(--sans))!important;
+  font-size:8px!important;
+  font-weight:700!important;
+  letter-spacing:.42em!important;
+  line-height:1!important;
+  padding-left:.42em!important;
 }
-</style>
+.menu .brand-wordmark{color:#fff!important}
+.menu .brand-wordmark strong{font-size:24px!important}
+.menu .brand-wordmark span{font-size:8px!important}
+@media(max-width:819px){
+  .hdr .brand-wordmark strong{font-size:20px!important}
+  .hdr .brand-wordmark span{font-size:7px!important;letter-spacing:.34em!important;padding-left:.34em!important}
+}</style>
 <style id="mf-hero-rebuild">
 /* Hero rebuild: product-led, modern, no lifestyle feet. */
 .hero{
@@ -1695,7 +1708,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
     </button>
 
     <a class="logo" href="#inicio" aria-label="Marlon Footwear, ir al inicio">
-      <img class="brand-logo brand-logo-black" src="assets/marlon-logo-black.png" alt="Marlon Footwear">
+      <span class="brand-wordmark" aria-hidden="true"><strong>MARLON</strong><span>FOOTWEAR</span></span>
     </a>
 
     <nav class="nav" aria-label="Principal">
@@ -1723,7 +1736,7 @@ h1,h2,h3,h4,h5,h6,.hero h1,.h-sec,.fcard h3,.card h3,.spot h2,.about p.lead,.con
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú">
   <div class="menu-top">
     <a class="logo" href="#inicio" data-menu-close aria-label="Marlon Footwear, ir al inicio">
-      <img class="brand-logo brand-logo-white" src="assets/marlon-logo-white.png" alt="Marlon Footwear">
+      <span class="brand-wordmark brand-wordmark-light" aria-hidden="true"><strong>MARLON</strong><span>FOOTWEAR</span></span>
     </a>
     <button class="icon-btn" id="menuClose" type="button" aria-label="Cerrar menú">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
