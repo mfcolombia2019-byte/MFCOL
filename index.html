@@ -1261,6 +1261,76 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
     padding-right:0!important;
   }
 }
+
+/* ===== CATALOG / EGO-LIKE SHOP CONTROLS ===== */
+.catalog-tools{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:24px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:18px;
+}
+.catalog-tools .tabs{
+  border-bottom:0;
+  margin-bottom:0;
+  flex:1;
+}
+.sort-control{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex:0 0 auto;
+  padding-bottom:11px;
+}
+.sort-control span{
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#777;
+}
+.sort-control select{
+  appearance:none;
+  border:0;
+  background:#fff;
+  color:#111;
+  font:inherit;
+  font-size:11px;
+  min-width:118px;
+  padding:0 18px 0 0;
+  outline:0;
+  cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,#111 50%),linear-gradient(135deg,#111 50%,transparent 50%);
+  background-position:calc(100% - 8px) 5px,calc(100% - 3px) 5px;
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
+}
+.card-body{min-height:70px}
+.card-link{
+  grid-column:1/-1;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#777;
+  opacity:0;
+  transform:translateY(3px);
+  transition:opacity .25s ease,transform .25s ease;
+}
+.card:hover .card-link,.fcard:hover .card-link{opacity:1;transform:none}
+@media(max-width:719px){
+  .catalog-tools{align-items:stretch;display:block;margin-bottom:14px}
+  .catalog-tools .tabs{overflow-x:auto;scrollbar-width:none;gap:24px}
+  .catalog-tools .tabs::-webkit-scrollbar{display:none}
+  .catalog-tools .tabs button{white-space:nowrap}
+  .sort-control{
+    border-top:1px solid var(--line);
+    margin-top:2px;
+    padding:12px 0;
+    justify-content:space-between;
+  }
+  .sort-control select{font-size:11px}
+  .count{margin-bottom:20px}
+}
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
@@ -1391,10 +1461,21 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
         <p class="sub">Explora cada silueta, descubre sus detalles y elige cómo quieres comprar.</p>
       </div>
     </div>
-    <div class="tabs" role="group" aria-label="Filtrar por categoría">
-      <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
-      <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
-      <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
+    <div class="catalog-tools">
+      <div class="tabs" role="group" aria-label="Filtrar por categoría">
+        <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
+        <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
+        <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
+      </div>
+      <label class="sort-control">
+        <span>Ordenar</span>
+        <select id="sortProducts" aria-label="Ordenar productos">
+          <option value="relevance">Relevancia</option>
+          <option value="price-low">Precio: menor a mayor</option>
+          <option value="price-high">Precio: mayor a menor</option>
+          <option value="name">Nombre</option>
+        </select>
+      </label>
     </div>
     <p class="count" id="resultCount" role="status" aria-live="polite"></p>
     <div class="grid" id="productGrid"></div>
@@ -1841,13 +1922,16 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
   }
 
   /* ---------- Render ---------- */
-  var state = { group: "todos" };
+  var state = { group: "todos", sort: "relevance" };
 
   function renderGrid() {
-    var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; });
+    var list = PRODUCTS.filter(function (p) { return state.group === "todos" || p.group === state.group; }).slice();
+    if (state.sort === "price-low") list.sort(function(a,b){ return (a.price == null ? Infinity : a.price) - (b.price == null ? Infinity : b.price); });
+    if (state.sort === "price-high") list.sort(function(a,b){ return (b.price == null ? -Infinity : b.price) - (a.price == null ? -Infinity : a.price); });
+    if (state.sort === "name") list.sort(function(a,b){ return a.name.localeCompare(b.name, "es", {sensitivity:"base"}); });
     $("#productGrid").innerHTML = list.map(cardHTML).join("");
     $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos");
-    $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
+    $(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
   }
   function renderFeatured() {
     $("#featureGrid").innerHTML = CONFIG.collectionIds.map(byId).filter(Boolean).map(featureHTML).join("");
@@ -2091,6 +2175,11 @@ main,.hdr,.footer,.section,.hero,.cats-wrap,.collection,.reviews{
 
   /* ---------- Eventos globales ---------- */
   function setFilter(g) { state.group = g; renderGrid(); }
+
+  $("#sortProducts").addEventListener("change", function () {
+    state.sort = this.value;
+    renderGrid();
+  });
 
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
