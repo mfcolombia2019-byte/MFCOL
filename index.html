@@ -1139,6 +1139,49 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 
 </style>
 
+<style id="mf-hero-reviews-refinement">
+/* Portada: mensaje de marca, sin repetir el nombre en el hero */
+.hero-copy{align-items:center!important;text-align:center!important}
+.hero-copy .hero-kicker{margin-bottom:16px!important}
+.hero-copy h1{max-width:9ch!important}
+.hero-copy .hero-tag{max-width:30ch!important;margin:20px 0 26px!important}
+
+/* Opiniones: carrusel editorial de ancho completo en teléfono */
+.reviews{padding-left:0!important;padding-right:0!important;overflow:hidden}
+.reviews .wrap{max-width:none!important;padding-left:0!important;padding-right:0!important}
+.reviews-head{padding-left:var(--gutter);padding-right:var(--gutter)}
+.reviews-track{
+  width:100%;
+  grid-auto-columns:calc((100% - 32px)/3);
+  padding:2px var(--gutter) 14px;
+  gap:16px;
+}
+.review-card{border:1px solid #e4e4e4;border-radius:0}
+@media(max-width:800px){
+  .reviews-head{padding-left:20px;padding-right:20px;margin-bottom:22px}
+  .reviews-track{
+    grid-auto-columns:100%;
+    gap:0;
+    padding:0;
+    scroll-padding-left:0;
+  }
+  .review-card{
+    width:100%;
+    min-height:240px;
+    border-left:0;
+    border-right:0;
+    padding:34px 24px 32px;
+    scroll-snap-align:start;
+  }
+  .review-card blockquote{
+    max-width:none;
+    font-size:16px;
+    line-height:1.75;
+    margin:24px 0 30px;
+  }
+  .reviews-note{padding:0 20px}
+}
+</style>
 <link rel="stylesheet" href="comunidad.css">
 
 <style id="marlon-ego-visual-v1">
@@ -1347,9 +1390,9 @@ html{scroll-padding-top:82px}
 <section class="hero" id="inicio" aria-labelledby="hero-title">
   <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
   <div class="hero-copy">
-    <p class="hero-kicker">Nueva colección</p>
-    <h1 id="hero-title">Marlon Footwear</h1>
-    <p class="hero-tag">Tacones y plataformas para destacar.</p>
+    <p class="hero-kicker">Una forma de presencia</p>
+    <h1 id="hero-title">Camina con intención.</h1>
+    <p class="hero-tag">Diseño que se ve. Presencia que se siente.</p>
     <a class="hero-link" href="#productos" data-filter="todos">Ver colección&nbsp; →</a>
   </div>
 </section>
