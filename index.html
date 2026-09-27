@@ -1140,6 +1140,106 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 </style>
 
 <link rel="stylesheet" href="comunidad.css">
+
+<!-- MARLON / WRONG-INSPIRED VISUAL SYSTEM -->
+<style>
+/* Editorial direction inspired by the public visual language of Outsiders/Wrong.
+   Original Marlon structure, products, checkout and functions remain untouched. */
+:root{
+  --wrong-ink:#0a0a0a;
+  --wrong-paper:#f4f1eb;
+  --wrong-acid:#d9ff3f;
+  --wrong-red:#ff3b30;
+  --max:1540px;
+  --gutter:clamp(14px,2.2vw,34px);
+}
+body{background:var(--wrong-paper);color:var(--wrong-ink);font-family:var(--sans);overflow-x:hidden}
+.top{background:var(--wrong-ink);font-size:9px;letter-spacing:.18em;padding:8px var(--gutter)}
+.hdr{background:var(--wrong-paper);border-bottom:1px solid #111;backdrop-filter:none}
+.hdr-in{height:72px}
+.logo-brand{font-family:var(--serif);font-size:25px;letter-spacing:-.04em;text-transform:uppercase}
+.nav ul{gap:24px}
+.nav a{font-size:10px;letter-spacing:.14em}
+.actions .icon-btn{width:38px;height:38px}
+.hero{position:relative;display:block;min-height:calc(100svh - 72px);background:var(--wrong-ink);overflow:hidden}
+.hero-media{position:absolute;inset:0;min-height:100%;z-index:0}
+.hero-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1) 45%,rgba(0,0,0,.58));pointer-events:none}
+.hero-media img{object-position:center;filter:saturate(.82) contrast(1.05)}
+.hero-copy{position:absolute;inset:0;z-index:2;display:flex;justify-content:flex-end;align-items:flex-start;padding:clamp(90px,13vw,180px) var(--gutter) clamp(34px,5vw,80px);color:#fff;pointer-events:none}
+.hero-copy>*{pointer-events:auto}
+.hero-kicker{font-size:9px;letter-spacing:.2em;border:1px solid rgba(255,255,255,.65);padding:7px 10px;margin-bottom:22px;background:rgba(0,0,0,.16)}
+.hero h1{font-size:clamp(72px,12vw,180px);max-width:7ch;line-height:.78;letter-spacing:-.07em;text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.1)}
+.hero-tag{color:#fff;max-width:30ch;font-size:13px;line-height:1.35;margin:25px 0}
+.hero-copy .btn{border-color:#fff;background:#fff;color:#111}
+.hero-copy .btn:hover{background:var(--wrong-acid);border-color:var(--wrong-acid);color:#111}
+.brand-intro{background:var(--wrong-paper);padding:clamp(72px,10vw,150px) var(--gutter)}
+.brand-intro p{font-size:clamp(34px,6vw,82px);max-width:15ch;letter-spacing:-.055em;text-transform:uppercase}
+.sec-head{margin-bottom:26px}
+.h-sec{font-size:clamp(42px,7vw,94px);letter-spacing:-.055em;text-transform:uppercase}
+.sub{font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.feature-section,.cats-wrap,.collection,.about,.support,.ig,.contact{background:var(--wrong-paper)}
+.feature-grid{gap:5px}
+.fcard{background:#fff}
+.fcard-media{background:#fff}
+.fcard-body{padding:12px 12px 16px}
+.fcard h3,.card h3{font-family:var(--sans);font-weight:600;text-transform:uppercase;letter-spacing:-.03em}
+.fcard h3{font-size:17px}
+.fcard .meta,.card .cat{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.fcard-btns .btn,.card-actions .btn{font-size:9px;letter-spacing:.14em}
+.editorial{background:var(--wrong-ink);color:#fff;grid-template-columns:1.6fr .4fr}
+.editorial-media{filter:grayscale(.18) contrast(1.06)}
+.editorial-copy{padding:clamp(36px,6vw,90px) var(--gutter)}
+.editorial-copy h2{font-size:clamp(46px,8vw,110px);letter-spacing:-.06em;text-transform:uppercase}
+.editorial-copy p{color:#bbb;font-size:12px}
+.cats{gap:4px}
+.cat-tile::after{background:linear-gradient(0deg,rgba(0,0,0,.62),transparent 55%)}
+.cat-name{font-family:var(--sans);font-weight:600;font-size:clamp(22px,4vw,52px);letter-spacing:-.045em;text-transform:uppercase}
+.collection-head{border-top:1px solid #111;padding-top:14px}
+.tabs{gap:18px;border-bottom:1px solid #111}
+.tabs button{font-size:9px;letter-spacing:.15em}
+.grid{gap:28px 5px}
+.card{background:#fff}
+.card-body{padding:10px 10px 14px}
+.card h3{font-size:clamp(15px,1.7vw,21px)}
+.price{font-size:11px}
+.tag{top:6px;left:6px;background:var(--wrong-acid);font-weight:600}
+.media{background:#e7e2d8}
+.card-media img,.fcard-media img{mix-blend-mode:multiply}
+.card-media:hover img,.fcard-media:hover img{transform:scale(1.035) rotate(-.35deg)}
+.spot{background:var(--wrong-ink)}
+.spot h2{font-family:var(--sans);font-weight:600;text-transform:uppercase;letter-spacing:-.055em}
+.spot .price{font-family:var(--sans);font-weight:600}
+.about-grid{gap:5px}
+.about-copy{background:var(--wrong-acid);padding:clamp(28px,4vw,60px)}
+.about p.lead{font-family:var(--sans);font-weight:600;font-size:clamp(34px,5vw,68px);letter-spacing:-.055em;text-transform:uppercase}
+.about-image{background:#111}
+.steps-inline{border-color:#111}
+.steps-inline li{padding:18px 12px;border-right:1px solid #111}
+.steps-inline b{font-family:var(--sans);font-weight:600;text-transform:uppercase}
+.ig-grid{gap:3px}
+.contact{border-top:1px solid #111}
+.contact h2.brand{font-family:var(--sans);font-weight:600;text-transform:uppercase;letter-spacing:-.06em}
+.footer{background:var(--wrong-ink)}
+.footer .logo-brand{font-family:var(--sans);font-weight:600}
+@media(min-width:820px){
+  .hero-copy{align-items:center;padding-top:0}
+  .hero h1{max-width:8ch}
+}
+@media(max-width:819px){
+  .hero{min-height:calc(100svh - 72px)}
+  .hero-copy{padding:80px var(--gutter) 36px;justify-content:flex-end}
+  .hero h1{font-size:clamp(60px,18vw,112px)}
+  .editorial{grid-template-columns:1fr}
+  .editorial-copy{min-height:48svh}
+}
+@media(hover:hover) and (pointer:fine){
+  .cat-tile:hover .r45{transform:scale(1.04) rotate(-.3deg)}
+  .fcard:hover,.card:hover{z-index:2}
+}
+@media(prefers-reduced-motion:reduce){
+  .card-media:hover img,.fcard-media:hover img,.cat-tile:hover .r45{transform:none}
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
