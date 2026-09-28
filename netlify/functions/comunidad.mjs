@@ -1,7 +1,7 @@
 // netlify/functions/comunidad.mjs
 // API de "Comunidad Marlon": reseñas, fotos, moderación y enlaces de compra verificada.
 // Almacenamiento: Netlify Blobs.
-// Requiere la variable de entorno ADMIN_KEY para las acciones privadas.
+// Usa la misma clave de administración configurada en Netlify (ADMIN_PASSWORD).
 
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
@@ -14,7 +14,8 @@ const TK = /^[a-f0-9]{24}$/;
 export default async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "";
-  const admin = !!process.env.ADMIN_KEY && req.headers.get("x-admin-key") === process.env.ADMIN_KEY;
+  const ADMIN_KEY = String(process.env.ADMIN_PASSWORD || process.env.ADMIN_KEY || "");
+  const admin = !!ADMIN_KEY && req.headers.get("x-admin-key") === ADMIN_KEY;
   const posts = getStore("comunidad-posts");
   const photos = getStore("comunidad-fotos");
   const tokens = getStore("comunidad-tokens");
