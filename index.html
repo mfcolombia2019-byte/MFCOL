@@ -2769,16 +2769,99 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && menu.classList.contains("open")) setMenu(false); });
   window.matchMedia("(min-width:1024px)").addEventListener("change", function (m) { if (m.matches && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); } });
 
-  /* ---------- Búsqueda ---------- */
+  /* ---------- Búsqueda · motor por palabras clave ---------- */
   var sd = $("#sd"), sdInput = $("#sdInput"), sdList = $("#sdList");
-  $("#searchOpen").addEventListener("click", function () { sdInput.value = ""; sdList.innerHTML = ""; openDlg(sd); sdInput.focus(); });
+
+  function searchText(p) {
+    return norm([
+      p.name || "",
+      p.cat || "",
+      p.group || "",
+      p.desc || "",
+      Array.isArray(p.colors) ? p.colors.join(" ") : "",
+      Array.isArray(p.facts) ? p.facts.join(" ") : ""
+    ].join(" "));
+  }
+
+  function editDistance(a, b) {
+    if (a === b) return 0;
+    if (!a) return b.length;
+    if (!b) return a.length;
+    var prev = [], cur = [], i, j, cost;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur[0] = i;
+      for (j = 1; j <= b.length; j++) {
+        cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(
+          cur[j - 1] + 1,
+          prev[j] + 1,
+          prev[j - 1] + cost
+        );
+      }
+      var tmp = prev; prev = cur; cur = tmp;
+    }
+    return prev[b.length];
+  }
+
+  function keywordMatchScore(p, query) {
+    var text = searchText(p);
+    var words = text.split(/[^a-z0-9]+/).filter(Boolean);
+    var tokens = norm(query).split(/\s+/).filter(Boolean);
+    if (!tokens.length) return 0;
+
+    var score = 0;
+    tokens.forEach(function (token) {
+      if (text.indexOf(token) > -1) {
+        score += 100;
+        return;
+      }
+
+      var best = 0;
+      words.forEach(function (word) {
+        if (word.indexOf(token) > -1 || token.indexOf(word) > -1) {
+          best = Math.max(best, 55);
+          return;
+        }
+        var maxDist = token.length <= 4 ? 1 : token.length <= 7 ? 2 : 3;
+        if (Math.abs(word.length - token.length) <= maxDist && editDistance(token, word) <= maxDist) {
+          best = Math.max(best, 35);
+        }
+      });
+      score += best;
+    });
+
+    /* Todas las palabras deben encontrar algo para que sea un resultado relevante. */
+    if (score < tokens.length * 35) return 0;
+    if (tokens.length > 1 && text.indexOf(tokens.join(" ")) > -1) score += 80;
+    if (norm(p.name || "").indexOf(norm(query)) > -1) score += 120;
+    return score;
+  }
+
+  $("#searchOpen").addEventListener("click", function () {
+    sdInput.value = "";
+    sdList.innerHTML = "";
+    openDlg(sd);
+    sdInput.focus();
+  });
+
   sdInput.addEventListener("input", function () {
-    var q = norm(sdInput.value.trim());
+    var q = sdInput.value.trim();
     if (!q) { sdList.innerHTML = ""; return; }
-    var res = PRODUCTS.filter(function (p) { return norm(p.name + " " + p.cat + " " + p.desc).indexOf(q) > -1; }).slice(0, 8);
+
+    var res = PRODUCTS.map(function (p) {
+      return { p:p, score:keywordMatchScore(p, q) };
+    }).filter(function (x) {
+      return x.score > 0;
+    }).sort(function (a,b) {
+      return b.score - a.score;
+    }).slice(0, 8).map(function (x) {
+      return x.p;
+    });
+
     sdList.innerHTML = res.length ? res.map(function (p) {
       return '<li><button type="button" data-view="' + p.id + '"><span><strong>' + esc(p.name) + "</strong><small>" + esc(p.cat) + "</small></span><span>" + (p.price != null ? fmt(p.price) : "Por confirmar") + "</span></button></li>";
-    }).join("") : '<li class="sd-msg">No encontramos modelos con esa búsqueda. Prueba con otra palabra o escríbenos por WhatsApp.</li>';
+    }).join("") : '<li class="sd-msg">No encontramos modelos con esas palabras. Prueba con color, tipo, material o una palabra parecida.</li>';
   });
 
   /* ---------- Eventos globales ---------- */
