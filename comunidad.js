@@ -178,11 +178,23 @@
   // Enlace post-compra: /comunidad.html?t=TOKEN (lo generas en /moderar.html).
   var box = $("#cmToken");
   if (TOKEN && box) {
-    fetch(API + "?action=token&t=" + encodeURIComponent(TOKEN)).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); }).then(function (x) {
-      box.hidden = false;
-      if (!x.ok) { box.innerHTML = "<p>" + esc(x.d.error || "Este enlace no es válido.") + "</p>"; return; }
+    // El bloque post-compra debe ser visible de inmediato. La validación del token
+    // se hace en segundo plano para evitar que un fallo de red/API o una caché
+    // oculte por completo las opciones de la clienta.
+    box.hidden = false;
+    fetch(API + "?action=token&t=" + encodeURIComponent(TOKEN), { cache: "no-store" }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; });
+    }).then(function (x) {
+      if (!x.ok || !Array.isArray(x.d.products) || !x.d.products.length) {
+        var msg = x.d.error || "No pudimos validar este enlace de compra.";
+        box.querySelector(".cm-token-copy").textContent = msg;
+        return;
+      }
       tokenProducts = x.d.products;
-    }).catch(function () {});
+    }).catch(function () {
+      var copy = box.querySelector(".cm-token-copy");
+      if (copy) copy.textContent = "No pudimos validar el enlace en este momento. Recarga la página e inténtalo de nuevo.";
+    });
   }
 
   fetch(API + "?action=public").then(function (r) { return r.ok ? r.json() : []; }).then(function (d) { DATA = d; render(); decorate(); }).catch(function () {});
