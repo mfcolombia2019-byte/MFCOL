@@ -2478,7 +2478,9 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
     $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
   }
   function renderFeatured() {
-    $("#featureGrid").innerHTML = CONFIG.collectionIds.map(byId).filter(Boolean).map(featureHTML).join("");
+    var grid = $("#featureGrid");
+    if (!grid) return;
+    grid.innerHTML = CONFIG.collectionIds.map(byId).filter(Boolean).map(featureHTML).join("");
   }
   function renderSpot() {
     var p = byId(CONFIG.spotlightId) || PRODUCTS[0]; if (!p) return;
