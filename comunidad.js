@@ -140,7 +140,7 @@
     if (file && !f.elements.consent.checked) { err.textContent = "Necesitamos tu autorización para usar la fotografía."; return; }
     if (!look && !f.elements.text.value.trim()) { err.textContent = "Escribe una pequeña reseña."; return; }
     err.textContent = ""; btn.disabled = true; btn.textContent = "Enviando…";
-    (look ? resize(file) : Promise.resolve(null)).then(function (blob) {
+    (file ? resize(file) : Promise.resolve(null)).then(function (blob) {
       var fd = new FormData();
       fd.append("product", sel.value); fd.append("productName", sel.options[sel.selectedIndex].textContent);
       fd.append("rating", rating); fd.append("text", f.elements.text.value); fd.append("empresa", f.elements.empresa.value); fd.append("token", TOKEN);
