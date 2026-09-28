@@ -400,7 +400,7 @@ dialog[open]{animation:dialogIn .22s ease}
 .pd-info .swatch{width:15px!important;height:15px!important;border-radius:50%!important;margin-right:7px}
 .pd-btns{display:grid!important;grid-template-columns:1fr 58px;gap:10px!important;margin-top:24px!important}
 .pd-primary{height:54px!important;font-size:11px!important;letter-spacing:.13em!important}
-.pd-heart{height:54px;border:1px solid #111;background:#fff;font-size:27px;cursor:pointer}
+.pd-heart{height:54px;border:1px solid #111;background:#fff;font-size:27px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
 .pd-benefits{
   display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
   margin-top:25px;padding-top:22px;border-top:1px solid #ddd
@@ -2593,10 +2593,21 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   function closeDlg(d) { if (d.close) d.close(); else d.removeAttribute("open"); }
   function closeAllDlg() { $$("dialog[open]").forEach(closeDlg); }
 
+  function getFavorites() {
+    try { return JSON.parse(localStorage.getItem("mf_favorites") || "[]"); } catch (e) { return []; }
+  }
+  function isFavorite(id) { return getFavorites().indexOf(id) > -1; }
+  function toggleFavorite(id) {
+    var favs = getFavorites(), i = favs.indexOf(id);
+    if (i > -1) favs.splice(i, 1); else favs.push(id);
+    try { localStorage.setItem("mf_favorites", JSON.stringify(favs)); } catch (e) {}
+    return favs.indexOf(id) > -1;
+  }
+
   function openProduct(id, mustPickSize) {
     var p = byId(id); if (!p) return;
     closeAllDlg();
-    var pd = $("#pd"), pending = p.price == null;
+    var pd = $("#pd"), pending = p.price == null; pd.dataset.product = p.id;
     var related = PRODUCTS.filter(function(x){ return x.id !== p.id; }).slice(0,4);
     pd.innerHTML =
       '<div class="pd-top">' +
@@ -2615,7 +2626,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
         '<p class="hint" role="status"></p>' +
         (pending ? "" : '<div class="pd-qty"><span class="pd-qty-label">Cantidad</span><div class="qty"><button type="button" data-qty-step="-1" aria-label="Quitar una unidad">−</button><span data-qty-val aria-live="polite">1</span><button type="button" data-qty-step="1" aria-label="Agregar una unidad">+</button></div></div>') +
         '<div class="pd-btns"><button class="btn btn-solid pd-primary" type="button" data-buy>' + (pending ? "Consultar por WhatsApp" : "Añadir al carrito") + '</button>' +
-        (pending ? "" : '<button class="pd-heart" type="button" aria-label="Guardar producto">♡</button>') + '</div>' +
+        (pending ? "" : '<button class="pd-heart' + (isFavorite(p.id) ? " is-saved" : "") + '" type="button" aria-label="' + (isFavorite(p.id) ? "Quitar de favoritos" : "Guardar producto") + '" aria-pressed="' + (isFavorite(p.id) ? "true" : "false") + '">' + (isFavorite(p.id) ? "♥" : "♡") + '</button>') + '</div>' +
         '<div class="pd-benefits"><div><b>▱</b><span>Envíos seguros<br>a todo Colombia</span></div><div><b>✓</b><span>Pagos 100%<br>seguros</span></div><div><b>□</b><span>No cambios<br>ni devoluciones</span></div></div>' +
       '</div></div>' +
       '<section class="pd-related"><div class="pd-related-head"><h3>También te puede gustar</h3><span></span><div class="pd-arrows"><button type="button" aria-label="Anterior">←</button><button type="button" aria-label="Siguiente">→</button></div></div>' +
@@ -2881,12 +2892,20 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) setFilter(el.dataset.filter);
 
       if (el.dataset.view) { openProduct(el.dataset.view, el.hasAttribute("data-need-size")); return; }
+      if (el.matches(".pd-heart")) {
+        var saved = toggleFavorite($("#pd").dataset.product || "");
+        el.classList.toggle("is-saved", saved);
+        el.setAttribute("aria-pressed", saved ? "true" : "false");
+        el.setAttribute("aria-label", saved ? "Quitar de favoritos" : "Guardar producto");
+        el.textContent = saved ? "♥" : "♡";
+        return;
+      }
 
       if (el.matches("[data-buy]")) {
         var scope = el.closest("[data-product]"), p = byId(scope.dataset.product);
