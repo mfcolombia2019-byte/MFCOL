@@ -89,15 +89,15 @@
     dlg.innerHTML = '<div class="co-in"><div class="co-head"><h2 id="cmT"></h2><button class="dlg-close" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button></div>' +
       '<form novalidate><p class="sr"><label>No llenar<input name="empresa" tabindex="-1" autocomplete="off"></label></p>' +
       '<label class="field cm-sel"><span>Producto</span><select name="sel"></select></label>' +
-      '<div class="cm-look"><p class="cm-intro">Comparte una foto donde tus Marlon sean protagonistas y formen parte de un outfit cuidado.</p>' +
+      '<div class="cm-photo-upload"><p class="cm-intro">¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.</p>' +
       '<ul class="cm-guide"><li>Buena iluminación</li><li>Imagen nítida</li><li>Calzado visible</li><li>Outfit cuidado</li><li>Fotografía apropiada para representar la marca</li></ul>' +
       '<p class="cm-avoid">Evitamos fotografías borrosas, de baja calidad, con contenido ofensivo o sin relación con el producto.</p>' +
-      '<label class="cm-drop"><input type="file" name="file" accept="image/*"><img alt="Vista previa" hidden><span>Subir fotografía</span></label></div>' +
+      '<label class="cm-drop"><input type="file" name="file" accept="image/*"><img alt="Vista previa" hidden><span>Subir fotografía</span></label>' +
+      '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MARLON FOOTWEAR a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
       '<div class="field"><span>Tu calificación</span><div class="cm-stars" role="group" aria-label="Calificación">' +
       [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" data-v="' + n + '" aria-label="' + n + (n === 1 ? " estrella" : " estrellas") + '" aria-pressed="false">★</button>'; }).join("") + "</div></div>" +
       '<label class="field"><span>Tu reseña</span><textarea name="text" rows="3" maxlength="500" placeholder="Cuéntanos cómo te quedaron"></textarea></label>' +
-      '<div class="cm-look"><label class="field"><span>Instagram (opcional)</span><input name="instagram" placeholder="@tuusuario" autocapitalize="off" autocomplete="off"></label>' +
-      '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MARLON FOOTWEAR a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
+      '<div class="cm-look"><label class="field"><span>Instagram (opcional)</span><input name="instagram" placeholder="@tuusuario" autocapitalize="off" autocomplete="off"></label></div>' +
       '<p class="err" role="alert"></p><button class="btn btn-solid btn-block" type="submit" style="margin-top:24px">Enviar para revisión</button>' +
       '<p class="co-fine cm-look">Revisamos cada fotografía antes de publicarla.</p></form></div>';
     document.body.appendChild(dlg);
@@ -120,7 +120,12 @@
     var f = $("form", dlg), look = o.mode !== "rate", sel = f.elements.sel;
     f.reset(); rating = 0; file = null; stars();
     $(".cm-drop img", f).hidden = true; $(".cm-drop span", f).hidden = false; $(".err", f).textContent = "";
-    $$(".cm-look", f).forEach(function (el) { el.hidden = !look; });
+    $(".cm-look", f).forEach(function (el) { el.hidden = !look; });
+    $(".cm-photo-upload", f).hidden = false;
+    $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde tus Marlon sean protagonistas y formen parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
+    $(".cm-photo-upload .cm-guide", f).hidden = !look;
+    $(".cm-photo-upload .cm-avoid", f).hidden = !look;
+    $(".cm-photo-upload .cm-consent", f).hidden = false;
     sel.innerHTML = o.products.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.name) + "</option>"; }).join("");
     $(".cm-sel", f).hidden = o.products.length === 1;
     $("#cmT", dlg).textContent = look ? "Comparte tu look" : "Califica tu compra";
@@ -132,14 +137,17 @@
     var err = $(".err", f), look = cur.mode !== "rate", sel = f.elements.sel, btn = $('button[type="submit"]', f);
     if (!rating) { err.textContent = "Elige tu calificación."; return; }
     if (look && !file) { err.textContent = "Sube una fotografía para compartir tu look."; return; }
-    if (look && !f.elements.consent.checked) { err.textContent = "Necesitamos tu autorización para usar la fotografía."; return; }
+    if (file && !f.elements.consent.checked) { err.textContent = "Necesitamos tu autorización para usar la fotografía."; return; }
     if (!look && !f.elements.text.value.trim()) { err.textContent = "Escribe una pequeña reseña."; return; }
     err.textContent = ""; btn.disabled = true; btn.textContent = "Enviando…";
     (look ? resize(file) : Promise.resolve(null)).then(function (blob) {
       var fd = new FormData();
       fd.append("product", sel.value); fd.append("productName", sel.options[sel.selectedIndex].textContent);
       fd.append("rating", rating); fd.append("text", f.elements.text.value); fd.append("empresa", f.elements.empresa.value); fd.append("token", TOKEN);
-      if (look) { fd.append("instagram", f.elements.instagram.value); fd.append("consent", "1"); fd.append("photo", blob, "look.jpg"); }
+      if (look || file) {
+        fd.append("instagram", f.elements.instagram.value);
+        if (file) { fd.append("consent", "1"); fd.append("photo", blob, "look.jpg"); }
+      }
       return fetch(API, { method: "POST", body: fd });
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || "No pudimos enviarlo. Inténtalo de nuevo."); });
@@ -179,3 +187,5 @@
 
   fetch(API + "?action=public").then(function (r) { return r.ok ? r.json() : []; }).then(function (d) { DATA = d; render(); decorate(); }).catch(function () {});
 })();
+
+<style id="cm-photo-upload-fix">.cm-photo-upload{margin-top:18px}.cm-photo-upload .cm-guide,.cm-photo-upload .cm-avoid{font-size:11px;color:#777}.cm-photo-upload .cm-consent{display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:11px;color:#777}.cm-photo-upload .cm-consent input{margin-top:2px}.cm-photo-upload[hidden]{display:none!important}</style>
