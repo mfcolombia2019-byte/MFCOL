@@ -5,7 +5,7 @@
   "use strict";
   var API = "/.netlify/functions/comunidad";
   var TOKEN = new URLSearchParams(location.search).get("t") || "";
-  var DATA = [], tokenProducts = [], cur = { mode: "look" }, rating = 0, file = null, dlg;
+  var DATA = [], tokenProducts = [], tokenReady = Promise.resolve([]), cur = { mode: "look" }, rating = 0, file = null, dlg;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
@@ -39,16 +39,16 @@
   }
 
   function decorate() {
-    $$(\".card[data-product]\").forEach(function (c) {
-      var h = $(\"h3\", c), r = h && !$(\".cm-rate\", c) ? rateHTML(c.dataset.product) : "";
+    $$(".card[data-product]").forEach(function (c) {
+      var h = $("h3", c), r = h && !$(".cm-rate", c) ? rateHTML(c.dataset.product) : "";
       if (r) h.insertAdjacentHTML("afterend", r);
     });
-    var i = $(\"#pd .pd-info[data-product]\");
+    var i = $("#pd .pd-info[data-product]");
     if (!i) return;
-    var id = i.dataset.product, r = !$(\".cm-rate\", i) ? rateHTML(id) : "";
-    if (r) $(\"h2\", i).insertAdjacentHTML("afterend", r);
-    if (!$(\".cm-share\", i)) $(\".pd-btns\", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
-    if (!$(\".cm-product-reviews\", i)) $(\".pd-btns\", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
+    var id = i.dataset.product, r = !$(".cm-rate", i) ? rateHTML(id) : "";
+    if (r) $("h2", i).insertAdjacentHTML("afterend", r);
+    if (!$(".cm-share", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
+    if (!$(".cm-product-reviews", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
   }
 
   /* ---------- Galería ---------- */
@@ -164,7 +164,7 @@
     var b = e.target.closest("[data-cm-share],[data-cm-open]");
     if (!b) return;
     if (b.dataset.cmShare) openForm({ mode: "look", products: [{ id: b.dataset.cmShare, name: $("#pd .pd-info h2").textContent }] });
-    else if (tokenProducts.length) openForm({ mode: b.dataset.cmOpen, products: tokenProducts });
+    else if (TOKEN) tokenReady.then(function (products) { if (products.length) openForm({ mode: b.dataset.cmOpen, products: products }); });
   });
   ["#pd", "#productGrid"].forEach(function (s) { var el = $(s); if (el) new MutationObserver(decorate).observe(el, { childList: true, subtree: true }); });
 
@@ -182,18 +182,22 @@
     // se hace en segundo plano para evitar que un fallo de red/API o una caché
     // oculte por completo las opciones de la clienta.
     box.hidden = false;
-    fetch(API + "?action=token&t=" + encodeURIComponent(TOKEN), { cache: "no-store" }).then(function (r) {
+    tokenReady = fetch(API + "?action=token&t=" + encodeURIComponent(TOKEN), { cache: "no-store" }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; });
     }).then(function (x) {
       if (!x.ok || !Array.isArray(x.d.products) || !x.d.products.length) {
         var msg = x.d.error || "No pudimos validar este enlace de compra.";
         box.querySelector(".cm-token-copy").textContent = msg;
-        return;
+        tokenProducts = [];
+        return [];
       }
       tokenProducts = x.d.products;
+      return tokenProducts;
     }).catch(function () {
       var copy = box.querySelector(".cm-token-copy");
       if (copy) copy.textContent = "No pudimos validar el enlace en este momento. Recarga la página e inténtalo de nuevo.";
+      tokenProducts = [];
+      return [];
     });
   }
 
