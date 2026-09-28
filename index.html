@@ -2064,59 +2064,17 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
         <button class="review-arrow" id="reviewsNext" type="button" aria-label="Siguientes opiniones">→</button>
       </div>
     </div>
-    <div class="reviews-track" id="reviewsTrack" tabindex="0" aria-label="Carrusel horizontal de opiniones">
-      <article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Me encantó el diseño y la calidad. El pedido llegó perfecto.”</blockquote>
-      <p class="review-name">— Valentina R.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Los zapatos son incluso más bonitos en persona. Súper recomendados.”</blockquote>
-      <p class="review-name">— Laura M.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“La atención fue excelente y el proceso de compra muy fácil.”</blockquote>
-      <p class="review-name">— Camila P.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Me encantó cómo quedan puestos. Definitivamente volvería a comprar.”</blockquote>
-      <p class="review-name">— Daniela G.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“El diseño es hermoso y se sienten muy cómodos.”</blockquote>
-      <p class="review-name">— Mariana S.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Pedí mi talla habitual y me quedó perfecta. Estoy feliz con mi compra.”</blockquote>
-      <p class="review-name">— Sofía C.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“La calidad superó mis expectativas. Se ven increíbles.”</blockquote>
-      <p class="review-name">— Natalia V.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Me encantaron desde que los vi. En persona son preciosos.”</blockquote>
-      <p class="review-name">— Paula A.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Todo llegó muy bien empacado y el pedido fue rápido.”</blockquote>
-      <p class="review-name">— Andrea T.</p>
-    </article>
-<article class="review-card" data-review>
-      <div class="review-stars" aria-label="5 de 5 estrellas">★★★★★</div>
-      <blockquote>“Una marca que definitivamente volvería a elegir. Me encantaron.”</blockquote>
-      <p class="review-name">— Juliana F.</p>
-    </article>
+    <div class="reviews-track" id="reviewsTrack" tabindex="0" aria-label="Opiniones verificadas de clientas">
+      <article class="reviews-empty" id="reviewsEmpty">
+        <span>PRÓXIMAMENTE</span>
+        <strong>Tu experiencia también puede aparecer aquí.</strong>
+        <p>Después de tu compra recibirás un enlace para calificar tu pedido y compartir tu experiencia.</p>
+      </article>
     </div>
-    <p class="reviews-note">Reseñas</p>
+    <div class="reviews-footer">
+      <p class="reviews-note">RESEÑAS DE CLIENTAS · PUBLICADAS TRAS REVISIÓN</p>
+      <a class="reviews-community-link" href="comunidad.html">Ver comunidad <span>→</span></a>
+    </div>
   </div>
 </section>
 
@@ -3028,7 +2986,10 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 
       var track = $("#reviewsTrack");
       if (track) {
-        (cfg.reviews || []).forEach(function (review) {
+        var adminReviews = (cfg.reviews || []);
+        var empty = $("#reviewsEmpty");
+        if (adminReviews.length && empty) empty.remove();
+        adminReviews.forEach(function (review) {
           if (track.querySelector('[data-admin-review="' + review.id + '"]')) return;
           var article = document.createElement("article");
           article.className = "review-card";
