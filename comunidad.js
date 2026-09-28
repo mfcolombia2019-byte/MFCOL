@@ -187,5 +187,3 @@
 
   fetch(API + "?action=public").then(function (r) { return r.ok ? r.json() : []; }).then(function (d) { DATA = d; render(); decorate(); }).catch(function () {});
 })();
-
-<style id="cm-photo-upload-fix">.cm-photo-upload{margin-top:18px}.cm-photo-upload .cm-guide,.cm-photo-upload .cm-avoid{font-size:11px;color:#777}.cm-photo-upload .cm-consent{display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:11px;color:#777}.cm-photo-upload .cm-consent input{margin-top:2px}.cm-photo-upload[hidden]{display:none!important}</style>
