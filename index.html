@@ -1823,6 +1823,62 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   .hdr .brand-wordmark span{font-size:6px!important;letter-spacing:.24em!important}
 }
 </style>
+<style id="mf-mobile-feature-fix">
+/* Mobile collection rail: keep each product card self-contained and prevent text overlap. */
+@media(max-width:819px){
+  .feature-section .feature-grid{
+    display:grid!important;
+    grid-auto-flow:column!important;
+    grid-template-columns:none!important;
+    grid-auto-columns:86%!important;
+    gap:14px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    align-items:start!important;
+    margin-left:-20px!important;
+    margin-right:-20px!important;
+    padding:0 20px 18px!important;
+    scroll-snap-type:x mandatory!important;
+  }
+  .feature-section .fcard{
+    width:100%!important;
+    min-width:0!important;
+    transform:none!important;
+    scroll-snap-align:start!important;
+  }
+  .feature-section .fcard-body{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto auto!important;
+    align-items:baseline!important;
+    gap:5px 12px!important;
+    padding:12px 0 0!important;
+  }
+  .feature-section .fcard-body h3{
+    grid-column:1!important;
+    grid-row:1!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  .feature-section .fcard-body .price{
+    grid-column:2!important;
+    grid-row:1!important;
+    align-self:baseline!important;
+  }
+  .feature-section .fcard-body .meta{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    margin:0!important;
+  }
+  .feature-section .fcard-body .card-link{
+    grid-column:1/-1!important;
+    grid-row:3!important;
+    display:inline-block!important;
+    margin:4px 0 0!important;
+    white-space:normal!important;
+  }
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#productos">Ir a la colección</a>
@@ -1836,7 +1892,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
     </button>
 
     <a class="logo" href="#inicio" aria-label="Marlon Footwear, ir al inicio">
-      <span class="brand-wordmark" aria-hidden="true"><strong>MARLON</strong><span>FOOTWEAR</span></span>
+      <img class="brand-logo brand-logo-black" src="assets/marlon-logo-black.png" alt="Marlon Footwear">
     </a>
 
     <nav class="nav" aria-label="Principal">
@@ -1864,7 +1920,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú">
   <div class="menu-top">
     <a class="logo" href="#inicio" data-menu-close aria-label="Marlon Footwear, ir al inicio">
-      <span class="brand-wordmark brand-wordmark-light" aria-hidden="true"><strong>MARLON</strong><span>FOOTWEAR</span></span>
+      <img class="brand-logo brand-logo-white" src="assets/marlon-logo-white.png" alt="Marlon Footwear">
     </a>
     <button class="icon-btn" id="menuClose" type="button" aria-label="Cerrar menú">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
@@ -2058,7 +2114,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
       <p class="review-name">— Juliana F.</p>
     </article>
     </div>
-    <p class="reviews-note">Ejemplos de contenido · sustituir por reseñas reales de Instagram.</p>
+    <p class="reviews-note">Reseñas</p>
   </div>
 </section>
 
