@@ -8,6 +8,15 @@
 <meta name="theme-color" content="#FAF8F5">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B89B6A' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="comunidad.css">
+<style id="cm-token-premium">
+.cm-token{margin:0 0 70px;padding:clamp(28px,5vw,58px);background:#090909;color:#fff;border-left:5px solid #d8ff3e}
+.cm-token-kicker{font:700 9px/1 var(--sans,Inter,sans-serif);letter-spacing:.18em;color:#d8ff3e;margin-bottom:22px}
+.cm-token h2{font-family:var(--serif,Georgia,serif);font-size:clamp(42px,6vw,78px);font-weight:400;line-height:.95;letter-spacing:-.04em;max-width:9ch}
+.cm-token-copy{margin:20px 0 28px;color:#c7c7c7;max-width:52ch;font-size:15px}
+.cm-token-actions{display:flex;flex-wrap:wrap;gap:10px}
+.cm-token .btn{min-height:48px}
+@media(max-width:600px){.cm-token{margin-bottom:48px;padding:28px 22px}.cm-token-actions{display:grid}.cm-token-actions .btn{width:100%}}
+</style>
 </head>
 <body class="cm-page">
 <header class="cm-hdr">
@@ -20,11 +29,15 @@
 <main class="section">
   <div class="wrap">
     <!-- Solo aparece con un enlace post-compra: /comunidad.html?t=TOKEN -->
-    <div class="cm-token" id="cmToken" hidden>
-      <h2>Gracias por tu compra</h2>
-      <button class="btn btn-solid" type="button" data-cm-open="rate">Calificar mi compra</button>
-      <button class="btn" type="button" data-cm-open="look">Compartir mi look</button>
-    </div>
+    <section class="cm-token" id="cmToken" hidden aria-labelledby="cmTokenTitle">
+      <p class="cm-token-kicker">MARLON FOOTWEAR · GRACIAS POR ELEGIRNOS</p>
+      <h2 id="cmTokenTitle">Gracias por tu compra.</h2>
+      <p class="cm-token-copy">¿Deseas compartir tu opinión sobre tu compra? Nos encantaría conocer tu experiencia.</p>
+      <div class="cm-token-actions">
+        <button class="btn btn-solid" type="button" data-cm-open="rate">Sí, quiero dejar mi opinión</button>
+        <button class="btn" type="button" data-cm-open="look">Compartir mi look</button>
+      </div>
+    </section>
 
     <div class="sec-head">
       <h1 class="h-sec">Visto en nuestras clientas</h1>
