@@ -1943,42 +1943,15 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 <main id="contenido">
 <noscript><p class="noscript">Para ver el catálogo activa JavaScript o escríbenos por WhatsApp.</p></noscript>
 
-<section class="hero" id="inicio" aria-labelledby="hero-title">
-  <div class="hero-media" data-slot="hero" data-alt="Marlon Footwear, imagen principal de colección"></div>
-  <div class="hero-copy">
-    <p class="hero-kicker">Nueva colección</p>
-    <h1 id="hero-title">El paso<br>cambia el<br>gesto.</h1>
-    <p class="hero-tag" id="heroTag">Siluetas protagonistas para una presencia que no pasa desapercibida.</p>
-    <a class="hero-link" href="#productos" data-filter="cuñas">Explorar cuñas&nbsp; →</a>
-  </div>
-</section>
 
-<section class="brand-intro reveal" aria-label="Manifiesto Marlon Footwear">
+
+<section class="brand-intro reveal" id="inicio" aria-label="Manifiesto Marlon Footwear">
   <p>Diseño que se ve. Presencia que se siente.</p>
 </section>
 
-<section class="section feature-section" id="coleccion" aria-labelledby="col-title">
-  <div class="wrap">
-    <div class="sec-head row reveal">
-      <div>
-        <p class="hero-kicker" style="margin:0 0 10px">Selección MF</p>
-        <h2 class="h-sec" id="col-title">La colección, sin distracciones.</h2>
-      </div>
-      <a class="link-u" href="#productos" data-filter="todos">Ver toda la colección</a>
-    </div>
-    <div class="feature-grid" id="featureGrid"></div>
-  </div>
-</section>
 
-<section class="editorial reveal" aria-label="Editorial Marlon Footwear">
-  <div class="editorial-media" data-slot="cat-destacada" data-alt="Editorial Marlon Footwear"></div>
-  <div class="editorial-copy">
-    <p class="hero-kicker">Marlon Footwear</p>
-    <h2>El paso cambia el gesto.</h2>
-    <p>Siluetas protagonistas, acabados que capturan la luz y una actitud que empieza por los pies.</p>
-    <a class="editorial-link" href="#productos" data-filter="plataformas">Explorar plataformas&nbsp; →</a>
-  </div>
-</section>
+
+
 
 <section class="section cats-wrap" id="categorias" aria-labelledby="cat-title">
   <div class="wrap">
@@ -2446,7 +2419,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 
   function cardHTML(p, i) {
     var pending = p.price == null;
-    return '<article class="card" data-product="' + p.id + '">' +
+    return '<article class="card" data-product="' + p.id + '" data-view="' + p.id + '" tabindex="0" role="button" aria-label="Ver producto: ' + esc(p.name) + '">' +
       '<button class="card-media" type="button" data-view="' + p.id + '" aria-label="Ver producto: ' + esc(p.name) + '">' +
         (p.isNew ? '<span class="tag">Novedad</span>' : "") + mediaHover(p.name + ", " + p.cat, "r45", p) +
       "</button>" +
@@ -2888,7 +2861,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
         var scope = el.closest("[data-product]"), p = byId(scope.dataset.product);
         if (p.price == null) { openWA(msgConsult(p, checkedSize(scope), checkedColor(scope))); return; }
         var v1 = pickVariant(scope, p); if (!v1) return;
-        addToBag(p.id, v1.size, v1.color, true, qtyOf(scope)); openCheckout(); return;
+        addToBag(p.id, v1.size, v1.color, true, qtyOf(scope)); if (el.closest("#pd")) { renderBag(); openDlg($("#drawer")); } else { openCheckout(); } return;
       }
       if (el.matches("[data-consult]")) {
         var sc = el.closest("[data-product]"); openWA(msgConsult(byId(sc.dataset.product), checkedSize(sc), checkedColor(sc))); return;
@@ -2930,6 +2903,15 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
     }
     // clic en el fondo oscuro cierra el diálogo
     if (e.target.tagName === "DIALOG") closeDlg(e.target);
+  });
+
+  /* ---------- Acceso directo a producto desde toda la tarjeta ---------- */
+  document.addEventListener("keydown", function (e) {
+    var card = e.target.closest(".card[data-view]");
+    if (card && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      openProduct(card.dataset.view, false);
+    }
   });
 
   /* ---------- Enlaces de contacto ---------- */
