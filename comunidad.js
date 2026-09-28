@@ -18,16 +18,37 @@
     return '<p class="cm-rate" aria-label="Valoración ' + avg.toFixed(1) + ' de 5, ' + l.length + ' reseñas"><b aria-hidden="true">' +
       "★★★★★".slice(0, r) + "☆☆☆☆☆".slice(0, 5 - r) + "</b><span>" + avg.toFixed(1) + " · " + l.length + (l.length === 1 ? " reseña" : " reseñas") + "</span></p>";
   }
+  function productReviewsHTML(id) {
+    var l = DATA.filter(function (p) { return p.product === id; });
+    if (!l.length) return "";
+    var stars = function (n) {
+      n = Math.max(0, Math.min(5, Math.round(n || 0)));
+      return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
+    };
+    return '<section class="cm-product-reviews" aria-label="Opiniones de clientas">' +
+      '<div class="cm-pr-head"><div><p class="cm-pr-kicker">Opiniones</p><h3>Lo que dicen nuestras clientas</h3></div>' +
+      '<span class="cm-pr-count">' + l.length + (l.length === 1 ? " reseña" : " reseñas") + '</span></div>' +
+      '<div class="cm-pr-list">' + l.map(function (p) {
+        return '<article class="cm-pr-card">' +
+          (p.hasPhoto ? '<a class="cm-pr-photo" href="' + API + '?action=photo&id=' + p.id + '" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="' + API + '?action=photo&id=' + p.id + '" alt="Foto de una clienta con ' + esc(p.productName) + '"></a>' : '') +
+          '<div class="cm-pr-copy"><div class="cm-pr-stars" aria-label="' + p.rating + ' de 5">' + stars(p.rating) + '</div>' +
+          (p.text ? '<p class="cm-pr-text">“' + esc(p.text) + '”</p>' : '') +
+          '<p class="cm-pr-meta">Clienta verificada' + (p.verified ? ' · ✓ Compra verificada' : '') + '</p></div>' +
+          '</article>';
+      }).join("") + '</div></section>';
+  }
+
   function decorate() {
-    $$(".card[data-product]").forEach(function (c) {
-      var h = $("h3", c), r = h && !$(".cm-rate", c) ? rateHTML(c.dataset.product) : "";
+    $$(\".card[data-product]\").forEach(function (c) {
+      var h = $(\"h3\", c), r = h && !$(\".cm-rate\", c) ? rateHTML(c.dataset.product) : "";
       if (r) h.insertAdjacentHTML("afterend", r);
     });
-    var i = $("#pd .pd-info[data-product]");
+    var i = $(\"#pd .pd-info[data-product]\");
     if (!i) return;
-    var id = i.dataset.product, r = !$(".cm-rate", i) ? rateHTML(id) : "";
-    if (r) $("h2", i).insertAdjacentHTML("afterend", r);
-    if (!$(".cm-share", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
+    var id = i.dataset.product, r = !$(\".cm-rate\", i) ? rateHTML(id) : "";
+    if (r) $(\"h2\", i).insertAdjacentHTML("afterend", r);
+    if (!$(\".cm-share\", i)) $(\".pd-btns\", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
+    if (!$(\".cm-product-reviews\", i)) $(\".pd-btns\", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
   }
 
   /* ---------- Galería ---------- */
