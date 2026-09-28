@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Moderación — Comunidad Marlon</title>
 <style>
+  .post img{display:block}
+  .post img[src=""]{display:none}
   :root{--ivory:#F3EFE7;--ink:#1A1613;--muted:#726A5E;--line:#DDD5C4;--champagne:#B08F63;--mauve:#7A4D5E;--serif:"Fraunces","Cormorant Garamond",Georgia,serif}
   *{box-sizing:border-box}
   body{margin:0;background:var(--ivory);color:var(--ink);font:15px/1.5 "Inter","Helvetica Neue",Helvetica,Arial,sans-serif;padding:24px 16px 64px}
@@ -71,9 +73,28 @@
           (p.status === "approved" && p.hasPhoto ? '<button data-op="feature">' + (p.featured ? "Quitar de portada" : "Destacar") + "</button>" : "") +
           '<button data-op="delete">Eliminar</button></div></div></div>';
       }).join("") : '<p class="m">Aún no hay envíos.</p>';
-      all.filter(function (p) { return p.hasPhoto; }).forEach(function (p) {   // la foto pendiente solo se ve con tu clave
-        fetch(API + "?action=photo&id=" + p.id, { headers: H() }).then(function (r) { return r.blob(); }).then(function (b) {
-          var im = document.querySelector('[data-id="' + p.id + '"] img'); if (im) im.src = URL.createObjectURL(b);
+      all.filter(function (p) { return p.hasPhoto; }).forEach(function (p) {
+        // Las fotos pendientes están protegidas: no usamos src directo porque perdería el header x-admin-key.
+        var im = document.querySelector('[data-id="' + p.id + '"] img');
+        if (!im) return;
+        im.alt = "Fotografía enviada por la clienta";
+        fetch(API + "?action=photo&id=" + encodeURIComponent(p.id), {
+          method: "GET",
+          headers: H(),
+          cache: "no-store"
+        }).then(function (r) {
+          if (!r.ok) throw new Error("No se pudo cargar la fotografía (" + r.status + ")");
+          return r.blob();
+        }).then(function (b) {
+          if (!b || !b.size) throw new Error("La fotografía está vacía.");
+          var u = URL.createObjectURL(b);
+          im.onload = function () { setTimeout(function () { URL.revokeObjectURL(u); }, 1000); };
+          im.src = u;
+        }).catch(function () {
+          var wrap = im.parentNode;
+          if (wrap) {
+            wrap.innerHTML = '<div class="ph">No se pudo cargar la foto</div>';
+          }
         });
       });
     }).catch(function (e) { $("#login").hidden = false; $("#panel").hidden = true; $("#lerr").textContent = e.message; });
