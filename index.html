@@ -449,7 +449,7 @@ dialog[open]{animation:dialogIn .22s ease}
 .dr-head .dlg-close{position:static}
 .dr-list{flex:1;overflow:auto;padding:0 22px}
 .dr-empty{padding:35px 0;color:#777}
-.dr-item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:18px 0;border-bottom:1px solid var(--line)}
+.dr-item{display:grid;grid-template-columns:78px minmax(0,1fr) auto;gap:4px 12px;padding:18px 0;border-bottom:1px solid var(--line);align-items:start}.dr-thumb{width:78px;aspect-ratio:4/5;overflow:hidden;background:#f3f3f3}.dr-thumb img{width:100%;height:100%;object-fit:cover}.dr-item-main{min-width:0}
 .dr-item strong{font-family:var(--serif);font-weight:400;font-size:21px}
 .dr-item .meta{color:#777;font-size:12px}
 .dr-foot{padding:18px 22px calc(22px + env(safe-area-inset-bottom));border-top:1px solid #111;display:grid;gap:12px}
@@ -2578,7 +2578,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
       var p = byId(i.id), meta = (i.color ? i.color + " · Talla " + i.size : "Talla " + i.size);
       total += p.price * i.qty;
       lines.push("- " + p.name + (i.color ? ", color " + i.color : "") + ", talla " + i.size + " (x" + i.qty + ") " + fmt(p.price * i.qty));
-      return '<div class="dr-item"><div><strong>' + esc(p.name) + '</strong><p class="meta">' + esc(meta) + "</p>" +
+      return '<div class="dr-item"><div class="dr-thumb"><img src="' + esc((p.imgs && p.imgs[0] ? p.imgs[0][0] : '')) + '" alt="' + esc(p.name) + '"></div><div class="dr-item-main"><strong>' + esc(p.name) + '</strong><p class="meta">' + esc(meta) + "</p>" +
         '<div class="qty"><button type="button" data-qty="-1" data-idx="' + idx + '" aria-label="Quitar una unidad de ' + esc(p.name) + '">−</button><span aria-live="polite">' + i.qty +
         '</span><button type="button" data-qty="1" data-idx="' + idx + '" aria-label="Agregar una unidad de ' + esc(p.name) + '">+</button>' +
         '<button class="rm" type="button" data-remove="' + idx + '">Quitar</button></div></div><div>' + fmt(p.price * i.qty) + "</div></div>";
