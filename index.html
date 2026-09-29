@@ -2218,7 +2218,7 @@ try {
   /* ---------- Diálogos ---------- */
   function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
   function closeDlg(d) { if (d.close) d.close(); else d.removeAttribute("open"); }
-  function closeAllDlg() { $("dialog[open]").forEach(closeDlg); } /* fixed: iterate all open dialogs */
+  function closeAllDlg() { Array.prototype.forEach.call(document.querySelectorAll("dialog[open]"), closeDlg); } /* fixed: iterate all open dialogs */
 
   /* Cada apertura de producto empieza desde el inicio de SU detalle.
      El diálogo #pd es el propio contenedor scrollable; reutilizarlo entre
