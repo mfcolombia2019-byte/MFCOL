@@ -39,6 +39,8 @@
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:80px}
 body{margin:0;background:#fff;color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 body.lock,body:has(dialog[open]){overflow:hidden}
+html.mf-product-route-pending body{visibility:hidden}
+html.mf-product-route-pending body #pd[open]{visibility:visible}
 img{max-width:100%;display:block}
 a{color:inherit}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -1532,6 +1534,13 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 </style>
 </head>
 <body>
+<script>
+try {
+  if (new URL(location.href).searchParams.get("producto")) {
+    document.documentElement.classList.add("mf-product-route-pending");
+  }
+} catch (e) {}
+</script>
 <a class="skip" href="#productos">Ir a la colección</a>
 
 <div class="top">Envíos a toda Colombia · Compra online o por WhatsApp</div>
@@ -2727,12 +2736,16 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
      y añadimos encima el producto para que Atrás vuelva al catálogo. */
   function initProductRoute() {
     var id = currentProductId();
-    if (!id || !byId(id)) return;
+    if (!id || !byId(id)) {
+      document.documentElement.classList.remove("mf-product-route-pending");
+      return;
+    }
 
     var catalogUrl = routeCatalogUrl();
     history.replaceState({ mfCatalogEntry: true, mfCatalogScrollY: 0 }, "", catalogUrl);
     history.pushState({ mfProductRoute: id, mfCatalogUrl: catalogUrl, mfCatalogScrollY: 0 }, "", routeUrlForProduct(id));
     openProduct(id, false, "direct");
+    document.documentElement.classList.remove("mf-product-route-pending");
   }
 
   loadStoreConfig().finally(initProductRoute);
