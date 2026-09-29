@@ -132,7 +132,7 @@
     var f = $("form", dlg), look = o.mode !== "rate", sel = f.elements.sel;
     f.reset(); rating = 0; file = null; stars();
     $(".cm-drop img", f).hidden = true; $(".cm-drop span", f).hidden = false; $(".err", f).textContent = "";
-    $(".cm-look", f).forEach(function (el) { el.hidden = !look; });
+    $$(".cm-look", f).forEach(function (el) { el.hidden = !look; });
     var nameInput = f.elements.customerName;
     nameInput.value = tokenContext.customerName || "";
     nameInput.readOnly = !!TOKEN && !!tokenContext.customerName;
