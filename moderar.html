@@ -40,7 +40,8 @@
     <h2>Enlace de compra verificada</h2>
     <p class="m">Genera un enlace para enviarle a la clienta por WhatsApp o correo después de su compra.</p>
     <select id="prod"></select>
-    <input id="ref" placeholder="Referencia del pedido o nombre de la clienta (opcional)">
+    <input id="ref" placeholder="Referencia del pedido (opcional)">
+    <input id="customerName" placeholder="Nombre de la clienta (opcional)">
     <button class="s" id="mk" type="button">Generar enlace</button>
     <div id="link" hidden></div>
 
@@ -67,6 +68,8 @@
       $("#list").innerHTML = all.length ? all.map(function (p) {
         return '<div class="post" data-id="' + p.id + '">' + (p.hasPhoto ? '<img alt="">' : '<div class="ph">Sin foto</div>') +
           '<div><span class="st">' + LABEL[p.status] + (p.featured ? " · Destacada" : "") + (p.verified ? " · ✓ Compra verificada" : "") + "</span><br><strong>" + esc(p.productName) + "</strong>" +
+          (p.customerName ? "<br><span class=\"m\">Clienta: " + esc(p.customerName) + "</span>" : "") +
+          (p.orderRef ? "<br><span class=\"m\">Pedido: " + esc(p.orderRef) + "</span>" : "") +
           "<div>" + "★".repeat(p.rating) + "☆".repeat(5 - p.rating) + (p.instagram ? " · @" + esc(p.instagram) : "") + "</div><div>" + esc(p.text) + "</div>" +
           '<div class="acts">' + (p.status !== "approved" ? '<button class="s" data-op="approve">Aprobar</button>' : "") +
           (p.status !== "rejected" ? '<button data-op="reject">Rechazar</button>' : "") +
