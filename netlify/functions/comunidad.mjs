@@ -22,18 +22,17 @@ export default async (req) => {
   const orders = getStore("mfc-admin");
 
   if (req.method === "GET") {
-    if (action === "public" || (action === "all" && admin)) {
+    if (action === "public" || action === "product" || action === "look" || (action === "all" && admin)) {
       const { blobs } = await posts.list();
       let all = (await Promise.all(blobs.map((b) => posts.get(b.key, { type: "json" })))).filter(Boolean);
+
       if (action === "public") {
         all = all.filter((p) => p.status === "approved").map((p) => ({
           id: p.id, product: p.product, productName: p.productName, rating: p.rating, text: p.text,
           instagram: p.instagram, verified: p.verified, featured: p.featured, hasPhoto: p.hasPhoto,
           created: p.created, customerName: p.customerName || "", kind: p.kind || "review", lookId: p.lookId || p.product,
         }));
-      }
-
-      if (action === "product" || action === "look") {
+      } else if (action === "product" || action === "look") {
         const product = clean(url.searchParams.get("product") || url.searchParams.get("look") || "", 60);
         if (!ID.test(product)) return json({ error: "Producto o Look no válido" }, 400);
         all = all.filter((p) => p.status === "approved" && p.product === product).map((p) => ({
@@ -41,11 +40,12 @@ export default async (req) => {
           instagram: p.instagram, verified: p.verified, featured: p.featured, hasPhoto: p.hasPhoto,
           created: p.created, customerName: p.customerName || "", kind: p.kind || "review", lookId: p.lookId || p.product,
         }));
-        all.sort((a, b) => b.created - a.created);
-        return json(all, 200, { "Cache-Control": "public, max-age=60" });
       }
+
       all.sort((a, b) => b.created - a.created);
-      return json(all, 200, { "Cache-Control": action === "public" ? "public, max-age=60" : "no-store" });
+      return json(all, 200, {
+        "Cache-Control": action === "all" ? "no-store" : "public, max-age=60"
+      });
     }
 
     if (action === "photo") {
@@ -77,7 +77,6 @@ export default async (req) => {
 
     return json({ error: "Acción inválida" }, 400);
   }
-
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
   if (action === "moderate" || action === "issue-token") {
