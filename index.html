@@ -2604,7 +2604,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
       renderFeatured();
       renderGrid();
 
-      $("#productGrid [data-product]").forEach(function (card) {
+      Array.prototype.forEach.call(document.querySelectorAll("#productGrid [data-product]"), function (card) {
         var p = byId(card.dataset.product);
         if (p && p.adminActive === false) card.hidden = true;
       });
