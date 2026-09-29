@@ -47,6 +47,8 @@ dialog.cm-dlg::backdrop{background:rgba(17,17,17,.55)}
 .cm-rate b{font-weight:400;color:var(--champagne-deep);letter-spacing:.1em}
 .cm-share{align-self:flex-start;background:none;border:0;border-bottom:1px solid var(--champagne);padding:4px 0;margin-top:10px;font-family:var(--sans,sans-serif);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:inherit;transition:border-color .2s,color .2s}
 .cm-share:hover{color:var(--accent);border-color:var(--accent)}
+.cm-review{align-self:flex-start;background:none;border:0;border-bottom:1px solid var(--champagne);padding:4px 0;margin-top:10px;font-family:var(--sans,sans-serif);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:inherit;transition:border-color .2s,color .2s}
+.cm-review:hover{color:var(--accent);border-color:var(--accent)}
 
 /* Formulario */
 .cm-intro{margin-top:8px;font-family:var(--serif);font-size:21px;line-height:1.3}
