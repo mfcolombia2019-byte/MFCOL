@@ -2658,8 +2658,9 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
     <input name="medio_pago">
     <input name="estado">
   </form>
-<script src="comunidad.js" defer>
-/* V6 reviews carousel */
+<script src="comunidad.js" defer></script>
+<script>
+/* Reviews carousel */
 (() => {
   const track = document.getElementById('reviewsTrack');
   const prev = document.getElementById('reviewsPrev');
@@ -2672,7 +2673,6 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
   next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
 })();
-
 </script>
 </body>
 </html>
