@@ -67,7 +67,12 @@ export default async (req) => {
       const tk = TK.test(t) ? await tokens.get(t, { type: "json" }) : null;
       const left = tk ? tk.products.filter((p) => !(tk.done || []).includes(p.id)) : [];
       if (!left.length) return json({ error: "Este enlace no es válido o ya fue utilizado." }, 404);
-      return json({ products: left });
+      return json({
+        products: left,
+        customerName: tk.customerName || "",
+        customerId: tk.customerId || "",
+        orderRef: tk.orderRef || tk.ref || ""
+      });
     }
 
     return json({ error: "Acción inválida" }, 400);
