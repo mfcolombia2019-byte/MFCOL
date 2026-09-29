@@ -2218,7 +2218,17 @@ try {
   /* ---------- Diálogos ---------- */
   function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
   function closeDlg(d) { if (d.close) d.close(); else d.removeAttribute("open"); }
-  function closeAllDlg() { $$("dialog[open]").forEach(closeDlg); }
+  function closeAllDlg() { $("dialog[open]").forEach(closeDlg); }
+
+  /* Cada apertura de producto empieza desde el inicio de SU detalle.
+     El diálogo #pd es el propio contenedor scrollable; reutilizarlo entre
+     productos puede conservar su scrollTop aunque cambie todo su contenido. */
+  function resetProductViewport(pd) {
+    if (!pd) return;
+    pd.scrollTop = 0;
+    pd.scrollLeft = 0;
+    if (typeof pd.scrollTo === "function") pd.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }
 
   function getFavorites() {
     try { return JSON.parse(localStorage.getItem("mf_favorites") || "[]"); } catch (e) { return []; }
@@ -2300,7 +2310,9 @@ try {
     var p = byId(id); if (!p) return;
     if (routeMode !== "pop" && routeMode !== "direct") pushProductRoute(p.id);
     closeAllDlg();
-    var pd = $("#pd"), pending = p.price == null; pd.dataset.product = p.id;
+    var pd = $("#pd"), pending = p.price == null;
+    resetProductViewport(pd);
+    pd.dataset.product = p.id;
     var related = PRODUCTS.filter(function(x){ return x.id !== p.id; }).slice(0,4);
     pd.innerHTML =
       '<div class="pd-top">' +
@@ -2325,7 +2337,13 @@ try {
       '<section class="pd-related"><div class="pd-related-head"><h3>También te puede gustar</h3><span></span><div class="pd-arrows"><button type="button" aria-label="Anterior">←</button><button type="button" aria-label="Siguiente">→</button></div></div>' +
       '<div class="pd-related-grid">' + related.map(cardHTML).join("") + '</div></section>';
     pd.setAttribute("aria-label", p.name);
+
+    /* innerHTML reemplaza el producto pero el elemento #pd sigue siendo
+       el mismo nodo; fuerza el scroll al comienzo antes de hacerlo visible. */
+    resetProductViewport(pd);
     openDlg(pd);
+    resetProductViewport(pd);
+
     if (mustPickSize && !pending) {
       if (p.colors && p.colors.length) needField($(".pd-info", pd), "color", "Elige tu color para comprar.");
       else needSize($(".pd-info", pd), "Elige tu talla para comprar.");
