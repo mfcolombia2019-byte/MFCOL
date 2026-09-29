@@ -5,7 +5,17 @@
   "use strict";
   var API = "/.netlify/functions/comunidad";
   var TOKEN = new URLSearchParams(location.search).get("t") || "";
-  var DATA = [], tokenProducts = [], tokenReady = Promise.resolve([]), cur = { mode: "look" }, rating = 0, file = null, dlg;
+  var DATA = [], tokenProducts = [], tokenContext = {}, tokenReady = Promise.resolve([]), cur = { mode: "look" }, rating = 0, file = null, dlg;
+  var CLIENT_ID = "";
+  try {
+    CLIENT_ID = localStorage.getItem("mf-community-client-id") || "";
+    if (!CLIENT_ID) {
+      CLIENT_ID = "client-" + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      localStorage.setItem("mf-community-client-id", CLIENT_ID);
+    }
+  } catch (e) {
+    CLIENT_ID = "guest-" + Date.now().toString(36);
+  }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
@@ -48,6 +58,7 @@
     var id = i.dataset.product, r = !$(".cm-rate", i) ? rateHTML(id) : "";
     if (r) $("h2", i).insertAdjacentHTML("afterend", r);
     if (!$(".cm-share", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
+    if (!$(".cm-review", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-review" type="button" data-cm-review="' + esc(id) + '">Escribir reseña</button>');
     if (!$(".cm-product-reviews", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
   }
 
@@ -96,6 +107,7 @@
       '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MARLON FOOTWEAR a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
       '<div class="field"><span>Tu calificación</span><div class="cm-stars" role="group" aria-label="Calificación">' +
       [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" data-v="' + n + '" aria-label="' + n + (n === 1 ? " estrella" : " estrellas") + '" aria-pressed="false">★</button>'; }).join("") + "</div></div>" +
+      '<label class="field"><span>Tu nombre</span><input name="customerName" maxlength="120" autocomplete="name" placeholder="Cómo quieres aparecer"></label>' +
       '<label class="field"><span>Tu reseña</span><textarea name="text" rows="3" maxlength="500" placeholder="Cuéntanos cómo te quedaron"></textarea></label>' +
       '<div class="cm-look"><label class="field"><span>Instagram (opcional)</span><input name="instagram" placeholder="@tuusuario" autocapitalize="off" autocomplete="off"></label></div>' +
       '<p class="err" role="alert"></p><button class="btn btn-solid btn-block" type="submit" style="margin-top:24px">Enviar para revisión</button>' +
@@ -121,6 +133,9 @@
     f.reset(); rating = 0; file = null; stars();
     $(".cm-drop img", f).hidden = true; $(".cm-drop span", f).hidden = false; $(".err", f).textContent = "";
     $(".cm-look", f).forEach(function (el) { el.hidden = !look; });
+    var nameInput = f.elements.customerName;
+    nameInput.value = tokenContext.customerName || "";
+    nameInput.readOnly = !!TOKEN && !!tokenContext.customerName;
     $(".cm-photo-upload", f).hidden = false;
     $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde tus Marlon sean protagonistas y formen parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
     $(".cm-photo-upload .cm-guide", f).hidden = !look;
@@ -136,6 +151,7 @@
   function submit(f) {
     var err = $(".err", f), look = cur.mode !== "rate", sel = f.elements.sel, btn = $('button[type="submit"]', f);
     if (!rating) { err.textContent = "Elige tu calificación."; return; }
+    if (!f.elements.customerName.value.trim()) { err.textContent = "Escribe tu nombre para identificar tu opinión."; return; }
     if (look && !file) { err.textContent = "Sube una fotografía para compartir tu look."; return; }
     if (file && !f.elements.consent.checked) { err.textContent = "Necesitamos tu autorización para usar la fotografía."; return; }
     if (!look && !f.elements.text.value.trim()) { err.textContent = "Escribe una pequeña reseña."; return; }
@@ -143,7 +159,10 @@
     (file ? resize(file) : Promise.resolve(null)).then(function (blob) {
       var fd = new FormData();
       fd.append("product", sel.value); fd.append("productName", sel.options[sel.selectedIndex].textContent);
-      fd.append("rating", rating); fd.append("text", f.elements.text.value); fd.append("empresa", f.elements.empresa.value); fd.append("token", TOKEN);
+      fd.append("rating", rating); fd.append("text", f.elements.text.value);
+      fd.append("customerName", f.elements.customerName.value.trim());
+      fd.append("clientId", CLIENT_ID);
+      fd.append("empresa", f.elements.empresa.value); fd.append("token", TOKEN);
       if (look || file) {
         fd.append("instagram", f.elements.instagram.value);
         if (file) { fd.append("consent", "1"); fd.append("photo", blob, "look.jpg"); }
@@ -161,10 +180,15 @@
 
   /* ---------- Eventos ---------- */
   document.addEventListener("click", function (e) {
-    var b = e.target.closest("[data-cm-share],[data-cm-open]");
+    var b = e.target.closest("[data-cm-share],[data-cm-review],[data-cm-open]");
     if (!b) return;
-    if (b.dataset.cmShare) openForm({ mode: "look", products: [{ id: b.dataset.cmShare, name: $("#pd .pd-info h2").textContent }] });
-    else if (TOKEN) tokenReady.then(function (products) { if (products.length) openForm({ mode: b.dataset.cmOpen, products: products }); });
+    if (b.dataset.cmShare || b.dataset.cmReview) {
+      var id = b.dataset.cmShare || b.dataset.cmReview;
+      var name = $("#pd .pd-info h2") ? $("#pd .pd-info h2").textContent : "";
+      openForm({ mode: b.dataset.cmReview ? "rate" : "look", products: [{ id: id, name: name }] });
+    } else if (TOKEN) {
+      tokenReady.then(function (products) { if (products.length) openForm({ mode: b.dataset.cmOpen, products: products }); });
+    }
   });
   ["#pd", "#productGrid"].forEach(function (s) { var el = $(s); if (el) new MutationObserver(decorate).observe(el, { childList: true, subtree: true }); });
 
@@ -191,6 +215,7 @@
         tokenProducts = [];
         return [];
       }
+      tokenContext = x.d || {};
       tokenProducts = x.d.products;
       return tokenProducts;
     }).catch(function () {
