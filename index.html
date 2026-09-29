@@ -402,6 +402,11 @@ dialog[open]{animation:dialogIn .22s ease}
 .pd-info .swatch{width:15px!important;height:15px!important;border-radius:50%!important;margin-right:7px}
 .pd-btns{display:grid!important;grid-template-columns:1fr 58px;gap:10px!important;margin-top:24px!important}
 .pd-primary{height:54px!important;font-size:11px!important;letter-spacing:.13em!important}
+.pd-primary.is-added{background:#d8ff3e!important;color:#090909!important;border-color:#d8ff3e!important;transform:translateY(-1px)}
+.pd-primary.bag-pulse{animation:mfBagButtonPulse .42s ease}
+#bagOpen.bag-pulse{animation:mfCartPulse .52s ease}
+@keyframes mfBagButtonPulse{0%{transform:scale(1)}45%{transform:scale(.97)}100%{transform:scale(1)}}
+@keyframes mfCartPulse{0%{transform:scale(1)}35%{transform:scale(1.12)}70%{transform:scale(.96)}100%{transform:scale(1)}}
 .pd-heart{height:54px;border:1px solid #111;background:#fff;font-size:27px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
 .pd-benefits{
   display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
@@ -1967,6 +1972,31 @@ try {
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
   }
 
+  var bagAddedTimer;
+  function confirmBagAdded(button, p, qty) {
+    if (!button) return;
+    button.classList.remove("bag-pulse", "is-added");
+    void button.offsetWidth;
+    button.classList.add("bag-pulse", "is-added");
+    button.textContent = "Agregado ✓";
+    button.setAttribute("aria-label", "Producto agregado al carrito");
+    var cart = $("#bagOpen");
+    if (cart) {
+      cart.classList.remove("bag-pulse");
+      void cart.offsetWidth;
+      cart.classList.add("bag-pulse");
+      setTimeout(function () { cart.classList.remove("bag-pulse"); }, 560);
+    }
+    toast((qty || 1) > 1 ? p.name + " agregado · x" + qty : p.name + " agregado al carrito");
+    clearTimeout(bagAddedTimer);
+    bagAddedTimer = setTimeout(function () {
+      button.classList.remove("is-added");
+      button.classList.remove("bag-pulse");
+      button.textContent = "Añadir al carrito";
+      button.setAttribute("aria-label", "Añadir al carrito");
+    }, 1500);
+  }
+
   /* ---------- Fotos ---------- */
   function mediaInner(src, alt, label, eager) {
     return '<span class="ph" aria-hidden="true"><span class="ph-mf">MF</span><span>Foto pendiente</span><small>' + esc(label || "") + "</small></span>" +
@@ -2574,7 +2604,14 @@ try {
         var scope = el.closest("[data-product]"), p = byId(scope.dataset.product);
         if (p.price == null) { openWA(msgConsult(p, checkedSize(scope), checkedColor(scope))); return; }
         var v1 = pickVariant(scope, p); if (!v1) return;
-        addToBag(p.id, v1.size, v1.color, true, qtyOf(scope)); if (el.closest("#pd")) { renderBag(); openDlg($("#drawer")); } else { openCheckout(); } return;
+        var addedQty = qtyOf(scope);
+        addToBag(p.id, v1.size, v1.color, true, addedQty);
+        if (el.closest("#pd")) {
+          confirmBagAdded(el, p, addedQty);
+        } else {
+          openCheckout();
+        }
+        return;
       }
       if (el.matches("[data-consult]")) {
         var sc = el.closest("[data-product]"); openWA(msgConsult(byId(sc.dataset.product), checkedSize(sc), checkedColor(sc))); return;
