@@ -19,6 +19,7 @@ export default async (req) => {
   const posts = getStore("comunidad-posts");
   const photos = getStore("comunidad-fotos");
   const tokens = getStore("comunidad-tokens");
+  const orders = getStore("mfc-admin");
 
   if (req.method === "GET") {
     if (action === "public" || (action === "all" && admin)) {
@@ -27,8 +28,21 @@ export default async (req) => {
       if (action === "public") {
         all = all.filter((p) => p.status === "approved").map((p) => ({
           id: p.id, product: p.product, productName: p.productName, rating: p.rating, text: p.text,
-          instagram: p.instagram, verified: p.verified, featured: p.featured, hasPhoto: p.hasPhoto, created: p.created,
+          instagram: p.instagram, verified: p.verified, featured: p.featured, hasPhoto: p.hasPhoto,
+          created: p.created, customerName: p.customerName || "", kind: p.kind || "review", lookId: p.lookId || p.product,
         }));
+      }
+
+      if (action === "product" || action === "look") {
+        const product = clean(url.searchParams.get("product") || url.searchParams.get("look") || "", 60);
+        if (!ID.test(product)) return json({ error: "Producto o Look no válido" }, 400);
+        all = all.filter((p) => p.status === "approved" && p.product === product).map((p) => ({
+          id: p.id, product: p.product, productName: p.productName, rating: p.rating, text: p.text,
+          instagram: p.instagram, verified: p.verified, featured: p.featured, hasPhoto: p.hasPhoto,
+          created: p.created, customerName: p.customerName || "", kind: p.kind || "review", lookId: p.lookId || p.product,
+        }));
+        all.sort((a, b) => b.created - a.created);
+        return json(all, 200, { "Cache-Control": "public, max-age=60" });
       }
       all.sort((a, b) => b.created - a.created);
       return json(all, 200, { "Cache-Control": action === "public" ? "public, max-age=60" : "no-store" });
@@ -87,15 +101,28 @@ export default async (req) => {
       .filter((p) => ID.test(p.id) && p.name);
     if (!products.length) return json({ error: "Falta el producto" }, 400);
 
+    const ref = clean(b.ref, 80);
+    const order = ref ? await orders.get("orders/" + ref, { type: "json" }) : null;
+    const customerName = clean(b.customerName || order?.name || "", 120);
+    const customerId = clean(b.customerId || (order?.reference ? "order:" + order.reference : "token:" + ref), 120);
+
     const t = crypto.randomBytes(12).toString("hex");
     await tokens.setJSON(t, {
       products,
-      ref: clean(b.ref, 60),
+      ref,
+      orderRef: order?.reference || ref,
+      customerId: customerId || "token:" + t,
+      customerName,
       done: [],
       created: Date.now()
     });
 
-    return json({ token: t, url: url.origin + "/comunidad.html?t=" + t });
+    return json({
+      token: t,
+      url: url.origin + "/comunidad.html?t=" + t,
+      customerName,
+      orderRef: order?.reference || ref
+    });
   }
 
   let f;
@@ -109,6 +136,8 @@ export default async (req) => {
   const rating = Math.round(Number(f.get("rating")));
   const text = clean(f.get("text"), 500);
   const ig = clean(f.get("instagram"), 40).replace(/^@/, "");
+  const customerName = clean(f.get("customerName"), 120);
+  const clientId = clean(f.get("clientId"), 120);
   const file = f.get("photo");
   const hasPhoto = !!file && typeof file === "object" && file.size > 0;
 
@@ -133,6 +162,9 @@ export default async (req) => {
   }
 
   let verified = false;
+  let orderRef = "";
+  let customerId = clientId || "";
+  let verifiedCustomerName = customerName;
   const t = clean(f.get("token"), 40);
   if (t) {
     const tk = TK.test(t) ? await tokens.get(t, { type: "json" }) : null;
@@ -143,13 +175,21 @@ export default async (req) => {
     tk.done.push(product);
     await tokens.setJSON(t, tk);
     verified = true;
+    orderRef = clean(tk.orderRef || tk.ref, 80);
+    customerId = clean(tk.customerId || ("order:" + orderRef), 120);
+    verifiedCustomerName = clean(tk.customerName || customerName, 120);
   }
 
   const id = crypto.randomBytes(12).toString("hex");
+  const kind = hasPhoto ? (text ? "look+review" : "look") : "review";
+  const lookId = product;
   if (buf) await photos.set(id, buf);
   await posts.setJSON(id, {
-    id, product, productName, rating, text, instagram: ig, verified, featured: false,
-    hasPhoto, photoType: hasPhoto ? photoType : "", consent: hasPhoto, status: "pending", created: Date.now()
+    id, product, productName, rating, text, instagram: ig,
+    customerName: verifiedCustomerName, customerId, orderRef,
+    kind, lookId, verified, featured: false,
+    hasPhoto, photoType: hasPhoto ? photoType : "", consent: hasPhoto,
+    status: "pending", created: Date.now()
   });
 
   return json({ ok: true });
