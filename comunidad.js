@@ -43,7 +43,7 @@
           (p.hasPhoto ? '<a class="cm-pr-photo" href="' + API + '?action=photo&id=' + p.id + '" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="' + API + '?action=photo&id=' + p.id + '" alt="Foto de una clienta con ' + esc(p.productName) + '"></a>' : '') +
           '<div class="cm-pr-copy"><div class="cm-pr-stars" aria-label="' + p.rating + ' de 5">' + stars(p.rating) + '</div>' +
           (p.text ? '<p class="cm-pr-text">“' + esc(p.text) + '”</p>' : '') +
-          '<p class="cm-pr-meta">Clienta verificada' + (p.verified ? ' · ✓ Compra verificada' : '') + '</p></div>' +
+          '<p class="cm-pr-meta">' + (p.customerName ? esc(p.customerName) : 'Clienta Marlon') + (p.verified ? ' · ✓ Compra verificada' : '') + '</p></div>' +
           '</article>';
       }).join("") + '</div></section>';
   }
