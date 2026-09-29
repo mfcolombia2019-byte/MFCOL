@@ -116,7 +116,7 @@
   };
   $("#mk").onclick = function () {
     var o = $("#prod").selectedOptions[0]; if (!o) return;
-    post("issue-token", { products: [{ id: o.value, name: o.textContent }], ref: $("#ref").value }).then(function (d) {
+    post("issue-token", { products: [{ id: o.value, name: o.textContent }], ref: $("#ref").value, customerName: $("#customerName").value }).then(function (d) {
       var l = $("#link"); l.hidden = false; l.textContent = d.url;
       if (navigator.clipboard) navigator.clipboard.writeText(d.url).catch(function () {});
     }).catch(function (x) { alert(x.message); });
