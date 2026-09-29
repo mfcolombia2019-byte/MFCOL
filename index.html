@@ -2192,8 +2192,74 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
     return favs.indexOf(id) > -1;
   }
 
-  function openProduct(id, mustPickSize) {
+  /* ---------- Routing de producto: URL estable + historial + scroll ---------- */
+  var PRODUCT_PARAM = "producto";
+
+  try { history.scrollRestoration = "manual"; } catch (e) {}
+
+  function currentProductId() {
+    return new URL(window.location.href).searchParams.get(PRODUCT_PARAM) || "";
+  }
+
+  function routeUrlForProduct(id) {
+    var u = new URL(window.location.href);
+    u.searchParams.set(PRODUCT_PARAM, id);
+    u.hash = "";
+    return u.pathname + u.search;
+  }
+
+  function routeCatalogUrl() {
+    var u = new URL(window.location.href);
+    u.searchParams.delete(PRODUCT_PARAM);
+    return u.pathname + u.search + u.hash;
+  }
+
+  function pushProductRoute(id) {
+    if (currentProductId() === id) return;
+    var existing = history.state && history.state.mfProductRoute ? history.state : null;
+    var catalogUrl = existing && existing.mfCatalogUrl ? existing.mfCatalogUrl : routeCatalogUrl();
+    var catalogScrollY = existing && Number.isFinite(existing.mfCatalogScrollY) ? existing.mfCatalogScrollY : window.scrollY;
+    history.pushState({
+      mfProductRoute: id,
+      mfCatalogUrl: catalogUrl,
+      mfCatalogScrollY: catalogScrollY
+    }, "", routeUrlForProduct(id));
+  }
+
+  function restoreCatalogPosition(state) {
+    var y = state && Number.isFinite(state.mfCatalogScrollY) ? state.mfCatalogScrollY : 0;
+    var hash = state && state.mfCatalogUrl ? new URL(state.mfCatalogUrl, location.href).hash : location.hash;
+    window.requestAnimationFrame(function () {
+      if (hash) {
+        var target = document.querySelector(hash);
+        if (target) { target.scrollIntoView({ behavior: "auto", block: "start" }); return; }
+      }
+      window.scrollTo({ top: y, left: 0, behavior: "auto" });
+    });
+  }
+
+  function leaveProductRoute() {
+    if (currentProductId()) {
+      history.back();
+      return true;
+    }
+    return false;
+  }
+
+  window.addEventListener("popstate", function (event) {
+    var id = currentProductId();
+    if (id && byId(id)) {
+      openProduct(id, false, "pop");
+    } else {
+      var pd = $("#pd");
+      if (pd && pd.open) closeDlg(pd);
+      restoreCatalogPosition(event.state || {});
+    }
+  });
+
+  function openProduct(id, mustPickSize, routeMode) {
     var p = byId(id); if (!p) return;
+    if (routeMode !== "pop" && routeMode !== "direct") pushProductRoute(p.id);
     closeAllDlg();
     var pd = $("#pd"), pending = p.price == null; pd.dataset.product = p.id;
     var related = PRODUCTS.filter(function(x){ return x.id !== p.id; }).slice(0,4);
@@ -2534,13 +2600,18 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
       }
       if (el.matches("[data-remove]")) { bag.splice(+el.dataset.remove, 1); saveBag(); renderBag(); return; }
       if (el.matches("[data-close]")) {
-        var dlg = el.closest("dialog"); if (dlg) closeDlg(dlg);
+        var dlg = el.closest("dialog");
+        if (dlg && dlg.id === "pd" && leaveProductRoute()) return;
+        if (dlg) closeDlg(dlg);
         if (el.dataset.goto) { var t = $(el.dataset.goto); if (t) t.scrollIntoView(); }
         return;
       }
     }
-    // clic en el fondo oscuro cierra el diálogo
-    if (e.target.tagName === "DIALOG") closeDlg(e.target);
+    // clic en el fondo oscuro cierra el diálogo; el detalle también actualiza la ruta.
+    if (e.target.tagName === "DIALOG") {
+      if (e.target.id === "pd" && leaveProductRoute()) return;
+      closeDlg(e.target);
+    }
   });
 
   /* ---------- Acceso directo a producto desde toda la tarjeta ---------- */
@@ -2550,6 +2621,11 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
       e.preventDefault();
       openProduct(card.dataset.view, false);
     }
+  });
+
+  /* Esc cierra el detalle regresando a la entrada anterior del catálogo. */
+  document.addEventListener("cancel", function (e) {
+    if (e.target && e.target.id === "pd" && leaveProductRoute()) e.preventDefault();
   });
 
   /* ---------- Enlaces de contacto ---------- */
@@ -2646,7 +2722,20 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   renderBag();
   initLinks();
   initReveal();
-  loadStoreConfig();
+
+  /* Si la entrada fue directa, convertimos la entrada actual en catálogo
+     y añadimos encima el producto para que Atrás vuelva al catálogo. */
+  function initProductRoute() {
+    var id = currentProductId();
+    if (!id || !byId(id)) return;
+
+    var catalogUrl = routeCatalogUrl();
+    history.replaceState({ mfCatalogEntry: true, mfCatalogScrollY: 0 }, "", catalogUrl);
+    history.pushState({ mfProductRoute: id, mfCatalogUrl: catalogUrl, mfCatalogScrollY: 0 }, "", routeUrlForProduct(id));
+    openProduct(id, false, "direct");
+  }
+
+  loadStoreConfig().finally(initProductRoute);
 })();
 </script>
 
