@@ -2324,26 +2324,10 @@ try {
     return favs.indexOf(id) > -1;
   }
 
-  /* ---------- Routing de producto: URL estable + historial + scroll ---------- */
+  /* ---------- Routing de producto: historial real + estado del catálogo ---------- */
   var PRODUCT_PARAM = "producto";
 
   try { history.scrollRestoration = "manual"; } catch (e) {}
-
-  /* Anclamos una entrada real del catálogo antes de abrir cualquier producto.
-     Así el botón Atrás del navegador siempre vuelve a esta misma página, no
-     a la página que estaba antes del sitio. */
-  try {
-    if (!new URL(window.location.href).searchParams.get("producto") && !(history.state && history.state.mfCatalogAnchor)) {
-      var baseUrl = routeCatalogUrl();
-      var catalogState = {
-        mfCatalogAnchor: true,
-        mfCatalogUrl: baseUrl,
-        mfCatalogScrollY: Number.isFinite(window.scrollY) ? window.scrollY : 0
-      };
-      history.replaceState(catalogState, "", baseUrl);
-      history.pushState(catalogState, "", baseUrl);
-    }
-  } catch (e) {}
 
   function currentProductId() {
     return new URL(window.location.href).searchParams.get(PRODUCT_PARAM) || "";
@@ -2362,27 +2346,74 @@ try {
     return u.pathname + u.search + u.hash;
   }
 
+  function catalogHistoryState(extra) {
+    var searchInput = document.getElementById("sdInput");
+    var searchDialog = document.getElementById("sd");
+    var stateCopy = {
+      mfCatalogEntry: true,
+      mfCatalogUrl: routeCatalogUrl(),
+      mfCatalogScrollY: Number.isFinite(window.scrollY) ? window.scrollY : 0,
+      mfCatalogGroup: state.group,
+      mfCatalogSearch: searchInput ? searchInput.value : "",
+      mfCatalogSearchOpen: !!(searchDialog && searchDialog.open)
+    };
+    if (extra) {
+      Object.keys(extra).forEach(function (key) { stateCopy[key] = extra[key]; });
+    }
+    return stateCopy;
+  }
+
+  function markCurrentCatalogEntry() {
+    try {
+      history.replaceState(catalogHistoryState(), "", routeCatalogUrl());
+    } catch (e) {}
+  }
+
+  /* La primera carga recibe estado, pero NO crea una entrada adicional.
+     Así Atrás conserva el historial real y no queda una entrada duplicada. */
+  try {
+    if (!currentProductId()) markCurrentCatalogEntry();
+  } catch (e) {}
+
   function pushProductRoute(id) {
     if (currentProductId() === id) return;
-    var existing = history.state && history.state.mfProductRoute ? history.state : null;
-    var catalogUrl = existing && existing.mfCatalogUrl ? existing.mfCatalogUrl : routeCatalogUrl();
-    var catalogScrollY = existing && Number.isFinite(existing.mfCatalogScrollY) ? existing.mfCatalogScrollY : window.scrollY;
+
+    /* Guardamos el estado exacto de la pantalla que el usuario estaba viendo
+       justo antes de abrir el producto. */
+    markCurrentCatalogEntry();
+
     history.pushState({
       mfProductRoute: id,
-      mfCatalogUrl: catalogUrl,
-      mfCatalogScrollY: catalogScrollY
+      mfCatalogUrl: routeCatalogUrl(),
+      mfCatalogScrollY: Number.isFinite(window.scrollY) ? window.scrollY : 0
     }, "", routeUrlForProduct(id));
   }
 
   function restoreCatalogPosition(state) {
-    var y = state && Number.isFinite(state.mfCatalogScrollY) ? state.mfCatalogScrollY : 0;
-    var hash = state && state.mfCatalogUrl ? new URL(state.mfCatalogUrl, location.href).hash : location.hash;
+    var s = state || {};
+    if (s.mfCatalogGroup && s.mfCatalogGroup !== state.group) {
+      state.group = s.mfCatalogGroup;
+      renderGrid();
+    }
+
+    var searchInput = document.getElementById("sdInput");
+    var searchDialog = document.getElementById("sd");
+    if (searchInput && typeof s.mfCatalogSearch === "string") {
+      searchInput.value = s.mfCatalogSearch;
+    }
+
     window.requestAnimationFrame(function () {
-      if (hash) {
-        var target = document.querySelector(hash);
-        if (target) { target.scrollIntoView({ behavior: "auto", block: "start" }); return; }
-      }
+      var y = Number.isFinite(s.mfCatalogScrollY) ? s.mfCatalogScrollY : 0;
       window.scrollTo({ top: y, left: 0, behavior: "auto" });
+
+      if (searchDialog) {
+        if (s.mfCatalogSearchOpen) {
+          openDlg(searchDialog);
+          if (searchInput) searchInput.focus({ preventScroll: true });
+        } else if (searchDialog.open) {
+          closeDlg(searchDialog);
+        }
+      }
     });
   }
 
@@ -2397,12 +2428,18 @@ try {
   window.addEventListener("popstate", function (event) {
     var id = currentProductId();
     if (id && byId(id)) {
+      /* Volver de Producto B a Producto A solo reconstruye A.
+         No se vuelve a llamar pushState. */
       openProduct(id, false, "pop");
-    } else {
-      var pd = $("#pd");
-      if (pd && pd.open) closeDlg(pd);
-      restoreCatalogPosition(event.state || {});
+      return;
     }
+
+    var pd = $("#pd");
+    if (pd && pd.open) closeDlg(pd);
+
+    /* Al volver al catálogo se reconstruye únicamente el estado que ya tenía
+       la entrada anterior del historial; no se crea una navegación nueva. */
+    restoreCatalogPosition(event.state || {});
   });
 
   function openProduct(id, mustPickSize, routeMode) {
@@ -2691,10 +2728,21 @@ try {
 
   /* ---------- Eventos globales ---------- */
   function setFilter(g) {
+    if (state.group === g && location.hash === "#productos") return;
     state.group = g;
     renderGrid();
+
+    /* La categoría seleccionada es una navegación real del catálogo.
+       Se registra una sola entrada y el producto se apila encima de ella. */
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.delete(PRODUCT_PARAM);
+      u.hash = "productos";
+      history.pushState(catalogHistoryState({ mfCatalogUrl: u.pathname + u.search + u.hash }), "", u.pathname + u.search + u.hash);
+    } catch (e) {}
+
     var target = $("#productos");
-    if (target && location.hash !== "#productos") target.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   var galleryTouch = { el:null, startX:0, startY:0, moved:false };
@@ -2756,7 +2804,15 @@ try {
     var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
-      if (el.dataset.filter) setFilter(el.dataset.filter);
+      if (el.dataset.filter) {
+        e.preventDefault();
+        setFilter(el.dataset.filter);
+        if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) {
+          menu.classList.remove("open");
+          document.body.classList.remove("lock");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+      }
 
       if (el.dataset.view) { openProduct(el.dataset.view, el.hasAttribute("data-need-size")); return; }
       if (el.matches(".pd-heart")) {
@@ -2945,9 +3001,8 @@ try {
       return;
     }
 
-    var catalogUrl = routeCatalogUrl();
-    history.replaceState({ mfCatalogEntry: true, mfCatalogScrollY: 0 }, "", catalogUrl);
-    history.pushState({ mfProductRoute: id, mfCatalogUrl: catalogUrl, mfCatalogScrollY: 0 }, "", routeUrlForProduct(id));
+    /* Entrada directa: respetamos el historial real. No inventamos una
+       entrada de catálogo ni usamos history.back() para fabricarla. */
     openProduct(id, false, "direct");
     document.documentElement.classList.remove("mf-product-route-pending");
   }
