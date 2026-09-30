@@ -1608,6 +1608,195 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 /* Quitar el recuadro de foco del logo dentro de la ficha de producto */
 .pd-top-logo:focus,.pd-top-logo:focus-visible{outline:none!important;box-shadow:none!important}
 </style>
+
+<style id="mf-colombia-premium-visual">
+/* MF COLOMBIA — dirección visual premium/editorial
+   Solo presentación: no modifica catálogo, datos, carrito ni checkout. */
+:root{
+  --section:clamp(58px,7vw,104px);
+  --gutter:clamp(18px,4vw,58px);
+  --line:#e5e5e3;
+  --muted:#737373;
+}
+body{background:#fff;color:#111}
+.top{background:#111;color:#fff;padding:7px var(--gutter);font-size:9px;letter-spacing:.18em}
+.hdr{background:rgba(255,255,255,.97);border-bottom:1px solid #111;backdrop-filter:blur(12px)}
+.hdr-in{height:74px}
+.logo-brand{font-family:var(--serif);font-size:19px;letter-spacing:.04em}
+.nav ul{gap:34px}
+.nav a{font-size:10px!important;letter-spacing:.16em!important}
+.actions{gap:0}
+.icon-btn{width:42px;height:42px}
+
+/* HERO — editorial fashion campaign, not ecommerce banner */
+.mf-hero-new{
+  min-height:calc(100svh - 81px)!important;
+  height:min(820px,calc(100svh - 81px))!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1.72fr) minmax(330px,.78fr)!important;
+  background:#fff!important;
+  color:#111!important;
+}
+.mf-hero-photo{position:relative!important;inset:auto!important;width:auto!important;height:100%!important;background:#f4f4f2}
+.mf-hero-photo img{
+  width:100%!important;height:100%!important;object-fit:cover!important;
+  object-position:center!important;transform:none!important;
+  transition:transform 1s cubic-bezier(.2,.7,.2,1)!important;
+}
+.mf-hero-new:hover .mf-hero-photo img{transform:scale(1.018)!important}
+.mf-hero-overlay{display:none!important}
+.mf-hero-content{
+  position:relative!important;inset:auto!important;z-index:2!important;
+  height:auto!important;min-height:100%!important;
+  padding:clamp(38px,6vw,82px) clamp(28px,5vw,70px)!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;
+  text-align:left!important;background:#fff!important;
+  border-left:1px solid #111;
+}
+.mf-hero-content:before{
+  content:"TACONES · PLATAFORMAS";
+  position:absolute;top:30px;left:clamp(28px,5vw,70px);
+  font:600 9px/1 var(--sans);letter-spacing:.2em;color:#777;
+}
+.mf-neon-brand{
+  color:#111!important;font-family:var(--serif)!important;
+  font-size:clamp(18px,2.2vw,28px)!important;font-weight:500!important;
+  line-height:1!important;letter-spacing:.04em!important;
+  text-shadow:none!important;margin:0 0 25px!important;
+}
+.mf-hero-message{
+  max-width:8ch!important;color:#111!important;
+  font-family:var(--serif)!important;font-weight:400!important;
+  font-size:clamp(48px,5.4vw,82px)!important;
+  line-height:.88!important;letter-spacing:-.045em!important;
+}
+.mf-hero-cta{
+  margin-top:34px!important;padding:0 0 8px!important;
+  color:#111!important;border-bottom:1px solid #111!important;
+  font-size:10px!important;letter-spacing:.18em!important;
+}
+.mf-hero-cta span{color:#111!important}
+
+/* Editorial section headings */
+.sec-head,.collection-head{margin-bottom:30px!important}
+.hero-kicker{font-size:9px!important;letter-spacing:.2em!important;color:#777!important}
+.h-sec{font-family:var(--serif)!important;font-weight:400!important;letter-spacing:-.035em!important}
+.sub{font-size:13px!important;color:#777!important}
+.brand-intro{padding:clamp(55px,7vw,95px) var(--gutter)!important}
+.brand-intro p{max-width:17ch!important}
+
+/* Category tiles — fashion lookbook rather than ecommerce cards */
+.cats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2px!important}
+.cat-tile{background:#f4f4f2!important}
+.cat-tile::after{display:none!important}
+.cat-tile .r45{aspect-ratio:4/5!important;transition:transform .8s cubic-bezier(.2,.7,.2,1)!important}
+.cat-tile:hover .r45{transform:scale(1.018)!important}
+.cat-name{
+  left:22px!important;bottom:20px!important;color:#111!important;
+  font-family:var(--serif)!important;font-size:clamp(32px,4vw,58px)!important;
+  letter-spacing:-.035em!important;
+}
+.cat-tile:after{content:""!important;display:block!important;position:absolute!important;inset:auto 22px 12px!important;height:1px!important;background:#111!important;z-index:3!important}
+@media(max-width:520px){.cats{grid-template-columns:1fr!important}.cat-tile .r45{aspect-ratio:4/5!important}}
+
+/* Product collection — lighter, more runway/editorial */
+#productos{padding-top:clamp(52px,6vw,90px)!important}
+#productos .collection-head{margin-bottom:22px!important}
+.tabs{
+  display:flex!important;gap:24px!important;border:0!important;
+  margin-bottom:16px!important;overflow:auto!important;scrollbar-width:none!important;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  flex:0 0 auto!important;padding:0 0 8px!important;
+  font-size:9px!important;letter-spacing:.18em!important;color:#999!important;
+}
+.tabs button[aria-pressed="true"]{color:#111!important;border-color:#111!important}
+.count{font-size:10px!important;margin-bottom:18px!important;color:#999!important}
+.grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:48px 18px!important;
+}
+@media(min-width:780px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:62px 24px!important}}
+@media(min-width:1200px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:74px 30px!important}}
+.card-media{background:#f5f5f3!important}
+.card-media .media{background:#f5f5f3!important}
+.card-media img{mix-blend-mode:multiply}
+.tag{
+  top:12px!important;left:12px!important;background:#fff!important;
+  padding:6px 8px!important;font-size:8px!important;letter-spacing:.14em!important;
+}
+.card-body{padding-top:13px!important;gap:4px 14px!important}
+.card .cat{font-size:8px!important;letter-spacing:.13em!important;color:#999!important}
+.card h3{font-family:var(--serif)!important;font-size:clamp(21px,2.1vw,29px)!important;font-weight:400!important}
+.price{font-size:12px!important;font-weight:500!important}
+.card-actions .btn{font-size:8px!important;letter-spacing:.14em!important}
+
+/* Featured product: campaign/editorial, no heavy black block */
+.spot{
+  background:#fff!important;color:#111!important;
+  border-top:1px solid #111;border-bottom:1px solid #111;
+}
+.spot-media{background:#f4f4f2!important}
+.spot-media .media{background:#f4f4f2!important}
+.spot-media img{mix-blend-mode:multiply}
+.spot-info{background:#fff!important;padding:clamp(45px,6vw,85px) var(--gutter)!important}
+.spot .cat{color:#888!important;font-size:9px!important;letter-spacing:.18em!important}
+.spot h2{font-family:var(--serif)!important;color:#111!important;font-size:clamp(44px,6vw,82px)!important}
+.spot .desc{color:#555!important}
+.spot .price{color:#111!important;font-family:var(--sans)!important;font-size:15px!important}
+.spot .chip span{background:#fff!important;color:#111!important;border-color:#ddd!important}
+.spot .chip input:checked+span{background:#111!important;color:#fff!important;border-color:#111!important}
+
+/* About / community / reviews — premium rhythm */
+.about{padding-top:clamp(62px,8vw,110px)!important}
+.about p.lead{font-family:var(--serif)!important}
+.reviews{background:#fff!important;border-top:1px solid #111;border-bottom:1px solid #111}
+.review-card{border:1px solid #ddd!important;border-top:2px solid #111!important;box-shadow:none!important}
+.reviews-empty{border:0!important;background:#f5f5f3!important}
+.cm-home .btn{border:0;border-bottom:1px solid #111;padding-left:0;padding-right:0}
+
+/* Reduce marketplace feeling from controls */
+.btn{border-radius:0!important}
+.btn:hover{transform:translateY(-1px)}
+.chip span{border-radius:0!important}
+
+/* Product detail keeps same luxury language */
+.pd-info h2,.pd-related-head h3{font-family:var(--serif)!important;text-transform:none!important;font-weight:400!important}
+.pd-gal,.pd-main-media{background:#f4f4f2!important}
+.pd-main-media>.media{background:#f4f4f2!important}
+.pd-main-media>.media img{mix-blend-mode:multiply!important}
+.pd-primary{background:#111!important;color:#fff!important}
+.pd-primary.is-added{background:#111!important;color:#fff!important;border-color:#111!important}
+.pd-heart{border-color:#111!important}
+
+/* Mobile: image-first editorial hero, compact category rhythm */
+@media(max-width:819px){
+  .mf-hero-new{
+    display:flex!important;flex-direction:column!important;
+    height:auto!important;min-height:0!important;
+  }
+  .mf-hero-photo{height:64svh!important;min-height:430px!important;order:1}
+  .mf-hero-content{
+    min-height:390px!important;padding:76px 22px 45px!important;
+    border-left:0!important;border-top:1px solid #111!important;order:2!important;
+  }
+  .mf-hero-content:before{top:25px;left:22px}
+  .mf-neon-brand{font-size:19px!important;margin-bottom:22px!important}
+  .mf-hero-message{font-size:clamp(48px,14vw,70px)!important;max-width:8ch!important}
+  .mf-hero-cta{margin-top:28px!important}
+  .brand-intro{padding:58px 22px!important}
+  .cats{gap:2px!important}
+  .cat-name{left:16px!important;bottom:18px!important;font-size:36px!important}
+  .grid{gap:42px 12px!important}
+  .card h3{font-size:21px!important}
+}
+
+/* No yellow/cream UI surfaces */
+.hdr,.menu,.media,.card-media,.fcard-media,.pd,.drawer,.sd,.co,
+.co-pay,.pay,.chip span,.pd-gal,.pd-main-media{background-color:#fff}
+</style>
 </head>
 <body>
 <script>
@@ -1687,8 +1876,8 @@ try {
   </div>
   <div class="mf-hero-overlay"></div>
   <div class="mf-hero-content">
-    <div class="mf-neon-brand" aria-label="Marlon Footwear">MARLON FOOTWEAR</div>
-    <p class="mf-hero-message">Siluetas que hablan por sí solas.</p>
+    <div class="mf-neon-brand" aria-label="MF Colombia">MF COLOMBIA</div>
+    <p class="mf-hero-message">Tacones y plataformas con presencia.</p>
     <a class="mf-hero-cta" href="#productos">Colección <span>→</span></a>
   </div>
 </section>
@@ -1720,9 +1909,9 @@ try {
   <div class="wrap">
     <div class="collection-head reveal">
       <div>
-        <p class="hero-kicker" style="margin:0 0 10px">Shop MF</p>
-        <h2 class="h-sec" id="prod-title">Todos los modelos.</h2>
-        <p class="sub">Un solo catálogo para verlo todo. Las demás entradas te llevan a modelos de la misma silueta y características.</p>
+        <p class="hero-kicker" style="margin:0 0 10px">Colección</p>
+        <h2 class="h-sec" id="prod-title">Tacones y plataformas.</h2>
+        <p class="sub">Una selección de siluetas femeninas pensadas para destacar.</p>
       </div>
     </div>
     <div class="tabs" role="group" aria-label="Filtrar por categoría">
