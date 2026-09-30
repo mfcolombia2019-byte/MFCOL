@@ -2329,17 +2329,19 @@ try {
 
   try { history.scrollRestoration = "manual"; } catch (e) {}
 
-  /* La entrada actual representa el catálogo. Así "Atrás" desde un producto vuelve
-     a la colección y conserva la posición, incluso si la clienta abrió el sitio directamente. */
+  /* Anclamos una entrada real del catálogo antes de abrir cualquier producto.
+     Así el botón Atrás del navegador siempre vuelve a esta misma página, no
+     a la página que estaba antes del sitio. */
   try {
-    if (!new URL(window.location.href).searchParams.get("producto")) {
+    if (!new URL(window.location.href).searchParams.get("producto") && !(history.state && history.state.mfCatalogAnchor)) {
       var baseUrl = routeCatalogUrl();
-      var baseState = history.state && history.state.mfCatalogBase ? history.state : null;
-      history.replaceState({
-        mfCatalogBase: true,
+      var catalogState = {
+        mfCatalogAnchor: true,
         mfCatalogUrl: baseUrl,
         mfCatalogScrollY: Number.isFinite(window.scrollY) ? window.scrollY : 0
-      }, "", baseUrl);
+      };
+      history.replaceState(catalogState, "", baseUrl);
+      history.pushState(catalogState, "", baseUrl);
     }
   } catch (e) {}
 
