@@ -318,8 +318,8 @@ dialog[open]{animation:dialogIn .22s ease}
 
 /* Premium product view — clean editorial layout inspired by the supplied reference */
 .pd{
-  width:100vw!important;
-  max-width:none!important;
+  width:100%!important;
+  max-width:100%!important;
   height:100dvh!important;
   max-height:none!important;
   margin:0!important;
@@ -1796,6 +1796,51 @@ body{background:#fff;color:#111}
 /* No yellow/cream UI surfaces */
 .hdr,.menu,.media,.card-media,.fcard-media,.pd,.drawer,.sd,.co,
 .co-pay,.pay,.chip span,.pd-gal,.pd-main-media{background-color:#fff}
+
+/* Mobile width safety — prevents iPhone layout viewport shrink/overflow */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  margin:0;
+  box-sizing:border-box;
+}
+img,video,svg,iframe,canvas{
+  max-width:100%;
+  box-sizing:border-box;
+}
+main,header,.top,.hdr,.hdr-in,.wrap,
+.mf-hero-new,.mf-hero-photo,.mf-hero-overlay,.mf-hero-content,
+.section,.cats-wrap,#productos,.grid,.spot,.about,.contact,.footer{
+  max-width:100%;
+  box-sizing:border-box;
+}
+@media(max-width:819px){
+  .top,.hdr,.hdr-in,.mf-hero-new,.mf-hero-photo,.mf-hero-content,
+  main,.section,.wrap,#productos,.grid,.spot,.about,.contact,.footer{
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  .mf-hero-photo img{
+    width:100%;
+    max-width:100%;
+    height:100%;
+    max-width:100%;
+    object-fit:cover;
+  }
+  .wa-float{
+    right:14px;
+    max-width:calc(100% - 28px);
+    box-sizing:border-box;
+  }
+  .feature-grid{
+    max-width:100vw;
+  }
+  .tabs{
+    max-width:100%;
+  }
+}
 </style>
 </head>
 <body>
