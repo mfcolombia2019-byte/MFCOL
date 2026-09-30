@@ -2264,10 +2264,10 @@ try {
     return '<span class="ph" aria-hidden="true"><span class="ph-mf">MF</span><span>Foto pendiente</span><small>' + esc(label || "") + "</small></span>" +
       (src ? '<img src="' + esc(src) + '" alt="' + esc(alt) + '" ' + (eager ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async" onerror="this.remove()">' : "");
   }
-  function media(alt, cls, p, idx) {
+  function media(alt, cls, p, idx, eager) {
     var im = p && p.imgs && p.imgs[idx || 0];
     return '<span class="media ' + (cls || "") + '"' + (im ? "" : ' role="img" aria-label="' + esc(alt) + '"') + ">" +
-      mediaInner(im ? im[0] : "", im ? im[1] : alt, p ? CONFIG.photos.folder + p.id + CONFIG.photos.ext : "") + "</span>";
+      mediaInner(im ? im[0] : "", im ? im[1] : alt, p ? CONFIG.photos.folder + p.id + CONFIG.photos.ext : "", !!eager) + "</span>";
   }
   // Para tarjetas de grilla: si el producto tiene una segunda fotografía, la
   // superpone (crossfade en hover de escritorio) y añade un indicador discreto
@@ -2298,7 +2298,7 @@ try {
         (n > 1 ? '<div class="thumbs" role="group" aria-label="Fotos de ' + esc(p.name) + '">' + p.imgs.map(function (im, i) {
           return '<button class="thumb" type="button" data-thumb="' + i + '" aria-pressed="' + (i === 0) + '" aria-label="Ver foto ' + (i + 1) + " de " + n + '"><img src="' + esc(im[0]) + '" alt="" loading="lazy"></button>';
         }).join("") + "</div>" : "") +
-        '<div class="pd-main-media" data-gallery-index="0">' + media(p.name + ", " + p.cat, "r45", p, 0) + (n > 1 ? '<div class="pd-gallery-dots" aria-hidden="true">' + p.imgs.map(function(_, i){ return '<i class="' + (i === 0 ? "is-active" : "") + '"></i>'; }).join("") + '</div><span class="pd-swipe-hint" aria-hidden="true">Desliza <span>→</span></span>' : "") + '<span class="pd-zoom" aria-hidden="true">⌕</span></div>' +
+        '<div class="pd-main-media" data-gallery-index="0">' + media(p.name + ", " + p.cat, "r45", p, 0, true) + (n > 1 ? '<div class="pd-gallery-dots" aria-hidden="true">' + p.imgs.map(function(_, i){ return '<i class="' + (i === 0 ? "is-active" : "") + '"></i>'; }).join("") + '</div><span class="pd-swipe-hint" aria-hidden="true">Desliza <span>→</span></span>' : "") + '<span class="pd-zoom" aria-hidden="true">⌕</span></div>' +
       '</div>' +
     '</div>';
   }
@@ -2395,15 +2395,19 @@ try {
     return PRODUCTS.filter(function (x) { return collectionOf(x) === key; }).length;
   }
 
-  function renderGrid() {
+  var renderedGridGroup = null;
+  function renderGrid(force) {
+    var group = state.group;
+    if (!force && renderedGridGroup === group) return;
     var list = PRODUCTS.filter(function (p) {
-      if (state.group === "todos") return true;
-      if (state.group === "tacones" || state.group === "plataformas") return p.group === state.group;
-      return collectionOf(p) === state.group;
+      if (group === "todos") return true;
+      if (group === "tacones" || group === "plataformas") return p.group === group;
+      return collectionOf(p) === group;
     });
     $("#productGrid").innerHTML = list.map(cardHTML).join("");
-    $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos") + " · " + collectionLabel(state.group);
-    $$(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === state.group ? "true" : "false"); });
+    $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos") + " · " + collectionLabel(group);
+    $(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === group ? "true" : "false"); });
+    renderedGridGroup = group;
   }
   function renderFeatured() {
     var grid = $("#featureGrid");
@@ -2593,7 +2597,7 @@ try {
     var s = snapshot || {};
     if (s.mfCatalogGroup && s.mfCatalogGroup !== state.group) {
       state.group = s.mfCatalogGroup;
-      renderGrid();
+      renderGrid(true);
     }
 
     var searchInput = document.getElementById("sdInput");
@@ -2907,30 +2911,34 @@ try {
     sdInput.focus();
   });
 
+  var searchTimer = 0;
   sdInput.addEventListener("input", function () {
     var q = sdInput.value.trim();
+    clearTimeout(searchTimer);
     if (!q) { sdList.innerHTML = ""; return; }
 
-    var res = PRODUCTS.map(function (p) {
-      return { p:p, score:keywordMatchScore(p, q) };
-    }).filter(function (x) {
-      return x.score > 0;
-    }).sort(function (a,b) {
-      return b.score - a.score;
-    }).slice(0, 8).map(function (x) {
-      return x.p;
-    });
+    searchTimer = setTimeout(function () {
+      var res = PRODUCTS.map(function (p) {
+        return { p:p, score:keywordMatchScore(p, q) };
+      }).filter(function (x) {
+        return x.score > 0;
+      }).sort(function (a,b) {
+        return b.score - a.score;
+      }).slice(0, 8).map(function (x) {
+        return x.p;
+      });
 
-    sdList.innerHTML = res.length ? res.map(function (p) {
-      return '<li><button type="button" data-view="' + p.id + '"><span><strong>' + esc(p.name) + "</strong><small>" + esc(p.cat) + "</small></span><span>" + (p.price != null ? fmt(p.price) : "Por confirmar") + "</span></button></li>";
-    }).join("") : '<li class="sd-msg">No encontramos modelos con esas palabras. Prueba con color, tipo, material o una palabra parecida.</li>';
+      sdList.innerHTML = res.length ? res.map(function (p) {
+        return '<li><button type="button" data-view="' + p.id + '"><span><strong>' + esc(p.name) + "</strong><small>" + esc(p.cat) + "</small></span><span>" + (p.price != null ? fmt(p.price) : "Por confirmar") + "</span></button></li>";
+      }).join("") : '<li class="sd-msg">No encontramos modelos con esas palabras. Prueba con color, tipo, material o una palabra parecida.</li>';
+    }, 90);
   });
 
   /* ---------- Eventos globales ---------- */
   function setFilter(g) {
     if (state.group === g && location.hash === "#productos") return;
     state.group = g;
-    renderGrid();
+    renderGrid(true);
 
     /* La categoría seleccionada es una navegación real del catálogo.
        Se registra una sola entrada y el producto se apila encima de ella. */
@@ -3137,21 +3145,25 @@ try {
       if (!r.ok) return;
       var cfg = await r.json();
 
+      var catalogChanged = false;
       (cfg.products || []).forEach(function (o) {
         var p = byId(o.id);
         if (!p) return;
-        if (o.name) p.name = o.name;
-        if (o.price !== undefined) p.price = o.price;
-        if (o.category) p.cat = o.category;
-        p.adminActive = o.active !== false;
+        if (o.name && p.name !== o.name) { p.name = o.name; catalogChanged = true; }
+        if (o.price !== undefined && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
+        if (o.category && p.cat !== o.category) { p.cat = o.category; catalogChanged = true; }
+        var active = o.active !== false;
+        if (p.adminActive !== active) { p.adminActive = active; catalogChanged = true; }
       });
 
-      renderFeatured();
-      renderGrid();
+      if (catalogChanged) {
+        renderFeatured();
+        renderGrid(true);
+      }
 
       Array.prototype.forEach.call(document.querySelectorAll("#productGrid [data-product]"), function (card) {
         var p = byId(card.dataset.product);
-        if (p && p.adminActive === false) card.hidden = true;
+        if (p) card.hidden = p.adminActive === false;
       });
 
       if (cfg.settings && cfg.settings.brandMessage) {
