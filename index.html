@@ -1270,6 +1270,69 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   .review-card blockquote{font-size:14px}
 }
 
+
+/* MF Colombia — ajustes de presentación y rendimiento, sin alterar catálogo/datos */
+.tabs button[aria-pressed="true"]{
+  background:transparent!important;
+  color:#111!important;
+  border-color:transparent!important;
+  position:relative;
+}
+.tabs button[aria-pressed="true"]::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#111;
+}
+.tabs button:hover{background:transparent!important;color:#111!important;border-color:transparent!important}
+
+/* Tarjetas editoriales: nombre y precio centrados y alineados */
+.grid .card{
+  content-visibility:auto;
+  contain-intrinsic-size:560px;
+}
+.grid .card-body{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  text-align:center!important;
+  gap:0!important;
+  min-height:86px;
+  padding:14px 0 18px!important;
+}
+.grid .card-body .cat{display:none!important}
+.grid .card h3{
+  width:100%;
+  min-height:2.08em;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  margin:0 0 8px!important;
+  line-height:1.04!important;
+}
+.grid .card .price{
+  display:block;
+  width:100%;
+  text-align:center;
+  margin:0!important;
+}
+.grid .card-media,.grid .card-media .media{
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.grid .card-media img{will-change:transform;}
+
+/* Marca: ligeramente más presente, siempre centrada */
+.hdr .logo{justify-self:center!important;}
+.hdr .brand-logo{width:146px!important;max-height:50px!important;}
+@media(max-width:819px){
+  .hdr .brand-logo{width:128px!important;max-height:42px!important;}
+  .grid .card-body{min-height:82px;padding-bottom:16px!important;}
+  .grid .card h3{font-size:20px!important;min-height:2.08em;}
+}
+
+/* Scroll/render: evita trabajo de layout de tarjetas que están lejos del viewport. */
+.grid .card,.feature-grid .fcard{contain:layout paint style;}
+@media(hover:hover) and (pointer:fine){
+  .grid .card-media img{transition:transform .45s cubic-bezier(.2,.7,.2,1)!important;}
+}
 </style>
 
 <style id="mf-new-neon-hero">
