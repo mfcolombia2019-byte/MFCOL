@@ -147,6 +147,22 @@ export default async (req) => {
 
   if (!ID.test(product) || !productName) return json({ error: "Producto no válido" }, 400);
   if (!(rating >= 1 && rating <= 5)) return json({ error: "Elige tu calificación" }, 400);
+  // Evita duplicados accidentales en nuevos envíos del mismo navegador/cliente.
+  // No modifica ni elimina reseñas existentes; las reseñas rechazadas sí pueden reenviarse.
+  if (clientId) {
+    const { blobs: existingBlobs } = await posts.list();
+    for (const b of existingBlobs) {
+      const existing = await posts.get(b.key, { type: "json" });
+      if (
+        existing &&
+        existing.product === product &&
+        existing.clientId === clientId &&
+        existing.status !== "rejected"
+      ) {
+        return json({ error: "Ya recibimos una reseña para este producto." }, 409);
+      }
+    }
+  }
   if (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig)) return json({ error: "Usuario de Instagram no válido" }, 400);
   if (!hasPhoto && !text) return json({ error: "Escribe una reseña o sube una fotografía" }, 400);
 
