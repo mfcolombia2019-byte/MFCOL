@@ -3185,7 +3185,8 @@ try {
         if (o.price !== undefined && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
         if (o.category && p.cat !== o.category) { p.cat = o.category; catalogChanged = true; }
         var active = o.active !== false;
-        if (p.adminActive !== active) { p.adminActive = active; catalogChanged = true; }
+        if (p.adminActive !== undefined && p.adminActive !== active) catalogChanged = true;
+        p.adminActive = active;
       });
 
       if (catalogChanged) {
