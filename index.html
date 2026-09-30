@@ -1604,6 +1604,9 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 @media(min-width:901px){
   .pd-swipe-hint,.pd-gallery-dots{display:none}
 }
+
+/* Quitar el recuadro de foco del logo dentro de la ficha de producto */
+.pd-top-logo:focus,.pd-top-logo:focus-visible{outline:none!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -2708,6 +2711,26 @@ try {
     }
     galleryTouch.el = null;
   }, {passive:true});
+
+  document.addEventListener("error", function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== "IMG") return;
+    if (!img.closest(".pd-main-media,.thumb")) return;
+    var item = img.closest(".thumb");
+    if (item) {
+      item.hidden = true;
+      item.setAttribute("aria-hidden","true");
+      var gal = item.closest("[data-gal]");
+      if (gal) {
+        var visible = $(".thumb:not([hidden])", gal);
+        if (visible.length) {
+          setGalleryImage(gal, 0);
+        }
+      }
+    } else if (img.closest(".pd-main-media")) {
+      img.style.visibility = "hidden";
+    }
+  }, true);
 
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
