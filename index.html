@@ -2378,19 +2378,30 @@ try {
   function pushProductRoute(id) {
     if (currentProductId() === id) return;
 
-    /* Guardamos el estado exacto de la pantalla que el usuario estaba viendo
-       justo antes de abrir el producto. */
-    markCurrentCatalogEntry();
+    var previous = history.state && history.state.mfProductRoute ? history.state : null;
+
+    /* Solo una entrada que ya representa catálogo se actualiza con el
+       contexto actual. Si estamos en Producto A, NO tocamos esa entrada:
+       así Atrás desde Producto B vuelve realmente a Producto A. */
+    if (!currentProductId()) {
+      markCurrentCatalogEntry();
+      previous = history.state;
+    }
+
+    previous = previous || catalogHistoryState();
 
     history.pushState({
       mfProductRoute: id,
-      mfCatalogUrl: routeCatalogUrl(),
-      mfCatalogScrollY: Number.isFinite(window.scrollY) ? window.scrollY : 0
+      mfCatalogUrl: previous.mfCatalogUrl || routeCatalogUrl(),
+      mfCatalogScrollY: Number.isFinite(previous.mfCatalogScrollY) ? previous.mfCatalogScrollY : window.scrollY,
+      mfCatalogGroup: previous.mfCatalogGroup || state.group,
+      mfCatalogSearch: typeof previous.mfCatalogSearch === "string" ? previous.mfCatalogSearch : "",
+      mfCatalogSearchOpen: !!previous.mfCatalogSearchOpen
     }, "", routeUrlForProduct(id));
   }
 
-  function restoreCatalogPosition(state) {
-    var s = state || {};
+  function restoreCatalogPosition(snapshot) {
+    var s = snapshot || {};
     if (s.mfCatalogGroup && s.mfCatalogGroup !== state.group) {
       state.group = s.mfCatalogGroup;
       renderGrid();
