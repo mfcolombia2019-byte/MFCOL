@@ -2309,9 +2309,9 @@ try {
     return '<span class="ph" aria-hidden="true"><span class="ph-mf">MF</span><span>Foto pendiente</span><small>' + esc(label || "") + "</small></span>";
   }
   function mediaInner(src, alt, label, eager) {
-    if (!src) return mediaPlaceholder(label);
+    if (!src) return "";
     var priority = eager ? 'fetchpriority="high"' : 'loading="lazy"';
-    return '<img src="' + esc(src) + '" alt="' + esc(alt) + '" ' + priority + ' decoding="async" onerror="this.onerror=null;this.replaceWith(document.createRange().createContextualFragment(' + JSON.stringify(mediaPlaceholder(label)) + ').firstChild);">';
+    return '<img src="' + esc(src) + '" alt="' + esc(alt) + '" ' + priority + ' decoding="async" onerror="this.onerror=null;this.style.display=\'none\'; var n=this.parentElement && this.parentElement.querySelector(\'.media-b\'); if(n){n.style.opacity=\'1\';}">';
   }
   function media(alt, cls, p, idx, eager) {
     var im = p && p.imgs && p.imgs[idx || 0];
