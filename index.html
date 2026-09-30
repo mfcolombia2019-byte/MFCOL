@@ -2395,19 +2395,33 @@ try {
     return PRODUCTS.filter(function (x) { return collectionOf(x) === key; }).length;
   }
 
-  var renderedGridGroup = null;
+  var gridBuilt = false;
+  function productMatchesGroup(p, group) {
+    if (group === "todos") return true;
+    if (group === "tacones" || group === "plataformas") return p.group === group;
+    return collectionOf(p) === group;
+  }
   function renderGrid(force) {
-    var group = state.group;
-    if (!force && renderedGridGroup === group) return;
-    var list = PRODUCTS.filter(function (p) {
-      if (group === "todos") return true;
-      if (group === "tacones" || group === "plataformas") return p.group === group;
-      return collectionOf(p) === group;
+    var group = state.group, grid = $("#productGrid");
+    if (!grid) return;
+
+    /* El catálogo se construye una sola vez. Los filtros solo alternan
+       visibilidad; así las imágenes y nodos ya cargados se reutilizan. */
+    if (force || !gridBuilt) {
+      grid.innerHTML = PRODUCTS.map(cardHTML).join("");
+      gridBuilt = true;
+    }
+
+    var visible = 0;
+    Array.prototype.forEach.call(grid.children, function (card) {
+      var p = byId(card.dataset.product);
+      var show = !!p && p.adminActive !== false && productMatchesGroup(p, group);
+      card.hidden = !show;
+      if (show) visible++;
     });
-    $("#productGrid").innerHTML = list.map(cardHTML).join("");
-    $("#resultCount").textContent = list.length + (list.length === 1 ? " modelo" : " modelos") + " · " + collectionLabel(group);
-    $(".tabs [data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.filter === group ? "true" : "false"); });
-    renderedGridGroup = group;
+
+    $("#resultCount").textContent = visible + (visible === 1 ? " modelo" : " modelos") + " · " + collectionLabel(group);
+    $(".tabs [data-filter]").forEach(function (btn) { btn.setAttribute("aria-pressed", btn.dataset.filter === group ? "true" : "false"); });
   }
   function renderFeatured() {
     var grid = $("#featureGrid");
@@ -2622,11 +2636,29 @@ try {
   }
 
   function leaveProductRoute() {
-    if (currentProductId()) {
+    var id = currentProductId();
+    if (!id) return false;
+
+    /* Producto abierto desde el catálogo: Atrás vuelve a la entrada que
+       lo originó. Producto abierto por URL directa: cerramos la ruta sin
+       enviar al usuario fuera de MF Colombia ni crear otra entrada. */
+    if (history.state && history.state.mfProductRoute) {
       history.back();
       return true;
     }
-    return false;
+
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.delete(PRODUCT_PARAM);
+      var catalogUrl = u.pathname + u.search + (u.hash || "#productos");
+      history.replaceState(catalogHistoryState(), "", catalogUrl);
+      var pd = $("#pd");
+      if (pd && pd.open) closeDlg(pd);
+      restoreCatalogPosition(history.state || {});
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   window.addEventListener("popstate", function (event) {
