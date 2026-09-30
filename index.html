@@ -1545,6 +1545,65 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
   .section{padding:72px 0}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Galería móvil: imágenes grandes + navegación por deslizamiento */
+@media(max-width:900px){
+  .pd-gallery-inner{display:block!important}
+  .pd-gallery-inner .thumbs{
+    display:none!important;
+  }
+  .pd-main-media{
+    width:100%;
+    background:#fff!important;
+    overflow:hidden;
+    touch-action:pan-y;
+  }
+  .pd-main-media>.media{
+    width:100%!important;
+    aspect-ratio:4/5!important;
+    min-height:0!important;
+  }
+  .pd-main-media>.media img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+  }
+  .pd-swipe-hint{
+    position:absolute;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 12px;
+    background:rgba(0,0,0,.62);
+    color:#fff;
+    border-radius:999px;
+    font:600 9px/1 var(--sans);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    pointer-events:none;
+    backdrop-filter:blur(6px);
+  }
+  .pd-gallery-dots{
+    position:absolute;
+    left:50%;
+    bottom:58px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:5px;
+    pointer-events:none;
+  }
+  .pd-gallery-dots i{
+    width:5px;height:5px;border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+  .pd-gallery-dots i.is-active{background:#111;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
+}
+@media(min-width:901px){
+  .pd-swipe-hint,.pd-gallery-dots{display:none}
+}
 </style>
 </head>
 <body>
@@ -2030,6 +2089,16 @@ try {
     var dots = multi ? '<span class="photo-dots" aria-hidden="true">' + p.imgs.length + ' fotos</span>' : "";
     return '<span class="media ' + (cls || "") + (multi ? " media-swap" : "") + '">' + ph + img0 + img1 + dots + "</span>";
   }
+  function setGalleryImage(gal, k) {
+    var gp = byId(gal.dataset.gal);
+    if (!gp || !gp.imgs || !gp.imgs[k]) return;
+    var mi = $(".media img", gal);
+    if (mi) { mi.src = gp.imgs[k][0]; mi.alt = gp.imgs[k][1]; }
+    var main = $(".pd-main-media", gal);
+    if (main) main.dataset.galleryIndex = String(k);
+    $(".thumb", gal).forEach(function (b, i) { b.setAttribute("aria-pressed", i === k ? "true" : "false"); });
+    $(".pd-gallery-dots i", gal).forEach(function (dot, i) { dot.classList.toggle("is-active", i === k); });
+  }
   function galleryHTML(p) {
     var n = p.imgs ? p.imgs.length : 0;
     return '<div class="pd-gal" data-gal="' + p.id + '">' +
@@ -2037,7 +2106,7 @@ try {
         (n > 1 ? '<div class="thumbs" role="group" aria-label="Fotos de ' + esc(p.name) + '">' + p.imgs.map(function (im, i) {
           return '<button class="thumb" type="button" data-thumb="' + i + '" aria-pressed="' + (i === 0) + '" aria-label="Ver foto ' + (i + 1) + " de " + n + '"><img src="' + esc(im[0]) + '" alt="" loading="lazy"></button>';
         }).join("") + "</div>" : "") +
-        '<div class="pd-main-media">' + media(p.name + ", " + p.cat, "r45", p, 0) + '<span class="pd-zoom" aria-hidden="true">⌕</span></div>' +
+        '<div class="pd-main-media" data-gallery-index="0">' + media(p.name + ", " + p.cat, "r45", p, 0) + (n > 1 ? '<div class="pd-gallery-dots" aria-hidden="true">' + p.imgs.map(function(_, i){ return '<i class="' + (i === 0 ? "is-active" : "") + '"></i>'; }).join("") + '</div><span class="pd-swipe-hint" aria-hidden="true">Desliza <span>→</span></span>' : "") + '<span class="pd-zoom" aria-hidden="true">⌕</span></div>' +
       '</div>' +
     '</div>';
   }
@@ -2609,6 +2678,37 @@ try {
     if (target && location.hash !== "#productos") target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  var galleryTouch = { el:null, startX:0, startY:0, moved:false };
+  document.addEventListener("touchstart", function(e){
+    var main = e.target.closest && e.target.closest(".pd-main-media");
+    if (!main) return;
+    galleryTouch.el = main;
+    galleryTouch.startX = e.touches[0].clientX;
+    galleryTouch.startY = e.touches[0].clientY;
+    galleryTouch.moved = false;
+  }, {passive:true});
+  document.addEventListener("touchmove", function(e){
+    if (!galleryTouch.el) return;
+    var dx = e.touches[0].clientX - galleryTouch.startX;
+    var dy = e.touches[0].clientY - galleryTouch.startY;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) galleryTouch.moved = true;
+  }, {passive:true});
+  document.addEventListener("touchend", function(){
+    var main = galleryTouch.el;
+    if (!main) return;
+    var dx = (event.changedTouches && event.changedTouches[0]) ? event.changedTouches[0].clientX - galleryTouch.startX : 0;
+    var dy = (event.changedTouches && event.changedTouches[0]) ? event.changedTouches[0].clientY - galleryTouch.startY : 0;
+    var gal = main.closest("[data-gal]"), gp = gal ? byId(gal.dataset.gal) : null;
+    if (gp && gp.imgs && gp.imgs.length > 1 && Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+      var current = parseInt(main.dataset.galleryIndex || "0", 10) || 0;
+      var next = dx < 0 ? current + 1 : current - 1;
+      if (next < 0) next = gp.imgs.length - 1;
+      if (next >= gp.imgs.length) next = 0;
+      setGalleryImage(gal, next);
+    }
+    galleryTouch.el = null;
+  }, {passive:true});
+
   document.addEventListener("change", function (e) {
     if (e.target.matches(".chip input")) { var h = $(".hint", e.target.closest("[data-product]")); if (h) h.textContent = ""; }
   });
@@ -2658,9 +2758,8 @@ try {
       }
       if (el.id === "bagOpen") { renderBag(); openDlg($("#drawer")); return; }
       if (el.matches("[data-thumb]")) {
-        var gal = el.closest("[data-gal]"), gp = byId(gal.dataset.gal), k = +el.dataset.thumb, mi = $(".media img", gal);
-        if (mi) { mi.src = gp.imgs[k][0]; mi.alt = gp.imgs[k][1]; }
-        $$(".thumb", gal).forEach(function (b) { b.setAttribute("aria-pressed", b === el ? "true" : "false"); });
+        var gal = el.closest("[data-gal]"), k = +el.dataset.thumb;
+        setGalleryImage(gal, k);
         return;
       }
       if (el.matches("[data-checkout]")) { openCheckout(); return; }
