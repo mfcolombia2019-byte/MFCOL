@@ -2693,11 +2693,11 @@ try {
     var dy = e.touches[0].clientY - galleryTouch.startY;
     if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) galleryTouch.moved = true;
   }, {passive:true});
-  document.addEventListener("touchend", function(){
+  document.addEventListener("touchend", function(e){
     var main = galleryTouch.el;
     if (!main) return;
-    var dx = (event.changedTouches && event.changedTouches[0]) ? event.changedTouches[0].clientX - galleryTouch.startX : 0;
-    var dy = (event.changedTouches && event.changedTouches[0]) ? event.changedTouches[0].clientY - galleryTouch.startY : 0;
+    var dx = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX - galleryTouch.startX : 0;
+    var dy = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY - galleryTouch.startY : 0;
     var gal = main.closest("[data-gal]"), gp = gal ? byId(gal.dataset.gal) : null;
     if (gp && gp.imgs && gp.imgs.length > 1 && Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.15) {
       var current = parseInt(main.dataset.galleryIndex || "0", 10) || 0;
