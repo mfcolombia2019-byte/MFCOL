@@ -2421,7 +2421,7 @@ try {
     });
 
     $("#resultCount").textContent = visible + (visible === 1 ? " modelo" : " modelos") + " · " + collectionLabel(group);
-    $(".tabs [data-filter]").forEach(function (btn) { btn.setAttribute("aria-pressed", btn.dataset.filter === group ? "true" : "false"); });
+    Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-filter]"), function (btn) { btn.setAttribute("aria-pressed", btn.dataset.filter === group ? "true" : "false"); });
   }
   function renderFeatured() {
     var grid = $("#featureGrid");
