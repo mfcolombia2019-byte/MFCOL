@@ -2611,7 +2611,7 @@ try {
     var s = snapshot || {};
     if (s.mfCatalogGroup && s.mfCatalogGroup !== state.group) {
       state.group = s.mfCatalogGroup;
-      renderGrid(true);
+      renderGrid();
     }
 
     var searchInput = document.getElementById("sdInput");
@@ -2970,7 +2970,7 @@ try {
   function setFilter(g) {
     if (state.group === g && location.hash === "#productos") return;
     state.group = g;
-    renderGrid(true);
+    renderGrid();
 
     /* La categoría seleccionada es una navegación real del catálogo.
        Se registra una sola entrada y el producto se apila encima de ella. */
