@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MF COL | Calzado femenino</title>
+<meta name="description" content="Altura que se siente. Estilo que se reconoce.">
+<meta name="theme-color" content="#ffffff">
+<style>
+:root{--black:#090909;--white:#fff;--acid:#d8ff3e;--line:#dedede;--muted:#686868}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{background:var(--white);color:var(--black);font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.page{min-height:100svh;display:flex;flex-direction:column;max-width:1180px;margin:0 auto;padding:28px 34px 34px}
+.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--black);padding-bottom:18px}
+.wordmark{font-size:13px;font-weight:700;letter-spacing:.22em}
+.top-meta{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#555}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr);gap:8vw;align-items:center;padding:7vh 0 6vh}
+.kicker{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(48px,7.5vw,108px);font-weight:500;line-height:.88;letter-spacing:-.065em;max-width:8ch}
+h1 span{display:block}
+.lead{font-size:15px;line-height:1.65;color:#555;max-width:420px;margin-top:30px}
+.links{display:grid;gap:10px}
+.button{min-height:64px;border:1px solid var(--black);display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:11px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;transition:.2s ease}
+.button span{font-size:18px;letter-spacing:0}
+.button.primary{background:var(--black);color:var(--white)}
+.button:hover{background:var(--acid);color:var(--black);border-color:var(--acid);transform:translateX(4px)}
+.button.primary:hover{background:var(--acid);color:var(--black)}
+.delivery{border:1px solid var(--line);padding:18px 20px;margin-top:10px}
+.delivery-title{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.delivery p{font-size:12px;line-height:1.55;color:#666;margin-top:7px}
+.details{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--black);padding-top:17px;gap:20px}
+.detail-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#777;margin-bottom:6px}
+.detail-value{font-size:12px;line-height:1.5}
+footer{display:flex;justify-content:space-between;align-items:end;border-top:1px solid var(--black);padding-top:16px}
+footer a{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.tag{display:inline-flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#555}
+.tag i{display:block;width:7px;height:7px;background:var(--acid)}
+@media(max-width:760px){
+ .page{padding:20px 20px 24px}
+ .top-meta{display:none}
+ main{grid-template-columns:1fr;gap:38px;padding:9vh 0 6vh}
+ h1{font-size:clamp(52px,16vw,82px)}
+ .lead{margin-top:22px;font-size:14px}
+ .button{min-height:60px}
+ .details{margin-top:26px}
+ footer{gap:16px;align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <div class="wordmark">MF COL</div>
+  <div class="top-meta">Calzado femenino · Cúcuta, Colombia</div>
+</header>
+
+<main>
+  <section aria-labelledby="title">
+    <p class="kicker">MF COL · BODEGA DE DISTRIBUCIÓN</p>
+    <h1 id="title">Altura que se siente.<span>Estilo que se reconoce.</span></h1>
+    <p class="lead">Calzado femenino de diseño exclusivo. Compra online o contáctanos directamente para atención y domicilios en Cúcuta.</p>
+  </section>
+
+  <section aria-label="Opciones de compra">
+    <nav class="links">
+      <a class="button primary" href="https://mfcol.com">Comprar online <span>↗</span></a>
+      <a class="button" href="https://wa.me/573115752334?text=Hola%20MF%20COL%2C%20quiero%20comprar">Comprar por WhatsApp <span>↗</span></a>
+    </nav>
+
+    <div class="delivery">
+      <div class="delivery-title">Domicilios en Cúcuta</div>
+      <p>Cada domicilio: tiempo de entrega en Cúcuta hasta 1–2 días hábiles. No pagos contraentrega.</p>
+    </div>
+
+    <div class="details">
+      <div><div class="detail-label">Ubicación</div><div class="detail-value">Cúcuta, Norte de Santander</div></div>
+      <div><div class="detail-label">Instagram</div><div class="detail-value">@mfcol</div></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="tag"><i></i> Diseño · Presencia · Altura</span>
+  <a href="https://mfcol.com">Tienda minorista ↗</a>
+</footer>
+</div>
+</body>
+</html>
