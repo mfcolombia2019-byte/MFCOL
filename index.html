@@ -1905,6 +1905,140 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   }
 }
 </style>
+
+<style id="mf-final-polish">
+/* Último ajuste UX: conserva estructura y datos existentes. */
+.mf-hero-content{
+  align-items:flex-start!important;
+  justify-content:flex-end!important;
+  text-align:left!important;
+}
+.mf-hero-brand-logo{
+  display:block;
+  width:clamp(170px,22vw,270px);
+  max-width:72vw;
+  height:auto;
+  object-fit:contain;
+  filter:none;
+}
+@media(max-width:819px){
+  .mf-hero-brand-logo{width:clamp(145px,48vw,210px)}
+}
+.mf-neon-brand,.mf-hero-message,.mf-hero-cta{display:none!important}
+
+/* Categorías/filtros: más presencia, sin salir de la estética blanco/negro. */
+.tabs button{
+  background:#fff!important;
+  color:#111!important;
+  border:1px solid #111!important;
+  min-height:42px;
+  padding:10px 16px;
+  transition:background .22s ease,color .22s ease,border-color .22s ease,transform .22s ease;
+}
+.tabs button:hover{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+  transform:translateY(-1px);
+}
+.tabs button[aria-pressed="true"]{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.tabs button[aria-pressed="true"]::after{display:none!important}
+
+/* La talla vive únicamente en el selector de botones; el resto de datos no la duplica. */
+.pd-info .facts{margin-bottom:12px!important}
+
+/* El foco de mouse no crea cajas alrededor de productos; el foco de teclado sí conserva accesibilidad. */
+.card:focus:not(:focus-visible),
+.card-media:focus:not(:focus-visible),
+.fcard-media:focus:not(:focus-visible){
+  outline:none!important;
+  box-shadow:none!important;
+}
+.grid .card:focus,
+.grid .card-media:focus{
+  box-shadow:none!important;
+}
+
+/* Confirmación de carrito: compacta, accionable y no bloqueante. */
+.toast{
+  pointer-events:none;
+  min-width:min(420px,calc(100% - 32px));
+  padding:15px 16px;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 16px 40px rgba(0,0,0,.22);
+  text-align:left;
+}
+.toast.show{pointer-events:auto}
+.cart-toast-message{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+.cart-toast-check{
+  width:24px;height:24px;flex:0 0 24px;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.55);
+  font-size:14px;
+}
+.cart-toast-message strong{
+  display:block;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.cart-toast-message small{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.68);
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:300px;
+}
+.cart-toast-actions{
+  display:flex;
+  gap:8px;
+  margin-top:13px;
+  padding-left:35px;
+}
+.cart-toast-actions button{
+  border:1px solid rgba(255,255,255,.55);
+  background:transparent;
+  color:#fff;
+  padding:8px 11px;
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.cart-toast-actions button:first-child{
+  background:#fff;
+  color:#111;
+  border-color:#fff;
+}
+.cart-toast-actions button:hover{opacity:.78}
+
+/* Navegación de producto: inicio visible, sin saturar la ficha. */
+.pd-top-nav a{
+  color:inherit;
+  text-decoration:none;
+}
+.pd-top-nav a:hover{opacity:.5}
+@media(max-width:819px){
+  .cart-toast-actions{padding-left:35px}
+  .cart-toast-message small{max-width:220px}
+}
+@media(max-width:520px){
+  .toast{min-width:0;width:calc(100% - 24px);bottom:calc(70px + env(safe-area-inset-bottom))}
+  .cart-toast-actions{flex-wrap:wrap}
+  .cart-toast-actions button{flex:1}
+}
+</style>
 </head>
 <body>
 <script>
@@ -1984,9 +2118,7 @@ try {
   </div>
   <div class="mf-hero-overlay"></div>
   <div class="mf-hero-content">
-    <div class="mf-neon-brand" aria-label="MF Colombia">MF COLOMBIA</div>
-    <p class="mf-hero-message">Tacones y plataformas con presencia.</p>
-    <a class="mf-hero-cta" href="#productos">Colección <span>→</span></a>
+    <img class="mf-hero-brand-logo" src="assets/marlon-logo-white.png" alt="Marlon Footwear">
   </div>
 </section>
 
@@ -2342,6 +2474,21 @@ try {
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
   }
 
+  function showCartAddedToast(p, qty) {
+    var t = $("#toast");
+    if (!t) return;
+    clearTimeout(toastTimer);
+    t.innerHTML =
+      '<div class="cart-toast-message"><span class="cart-toast-check">✓</span><span><strong>Producto añadido al carrito</strong><small>' +
+      esc(p.name) + ((qty || 1) > 1 ? " · x" + qty : "") + '</small></span></div>' +
+      '<div class="cart-toast-actions">' +
+      '<button type="button" data-toast-cart>Ir al carrito</button>' +
+      '<button type="button" data-toast-continue>Seguir comprando</button>' +
+      '</div>';
+    t.classList.add("show");
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 5200);
+  }
+
   var bagAddedTimer;
   function confirmBagAdded(button, p, qty) {
     if (!button) return;
@@ -2357,7 +2504,7 @@ try {
       cart.classList.add("bag-pulse");
       setTimeout(function () { cart.classList.remove("bag-pulse"); }, 560);
     }
-    toast((qty || 1) > 1 ? p.name + " agregado · x" + qty : p.name + " agregado al carrito");
+    showCartAddedToast(p, qty);
     clearTimeout(bagAddedTimer);
     bagAddedTimer = setTimeout(function () {
       button.classList.remove("is-added");
@@ -2447,7 +2594,11 @@ try {
   function factsHTML(p) {
     if (!p.facts || !p.facts.length) return "";
     var colorSet = (p.colors || []).map(function (c) { return c.toLowerCase(); });
-    var list = p.facts.filter(function (f) { return colorSet.indexOf(f.toLowerCase()) === -1; });
+    var sizeSet = CONFIG.sizes.map(function (s) { return String(s); });
+    var list = p.facts.filter(function (f) {
+      var value = String(f);
+      return colorSet.indexOf(value.toLowerCase()) === -1 && sizeSet.indexOf(value) === -1;
+    });
     if (!list.length) return "";
     return '<ul class="facts">' + list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
   }
@@ -2800,7 +2951,7 @@ try {
     pd.innerHTML =
       '<div class="pd-top">' +
         '<a class="pd-top-logo" href="#inicio" aria-label="Volver al inicio"><img src="assets/marlon-logo-black.png" alt="Marlon Footwear"></a>' +
-        '<div class="pd-top-nav"><span>Colección</span><span>Tacones</span><span>Plataformas</span><span>Nosotros</span></div>' +
+        '<div class="pd-top-nav"><a href="#inicio" data-product-home>Inicio</a><span>Colección</span><span>Tacones</span><span>Plataformas</span></div>' +
         '<button class="pd-top-close" type="button" data-close aria-label="Cerrar producto">×</button>' +
       '</div>' +
       '<div class="pd-grid">' + galleryHTML(p) +
@@ -3152,7 +3303,7 @@ try {
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],[data-product-home],[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) {
@@ -3165,6 +3316,40 @@ try {
         }
       }
 
+      if (el.hasAttribute("data-product-home")) {
+        e.preventDefault();
+        var pdHome = $("#pd");
+        if (pdHome && pdHome.open) {
+          if (!leaveProductRoute()) {
+            closeDlg(pdHome);
+            var home = $("#inicio");
+            if (home) home.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } else {
+          var homeDirect = $("#inicio");
+          if (homeDirect) homeDirect.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
+      if (el.hasAttribute("data-toast-cart")) {
+        $("#toast").classList.remove("show");
+        renderBag();
+        openDlg($("#drawer"));
+        return;
+      }
+      if (el.hasAttribute("data-toast-continue")) {
+        $("#toast").classList.remove("show");
+        if (currentProductId()) {
+          if (!leaveProductRoute()) {
+            var productsContinue = $("#productos");
+            if (productsContinue) productsContinue.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } else {
+          var productsDirect = $("#productos");
+          if (productsDirect) productsDirect.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
       if (el.dataset.view) { openProduct(el.dataset.view, el.hasAttribute("data-need-size")); return; }
       if (el.matches(".pd-heart")) {
         var saved = toggleFavorite($("#pd").dataset.product || "");
