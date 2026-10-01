@@ -2039,6 +2039,24 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   .cart-toast-actions button{flex:1}
 }
 </style>
+<style id="mf-performance-fix">
+/* Favoritos: el botón del detalle debe ser capturado por el manejador global. */
+.pd-heart{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+
+/* Scroll más ligero, especialmente en móviles: evita el coste de blur mientras se desplaza. */
+.hdr{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  background:rgba(255,255,255,.98)!important;
+}
+
+/* Las entradas no animan transform durante el desplazamiento; evita tirones por composición. */
+.reveal{
+  transform:none!important;
+  transition:opacity .35s ease!important;
+}
+.reveal.in{transform:none!important}
+</style>
 </head>
 <body>
 <script>
@@ -3304,7 +3322,7 @@ try {
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],[data-product-home],[data-toast-cart],[data-toast-continue],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) {
