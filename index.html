@@ -3049,6 +3049,23 @@ try {
   function encodeForm(data) {
     return Object.keys(data).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]); }).join("&");
   }
+  function readCookie(name) {
+    var prefix = name + "=";
+    var parts = document.cookie ? document.cookie.split(";") : [];
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i].trim();
+      if (part.indexOf(prefix) === 0) return decodeURIComponent(part.slice(prefix.length));
+    }
+    return "";
+  }
+  function metaAttribution() {
+    return {
+      fbp: readCookie("_fbp"),
+      fbc: readCookie("_fbc"),
+      clientUserAgent: navigator.userAgent || "",
+      eventSourceUrl: location.href
+    };
+  }
 
   $("#coForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -3089,7 +3106,8 @@ try {
           totalFormatted: fmt(total),
           paymentMethod: pay || "por definir",
           paymentLink: linkPagoMostrar || "",
-          boldPaymentLink: boldPaymentLink || ""
+          boldPaymentLink: boldPaymentLink || "",
+          ...metaAttribution()
         })
       }).catch(function () {});
     }
