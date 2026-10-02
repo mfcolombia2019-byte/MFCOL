@@ -5,6 +5,7 @@
 
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
+import { isAdmin } from "./_admin.mjs";
 
 const json = (d, s = 200, h = {}) => Response.json(d, { status: s, headers: h });
 const clean = (v, n) => String(v ?? "").replace(/[<>]/g, "").trim().slice(0, n);
@@ -14,8 +15,7 @@ const TK = /^[a-f0-9]{24}$/;
 export default async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "";
-  const ADMIN_KEY = String(process.env.ADMIN_PASSWORD || process.env.ADMIN_KEY || "");
-  const admin = !!ADMIN_KEY && req.headers.get("x-admin-key") === ADMIN_KEY;
+  const admin = isAdmin(req);
   const posts = getStore("comunidad-posts");
   const photos = getStore("comunidad-fotos");
   const tokens = getStore("comunidad-tokens");
@@ -106,18 +106,26 @@ export default async (req) => {
     if (!products.length) return json({ error: "Falta el producto" }, 400);
 
     const ref = clean(b.ref, 80);
-    const order = ref ? await orders.get("orders/" + ref, { type: "json" }) : null;
-    const customerName = clean(b.customerName || order?.name || "", 120);
-    const customerId = clean(b.customerId || (order?.reference ? "order:" + order.reference : "token:" + ref), 120);
+    if (!ref) return json({ error: "La referencia del pedido es obligatoria" }, 400);
+    const order = await orders.get("orders/" + ref, { type: "json" });
+    if (!order || order.reference !== ref) return json({ error: "Pedido no encontrado" }, 404);
+    if (order.paymentStatus !== "aprobado") return json({ error: "La compra todavía no está confirmada por Bold" }, 409);
+    const purchasedIds = new Set((Array.isArray(order.items) ? order.items : []).map(p => String(p.id)));
+    if (products.some(p => !purchasedIds.has(p.id))) {
+      return json({ error: "El enlace incluye un producto que no pertenece al pedido aprobado" }, 400);
+    }
 
+    const customerName = clean(b.customerName || order.name || "", 120);
+    const customerId = clean(b.customerId || ("order:" + order.reference), 120);
     const t = crypto.randomBytes(12).toString("hex");
     await tokens.setJSON(t, {
       products,
       ref,
-      orderRef: order?.reference || ref,
-      customerId: customerId || "token:" + t,
+      orderRef: order.reference,
+      customerId,
       customerName,
       done: [],
+      processing: {},
       created: Date.now()
     });
 
@@ -186,31 +194,82 @@ export default async (req) => {
   let customerId = clientId || "";
   let verifiedCustomerName = customerName;
   const t = clean(f.get("token"), 40);
+  let tokenClaim = null;
+  let tokenSnapshot = null;
+  let tokenEtag = "";
   if (t) {
-    const tk = TK.test(t) ? await tokens.get(t, { type: "json" }) : null;
+    const tkResult = TK.test(t) ? await tokens.getWithMetadata(t, { type: "json", consistency: "strong" }) : null;
+    const tk = tkResult?.data || null;
     if (!tk || !Array.isArray(tk.products) || !tk.products.some((p) => p.id === product) || (tk.done || []).includes(product)) {
       return json({ error: "Este enlace no es válido para este modelo o ya fue utilizado." }, 400);
     }
-    tk.done = tk.done || [];
-    tk.done.push(product);
-    await tokens.setJSON(t, tk);
+    if (tk.processing?.[product]) {
+      return json({ error: "Esta opinión ya está siendo procesada. Intenta de nuevo en unos segundos." }, 409);
+    }
+
+    const reviewId = crypto.randomBytes(12).toString("hex");
+    const claimed = {
+      ...tk,
+      processing: { ...(tk.processing || {}), [product]: { reviewId, startedAt: Date.now() } }
+    };
+    const claimResult = await tokens.setJSON(t, claimed, { onlyIfMatch: tkResult.etag });
+    if (claimResult?.modified && !claimResult?.etag) return json({ error: "No se pudo reservar el enlace de compra." }, 503);
+    if (!claimResult?.modified) return json({ error: "Esta opinión ya está siendo procesada. Intenta de nuevo." }, 409);
+
     verified = true;
     orderRef = clean(tk.orderRef || tk.ref, 80);
     customerId = clean(tk.customerId || ("order:" + orderRef), 120);
     verifiedCustomerName = clean(tk.customerName || customerName, 120);
+    tokenClaim = { token: t, product, reviewId };
+    tokenSnapshot = claimed;
+    tokenEtag = claimResult.etag;
+    f.set("reviewId", reviewId);
   }
-
-  const id = crypto.randomBytes(12).toString("hex");
+  const id = tokenClaim?.reviewId || crypto.randomBytes(12).toString("hex");
   const kind = hasPhoto ? (text ? "look+review" : "look") : "review";
   const lookId = product;
-  if (buf) await photos.set(id, buf);
-  await posts.setJSON(id, {
-    id, product, productName, rating, text, instagram: ig,
-    customerName: verifiedCustomerName, customerId, orderRef,
-    kind, lookId, verified, featured: false,
-    hasPhoto, photoType: hasPhoto ? photoType : "", consent: hasPhoto,
-    status: "pending", created: Date.now()
-  });
+  try {
+    if (buf) await photos.set(id, buf);
+    await posts.setJSON(id, {
+      id, product, productName, rating, text, instagram: ig,
+      customerName: verifiedCustomerName, customerId, orderRef,
+      kind, lookId, verified, featured: false,
+      hasPhoto, photoType: hasPhoto ? photoType : "", consent: hasPhoto,
+      status: "pending", created: Date.now()
+    });
 
-  return json({ ok: true });
+    if (tokenClaim) {
+      const latest = await tokens.getWithMetadata(tokenClaim.token, { type: "json", consistency: "strong" });
+      if (!latest?.data) throw new Error("No se encontró el enlace de compra para finalizarlo");
+      const processing = latest.data.processing?.[tokenClaim.product];
+      if (!processing || processing.reviewId !== tokenClaim.reviewId) {
+        throw new Error("El enlace de compra cambió durante el envío");
+      }
+      const processingNext = { ...(latest.data.processing || {}) };
+      delete processingNext[tokenClaim.product];
+      const done = Array.from(new Set([...(latest.data.done || []), tokenClaim.product]));
+      const finalized = { ...latest.data, processing: processingNext, done };
+      const finalWrite = await tokens.setJSON(tokenClaim.token, finalized, { onlyIfMatch: latest.etag });
+      if (finalWrite?.modified && !finalWrite?.etag) throw new Error("No se pudo confirmar el consumo del enlace");
+      if (!finalWrite?.modified) throw new Error("El enlace cambió durante el envío");
+    }
+
+    return json({ ok: true });
+  } catch (error) {
+    if (tokenClaim) {
+      try {
+        const latest = await tokens.getWithMetadata(tokenClaim.token, { type: "json", consistency: "strong" });
+        const processing = latest?.data?.processing?.[tokenClaim.product];
+        if (latest?.data && processing?.reviewId === tokenClaim.reviewId) {
+          const processingNext = { ...(latest.data.processing || {}) };
+          delete processingNext[tokenClaim.product];
+          await tokens.setJSON(tokenClaim.token, { ...latest.data, processing: processingNext }, { onlyIfMatch: latest.etag });
+        }
+      } catch (releaseError) {
+        console.error("No se pudo liberar el token de Comunidad:", releaseError);
+      }
+    }
+    console.error("No se pudo guardar la reseña:", error);
+    return json({ error: "No se pudo guardar la opinión. Intenta de nuevo." }, 500);
+  }
 };
