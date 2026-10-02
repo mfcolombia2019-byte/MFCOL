@@ -4,7 +4,7 @@ import { validateCart } from "./_catalog.mjs";
 import { mergeClientOrder } from "./_orders.mjs";
 
 const IDEM = /^[A-Za-z0-9_-]{16,120}$/;
-const PAYMENT_METHODS = new Set(["Link de pago (Bold)", "Pedir por WhatsApp"]);
+const PAYMENT_METHODS = new Set(["Link de pago (Bold)", "Transferencia bancaria"]);
 
 function money(total) {
   return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(total);
