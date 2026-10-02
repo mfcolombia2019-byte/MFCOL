@@ -1,40 +1,152 @@
+import crypto from "node:crypto";
 import { store, getJson, listJson, json, requireAdmin, safeId } from "./_admin.mjs";
+import { validateCart } from "./_catalog.mjs";
 import { mergeClientOrder } from "./_orders.mjs";
+
+const IDEM = /^[A-Za-z0-9_-]{16,120}$/;
+const PAYMENT_METHODS = new Set(["Link de pago (Bold)", "Pedir por WhatsApp"]);
+
+function money(total) {
+  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(total);
+}
+
+function orderText(items) {
+  return items.map(i =>
+    "- " + i.name +
+    (i.color ? ", color " + i.color : "") +
+    ", talla " + i.size +
+    " (x" + i.qty + ") " + money(i.unitPrice * i.qty)
+  ).join("\n");
+}
+
+function fingerprint(body, cart) {
+  return crypto.createHash("sha256").update(JSON.stringify({
+    items: cart.items,
+    paymentMethod: String(body?.paymentMethod || ""),
+    name: String(body?.name || "").trim(),
+    address: String(body?.address || "").trim(),
+    city: String(body?.city || "").trim(),
+    phone: String(body?.phone || "").trim()
+  })).digest("hex");
+}
+
+function newReference() {
+  return "MF" + Date.now().toString(36).toUpperCase() + crypto.randomBytes(5).toString("hex").toUpperCase();
+}
+
+async function conditionalCreate(key, value) {
+  const result = await store.setJSON(key, value, { onlyIfNew: true });
+  // @netlify/blobs 10.7.12 has a known conditional-write issue where some
+  // non-412 failures can report modified=true with an empty etag.
+  if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la escritura condicional");
+  return result;
+}
+
+async function createOrReuseOrder(body) {
+  const idempotencyKey = String(body?.idempotencyKey || "").trim();
+  if (!IDEM.test(idempotencyKey)) throw new Error("Falta una clave de idempotencia válida");
+
+  const cart = validateCart(body?.items);
+  const paymentMethod = String(body?.paymentMethod || "").trim();
+  if (!PAYMENT_METHODS.has(paymentMethod)) throw new Error("Medio de pago no válido");
+
+  const fp = fingerprint(body, cart);
+  const idemKey = "checkout-idempotency/" + idempotencyKey;
+  const existingIdem = await getJson(idemKey);
+  if (existingIdem) {
+    if (existingIdem.fingerprint !== fp) {
+      const err = new Error("La clave de idempotencia ya fue usada para otro pedido");
+      err.status = 409;
+      throw err;
+    }
+    const existingOrder = await getJson("orders/" + existingIdem.reference);
+    if (existingOrder) return existingOrder;
+  }
+
+  const reference = existingIdem?.reference || newReference();
+  const now = new Date().toISOString();
+  const orderInput = {
+    reference,
+    name: body?.name,
+    address: body?.address,
+    city: body?.city,
+    phone: body?.phone,
+    pedido: orderText(cart.items),
+    totalFormatted: money(cart.total),
+    paymentMethod,
+    paymentLink: "",
+    boldPaymentLink: "",
+    notes: body?.notes,
+    fbp: body?.fbp,
+    fbc: body?.fbc,
+    clientUserAgent: body?.clientUserAgent,
+    eventSourceUrl: body?.eventSourceUrl,
+    items: cart.items
+  };
+
+  if (!existingIdem) {
+    const created = await conditionalCreate(idemKey, {
+      reference,
+      fingerprint: fp,
+      createdAt: now
+    });
+    if (!created.modified) {
+      const winner = await getJson(idemKey);
+      if (!winner || winner.fingerprint !== fp) {
+        const err = new Error("No se pudo reservar el pedido de forma idempotente");
+        err.status = 409;
+        throw err;
+      }
+      const winnerOrder = await getJson("orders/" + winner.reference);
+      if (winnerOrder) return winnerOrder;
+      orderInput.reference = winner.reference;
+    }
+  }
+
+  const existing = await getJson("orders/" + orderInput.reference);
+  const order = mergeClientOrder(existing, orderInput, now, cart.total);
+  if (!existing) {
+    const created = await conditionalCreate("orders/" + order.reference, order);
+    if (!created.modified) {
+      const winner = await getJson("orders/" + order.reference);
+      if (winner) return winner;
+      throw new Error("No se pudo confirmar la creación del pedido");
+    }
+  } else {
+    // Customer details can be retried, but the server-owned amount/items remain.
+    await store.setJSON("orders/" + order.reference, {
+      ...existing,
+      name: order.name || existing.name || "",
+      address: order.address || existing.address || "",
+      city: order.city || existing.city || "",
+      phone: order.phone || existing.phone || "",
+      paymentMethod: order.paymentMethod || existing.paymentMethod || "",
+      fbp: order.fbp || existing.fbp || "",
+      fbc: order.fbc || existing.fbc || "",
+      clientUserAgent: order.clientUserAgent || existing.clientUserAgent || "",
+      eventSourceUrl: order.eventSourceUrl || existing.eventSourceUrl || "",
+      updatedAt: now
+    });
+  }
+  return await getJson("orders/" + order.reference);
+}
 
 export default async (req) => {
   if (req.method === "POST") {
     try {
       const body = await req.json();
-      const reference = safeId(body?.reference);
-      if (!reference) throw new Error("Referencia inválida");
-
-      const existing = await getJson("orders/" + reference);
-      const order = mergeClientOrder(existing, {
-        reference,
-        name: body?.name,
-        address: body?.address,
-        city: body?.city,
-        phone: body?.phone,
-        pedido: body?.pedido,
-        totalNumber: body?.totalNumber,
-        totalFormatted: body?.totalFormatted,
-        paymentMethod: body?.paymentMethod,
-        paymentLink: body?.paymentLink,
-        boldPaymentLink: body?.boldPaymentLink,
-        notes: body?.notes,
-        fbp: body?.fbp,
-        fbc: body?.fbc,
-        clientUserAgent: body?.clientUserAgent,
-        eventSourceUrl: body?.eventSourceUrl
+      const order = await createOrReuseOrder(body);
+      return json({
+        ok: true,
+        reference: order.reference,
+        total: order.total,
+        totalFormatted: order.totalFormatted,
+        paymentStatus: order.paymentStatus,
+        status: order.status,
+        paymentMethod: order.paymentMethod
       });
-
-      // The browser is never allowed to choose paymentStatus/status.
-      // Existing server-confirmed states are preserved; approval comes only
-      // from the validated Bold webhook.
-      await store.setJSON("orders/" + reference, order);
-      return json({ ok: true, reference: order.reference });
     } catch (e) {
-      return json({ error: e.message || "No se pudo guardar el pedido" }, 400);
+      return json({ error: e.message || "No se pudo guardar el pedido" }, e.status || 400);
     }
   }
 
@@ -58,8 +170,6 @@ export default async (req) => {
       const allowedStatus = ["nuevo","confirmado","preparando","enviado","entregado","cancelado"];
       if (body.status && allowedStatus.includes(body.status)) current.status = body.status;
 
-      // Payment state is deliberately not writable through this API.
-      // Bold's validated webhook is the sole source of payment confirmation.
       if (body.paymentStatus != null) {
         return json({ error: "paymentStatus solo puede actualizarlo el webhook validado de Bold" }, 403);
       }
@@ -76,3 +186,5 @@ export default async (req) => {
 
   return json({ error: "Método no permitido" }, 405);
 };
+
+export { createOrReuseOrder };
