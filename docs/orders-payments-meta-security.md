@@ -82,7 +82,7 @@ Purchase no se genera al abrir gracias.html, al crear un pedido ni al enviar Wha
 No se han creado ni modificado variables reales.
 
 - META_CAPI_ACCESS_TOKEN
-- META_GRAPH_API_VERSION
+- META_GRAPH_API_VERSION (por ejemplo, v24.0; debe corresponder a una versión Graph vigente)
 - opcional: META_DATASET_ID (si no se define se usa 1092821839891082)
 - opcional: META_TEST_EVENT_CODE
 
