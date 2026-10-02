@@ -114,6 +114,7 @@ export function applyBoldPaymentEvent(existing, event, now = new Date().toISOStr
   next.paymentEventTime = Number.isFinite(Number(event?.time))
     ? Math.floor(Number(event.time) / 1e9)
     : Math.floor(Date.now() / 1000);
+  next.purchaseEventId = purchaseEventId(next.reference, next.paymentId, next.webhookEventId);
 
   if (Number.isFinite(confirmedAmount) && confirmedAmount >= 0) {
     next.confirmedAmount = confirmedAmount;
