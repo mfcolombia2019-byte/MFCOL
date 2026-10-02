@@ -76,7 +76,7 @@
           '<button data-op="delete">Eliminar</button></div></div></div>';
       }).join("") : '<p class="m">Aún no hay envíos.</p>';
       all.filter(function (p) { return p.hasPhoto; }).forEach(function (p) {
-        // Las fotos pendientes están protegidas: no usamos src directo porque perdería el header x-admin-key.
+        // Las fotos pendientes se cargan mediante la misma sesión administrativa.
         var im = document.querySelector('[data-id="' + p.id + '"] img');
         if (!im) return;
         im.alt = "Fotografía enviada por la clienta";
