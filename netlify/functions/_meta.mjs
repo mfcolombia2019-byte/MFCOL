@@ -58,10 +58,11 @@ export function buildMetaPurchase(order) {
 
 export async function sendMetaEvent(event) {
   const token = String(process.env.META_CAPI_ACCESS_TOKEN || "");
-  const version = String(process.env.META_GRAPH_API_VERSION || "");
+  let version = String(process.env.META_GRAPH_API_VERSION || "").trim();
   const datasetId = String(process.env.META_DATASET_ID || META_DATASET_ID);
   if (!token) { const error = new Error("Falta META_CAPI_ACCESS_TOKEN"); error.retryable = false; throw error; }
-  if (!version) { const error = new Error("Falta META_GRAPH_API_VERSION"); error.retryable = false; throw error; }
+  if (!/^v?\\d+\\.\\d+$/.test(version)) { const error = new Error("META_GRAPH_API_VERSION inválida"); error.retryable = false; throw error; }
+  if (!version.startsWith("v")) version = "v" + version;
   if (!/^\\d+$/.test(datasetId)) { const error = new Error("META_DATASET_ID inválido"); error.retryable = false; throw error; }
 
   const payload = { data: [event] };
