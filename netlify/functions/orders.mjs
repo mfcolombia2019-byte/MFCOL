@@ -34,6 +34,8 @@ function newReference() {
   return "MF" + Date.now().toString(36).toUpperCase() + crypto.randomBytes(5).toString("hex").toUpperCase();
 }
 
+async function getStrongJson(key) { return await store.get(key, { type: "json", consistency: "strong" }); }
+
 async function conditionalCreate(key, value) {
   const result = await store.setJSON(key, value, { onlyIfNew: true });
   // @netlify/blobs 10.7.12 has a known conditional-write issue where some
@@ -52,14 +54,14 @@ async function createOrReuseOrder(body) {
 
   const fp = fingerprint(body, cart);
   const idemKey = "checkout-idempotency/" + idempotencyKey;
-  const existingIdem = await getJson(idemKey);
+  const existingIdem = await getStrongJson(idemKey);
   if (existingIdem) {
     if (existingIdem.fingerprint !== fp) {
       const err = new Error("La clave de idempotencia ya fue usada para otro pedido");
       err.status = 409;
       throw err;
     }
-    const existingOrder = await getJson("orders/" + existingIdem.reference);
+    const existingOrder = await getStrongJson("orders/" + existingIdem.reference);
     if (existingOrder) return existingOrder;
   }
 
@@ -91,24 +93,24 @@ async function createOrReuseOrder(body) {
       createdAt: now
     });
     if (!created.modified) {
-      const winner = await getJson(idemKey);
+      const winner = await getStrongJson(idemKey);
       if (!winner || winner.fingerprint !== fp) {
         const err = new Error("No se pudo reservar el pedido de forma idempotente");
         err.status = 409;
         throw err;
       }
-      const winnerOrder = await getJson("orders/" + winner.reference);
+      const winnerOrder = await getStrongJson("orders/" + winner.reference);
       if (winnerOrder) return winnerOrder;
       orderInput.reference = winner.reference;
     }
   }
 
-  const existing = await getJson("orders/" + orderInput.reference);
+  const existing = await getStrongJson("orders/" + orderInput.reference);
   const order = mergeClientOrder(existing, orderInput, now, cart.total);
   if (!existing) {
     const created = await conditionalCreate("orders/" + order.reference, order);
     if (!created.modified) {
-      const winner = await getJson("orders/" + order.reference);
+      const winner = await getStrongJson("orders/" + order.reference);
       if (winner) return winner;
       throw new Error("No se pudo confirmar la creación del pedido");
     }
@@ -128,7 +130,7 @@ async function createOrReuseOrder(body) {
       updatedAt: now
     });
   }
-  return await getJson("orders/" + order.reference);
+  return await getStrongJson("orders/" + order.reference);
 }
 
 export default async (req) => {
