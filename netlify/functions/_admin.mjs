@@ -1,7 +1,11 @@
 import crypto from "node:crypto";
 import { getStore } from "@netlify/blobs";
 
-export const store = getStore("mfc-admin");
+const deployContext = String(process.env.CONTEXT || "").trim().toLowerCase();
+const storeName = deployContext === "production" ? "mfc-admin" : "mfc-admin-nonprod";
+
+export const store = getStore(storeName);
+export const APP_STORE_NAME = storeName;
 
 function secret() {
   return process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || "";

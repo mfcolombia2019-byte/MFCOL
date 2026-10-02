@@ -5,7 +5,7 @@
 
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
-import { isAdmin } from "./_admin.mjs";
+import { isAdmin, store as orders } from "./_admin.mjs";
 
 const json = (d, s = 200, h = {}) => Response.json(d, { status: s, headers: h });
 const clean = (v, n) => String(v ?? "").replace(/[<>]/g, "").trim().slice(0, n);
@@ -37,7 +37,6 @@ export default async (req) => {
   const posts = getStore("comunidad-posts");
   const photos = getStore("comunidad-fotos");
   const tokens = getStore("comunidad-tokens");
-  const orders = getStore("mfc-admin");
 
   if (req.method === "GET") {
     if (action === "public" || action === "product" || action === "look" || (action === "all" && admin)) {

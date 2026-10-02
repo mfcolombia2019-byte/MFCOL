@@ -1,8 +1,8 @@
-import { getStore } from "@netlify/blobs";
+
 import { buildMetaPurchase, sendMetaEvent } from "./_meta.mjs";
 import { outboxKeyForPurchase } from "./_orders.mjs";
 
-const outbox = getStore("mfc-admin");
+import { store as outbox } from "./_admin.mjs";
 
 function nowIso() { return new Date().toISOString(); }
 
