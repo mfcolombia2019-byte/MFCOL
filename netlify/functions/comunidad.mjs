@@ -100,20 +100,25 @@ export default async (req) => {
       return json({ ok: true });
     }
 
-    const products = (Array.isArray(b.products) ? b.products : []).slice(0, 10)
-      .map((p) => ({ id: String(p.id || ""), name: clean(p.name, 80) }))
-      .filter((p) => ID.test(p.id) && p.name);
-    if (!products.length) return json({ error: "Falta el producto" }, 400);
+    const requestedProducts = (Array.isArray(b.products) ? b.products : []).slice(0, 10)
+      .map((p) => String(p?.id || ""))
+      .filter((id) => ID.test(id));
+    if (!requestedProducts.length) return json({ error: "Falta el producto" }, 400);
 
     const ref = clean(b.ref, 80);
     if (!ref) return json({ error: "La referencia del pedido es obligatoria" }, 400);
     const order = await orders.get("orders/" + ref, { type: "json" });
     if (!order || order.reference !== ref) return json({ error: "Pedido no encontrado" }, 404);
     if (order.paymentStatus !== "aprobado") return json({ error: "La compra todavía no está confirmada por Bold" }, 409);
-    const purchasedIds = new Set((Array.isArray(order.items) ? order.items : []).map(p => String(p.id)));
-    if (products.some(p => !purchasedIds.has(p.id))) {
+    const purchased = Array.isArray(order.items) ? order.items : [];
+    const purchasedMap = new Map(purchased.map(p => [String(p.id), p]));
+    if (requestedProducts.some(id => !purchasedMap.has(id))) {
       return json({ error: "El enlace incluye un producto que no pertenece al pedido aprobado" }, 400);
     }
+    const products = Array.from(new Set(requestedProducts)).map(id => ({
+      id,
+      name: clean(purchasedMap.get(id)?.name || id, 80)
+    }));
 
     const customerName = clean(b.customerName || order.name || "", 120);
     const customerId = clean(b.customerId || ("order:" + order.reference), 120);
