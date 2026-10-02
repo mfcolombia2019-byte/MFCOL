@@ -12,6 +12,24 @@ const clean = (v, n) => String(v ?? "").replace(/[<>]/g, "").trim().slice(0, n);
 const ID = /^[a-z0-9-]{1,60}$/;
 const TK = /^[a-f0-9]{24}$/;
 
+export function validateTokenOrder(token, order, productId = "") {
+  const orderRef = clean(token?.orderRef || token?.ref, 80);
+  if (!order || !orderRef || order.reference !== orderRef) return { error: "Pedido no encontrado" };
+  if (order.paymentStatus !== "aprobado") return { error: "La compra ya no está confirmada por Bold" };
+
+  const purchased = Array.isArray(order.items) ? order.items : [];
+  const purchasedIds = new Set(purchased.map(p => String(p?.id || "")));
+  const tokenProducts = Array.isArray(token?.products) ? token.products : [];
+  if (!tokenProducts.length || tokenProducts.some(p => !purchasedIds.has(String(p?.id || "")))) {
+    return { error: "El enlace incluye un producto que no pertenece al pedido aprobado" };
+  }
+  if (productId && !purchasedIds.has(String(productId))) {
+    return { error: "El producto no pertenece al pedido aprobado" };
+  }
+
+  return { order, orderRef };
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "";
@@ -65,7 +83,11 @@ export default async (req) => {
     if (action === "token") {
       const t = url.searchParams.get("t") || "";
       const tk = TK.test(t) ? await tokens.get(t, { type: "json" }) : null;
-      const left = tk ? tk.products.filter((p) => !(tk.done || []).includes(p.id)) : [];
+      if (!tk) return json({ error: "Este enlace no es válido o ya fue utilizado." }, 404);
+      const tokenOrder = await orders.get("orders/" + clean(tk.orderRef || tk.ref, 80), { type: "json", consistency: "strong" });
+      const tokenValidation = validateTokenOrder(tk, tokenOrder);
+      if (tokenValidation.error) return json({ error: tokenValidation.error }, tokenValidation.error === "Pedido no encontrado" ? 404 : 409);
+      const left = tk.products.filter((p) => !(tk.done || []).includes(p.id));
       if (!left.length) return json({ error: "Este enlace no es válido o ya fue utilizado." }, 404);
       return json({
         products: left,
@@ -210,6 +232,13 @@ export default async (req) => {
     }
     if (tk.processing?.[product]) {
       return json({ error: "Esta opinión ya está siendo procesada. Intenta de nuevo en unos segundos." }, 409);
+    }
+
+    const orderRefForToken = clean(tk.orderRef || tk.ref, 80);
+    const tokenOrder = await orders.get("orders/" + orderRefForToken, { type: "json", consistency: "strong" });
+    const tokenValidation = validateTokenOrder(tk, tokenOrder, product);
+    if (tokenValidation.error) {
+      return json({ error: tokenValidation.error }, tokenValidation.error === "Pedido no encontrado" ? 404 : 409);
     }
 
     const reviewId = crypto.randomBytes(12).toString("hex");
