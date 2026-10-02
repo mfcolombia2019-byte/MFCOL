@@ -1,12 +1,10 @@
 import crypto from "node:crypto";
 import { store } from "./_admin.mjs";
-import { processBoldWebhook, safeEventId, webhookInboxKey } from "./_bold-webhook.mjs";
+import { processBoldWebhook, safeEventId, webhookInboxKey, ensureInbox } from "./_bold-webhook.mjs";
 import { processOutboxKey } from "./_meta-outbox.mjs";
 
 function encodeForm(data) {
-  return Object.keys(data)
-    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? ""))
-    .join("&");
+  return Object.keys(data).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")).join("&");
 }
 
 function validSignature(rawBody, signature, secret) {
@@ -24,11 +22,7 @@ export default async (req, context) => {
   const rawBody = await req.text();
   const signature = req.headers.get("x-bold-signature") || "";
   const secret = process.env.BOLD_SECRET_KEY || "";
-
-  if (!validSignature(rawBody, signature, secret)) {
-    console.error("Firma de webhook Bold inválida");
-    return new Response("Firma inválida", { status: 400 });
-  }
+  if (!validSignature(rawBody, signature, secret)) return new Response("Firma inválida", { status: 400 });
 
   let event;
   try { event = JSON.parse(rawBody); }
@@ -41,40 +35,28 @@ export default async (req, context) => {
   }
 
   const inboxKey = webhookInboxKey(eventId);
-  const now = new Date().toISOString();
-  const existing = await store.get(inboxKey, { type: "json", consistency: "strong" });
-
-  // Persist the signed/validated event before returning 200. The actual order
-  // update and Meta outbox work happens after the response via waitUntil.
-  if (!existing?.processedAt) {
-    await store.setJSON(inboxKey, {
-      id: eventId,
-      type: String(event.type),
-      receivedAt: existing?.receivedAt || now,
-      updatedAt: now,
-      status: "pending",
-      processedAt: "",
-      reference: existing?.reference || "",
-      event
-    });
+  try {
+    await ensureInbox(event);
+  } catch (error) {
+    console.error("No se pudo persistir el inbox de Bold:", error);
+    return new Response("Error interno", { status: 500 });
   }
 
   const work = processBoldWebhook(event)
     .then(async (result) => {
+      if (result?.duplicate || result?.busy) return;
+
       if (result?.outboxKey) {
         try {
           await processOutboxKey(result.outboxKey);
         } catch (error) {
-          // The outbox record remains recoverable even when Meta is unavailable.
           console.error("No se pudo enviar Purchase a Meta:", error);
         }
       }
 
-      // Preserve the existing Netlify Forms notification behavior, but do not
-      // make a notification failure roll back or duplicate the payment state.
       try {
         const d = event.data || {};
-        const reference = String(d.metadata?.reference || "").trim();
+        const reference = String(result?.reference || "").trim();
         const paymentId = String(d.payment_id || event.subject || "").trim();
         const paymentStatus =
           event.type === "SALE_APPROVED" ? "aprobado" :
@@ -108,11 +90,8 @@ export default async (req, context) => {
       }
     });
 
-  if (typeof context?.waitUntil === "function") {
-    context.waitUntil(work);
-  } else {
-    await work;
-  }
+  if (typeof context?.waitUntil === "function") context.waitUntil(work);
+  else await work;
 
   return new Response("OK", { status: 200 });
 };
