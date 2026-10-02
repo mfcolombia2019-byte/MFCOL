@@ -59,9 +59,9 @@ export async function sendMetaEvent(event) {
   const token = String(process.env.META_CAPI_ACCESS_TOKEN || "");
   const version = String(process.env.META_GRAPH_API_VERSION || "");
   const datasetId = String(process.env.META_DATASET_ID || META_DATASET_ID);
-  if (!token) throw new Error("Falta META_CAPI_ACCESS_TOKEN");
-  if (!version) throw new Error("Falta META_GRAPH_API_VERSION");
-  if (!/^\\d+$/.test(datasetId)) throw new Error("META_DATASET_ID inválido");
+  if (!token) { const error = new Error("Falta META_CAPI_ACCESS_TOKEN"); error.retryable = false; throw error; }
+  if (!version) { const error = new Error("Falta META_GRAPH_API_VERSION"); error.retryable = false; throw error; }
+  if (!/^\\d+$/.test(datasetId)) { const error = new Error("META_DATASET_ID inválido"); error.retryable = false; throw error; }
 
   const payload = { data: [event] };
   if (process.env.META_TEST_EVENT_CODE) {
