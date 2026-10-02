@@ -6,6 +6,7 @@ import {
   purchaseEventId,
   outboxKeyForPurchase
 } from "../netlify/functions/_orders.mjs";
+import { validateCart } from "../netlify/functions/_catalog.mjs";
 import { buildMetaPurchase } from "../netlify/functions/_meta.mjs";
 
 const client = normalizeClientOrder({
@@ -16,7 +17,7 @@ const client = normalizeClientOrder({
   status: "entregado",
   fbp: "fb.1.test",
   fbc: "fb.1.click"
-}, "2026-10-01T20:00:00.000Z");
+}, "2026-10-01T20:00:00.000Z", 199900);
 
 assert.equal(client.paymentStatus, "pendiente");
 assert.equal(client.status, "nuevo");
@@ -37,7 +38,7 @@ const merged = mergeClientOrder(existing, {
   name: "Ana",
   paymentStatus: "rechazado",
   status: "cancelado"
-}, "2026-10-01T20:01:00.000Z");
+}, "2026-10-01T20:01:00.000Z", 199900);
 
 assert.equal(merged.paymentStatus, "aprobado");
 assert.equal(merged.status, "preparando");
@@ -118,3 +119,14 @@ const rejectedAfterApproved = applyBoldPaymentEvent(approved, {
 assert.equal(rejectedAfterApproved.paymentStatus, "aprobado");
 
 console.log("orders-meta tests: PASS");
+
+
+const validCart = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2 }]);
+assert.equal(validCart.total, 379800);
+assert.equal(validCart.items[0].unitPrice, 189900);
+
+assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2, price: 1 }]), /Carrito|Producto|Cantidad|Total|Color|Talla/);
+assert.throws(() => validateCart([{ id: "sandalia-de-cuna-trenzada-en-negro-y-rosado", size: "36", color: "Negro", qty: 1 }]), /precio.*configurado/i);
+assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "33", color: "Negro", qty: 1 }]), /Talla inválida/);
+
+console.log("checkout server-authority tests: PASS");
