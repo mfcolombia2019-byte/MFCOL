@@ -23,7 +23,8 @@ export default async (req) => {
 
   const rawBody = await req.text();
   const signature = req.headers.get("x-bold-signature") || "";
-  const secret = process.env.BOLD_SECRET_KEY || "";
+  const isProduction = String(process.env.CONTEXT || "").toLowerCase() === "production";
+const secret = isProduction ? (process.env.BOLD_SECRET_KEY || "") : "";
 
   const encoded = Buffer.from(rawBody, "utf-8").toString("base64");
   const hashed = crypto.createHmac("sha256", secret).update(encoded).digest("hex");
