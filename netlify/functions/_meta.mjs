@@ -55,7 +55,7 @@ export function buildMetaPurchase(order) {
   };
 }
 
-export async function sendMetaPurchase(order) {
+export async function sendMetaEvent(event) {
   const token = String(process.env.META_CAPI_ACCESS_TOKEN || "");
   const version = String(process.env.META_GRAPH_API_VERSION || "");
   const datasetId = String(process.env.META_DATASET_ID || META_DATASET_ID);
@@ -63,7 +63,6 @@ export async function sendMetaPurchase(order) {
   if (!version) throw new Error("Falta META_GRAPH_API_VERSION");
   if (!/^\\d+$/.test(datasetId)) throw new Error("META_DATASET_ID inválido");
 
-  const event = buildMetaPurchase(order);
   const payload = { data: [event] };
   if (process.env.META_TEST_EVENT_CODE) {
     payload.test_event_code = String(process.env.META_TEST_EVENT_CODE);
@@ -87,4 +86,8 @@ export async function sendMetaPurchase(order) {
   }
 
   return { status: response.status, response: data };
+}
+
+export async function sendMetaPurchase(order) {
+  return sendMetaEvent(buildMetaPurchase(order));
 }
