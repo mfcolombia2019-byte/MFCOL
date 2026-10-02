@@ -71,7 +71,7 @@ export async function processOutboxKey(key) {
     return { ok: true, key, status: "sent", attempts };
   } catch (error) {
     const status = Number(error?.metaStatus);
-    const retryable = status === 429 || status >= 500 || !status;
+    const retryable = error?.retryable !== false && (status === 429 || status >= 500 || !status);
     const maxAttempts = 8;
 
     record.status = "error";
