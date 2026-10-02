@@ -152,7 +152,9 @@ const validCart = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size:
 assert.equal(validCart.total, 379800);
 assert.equal(validCart.items[0].unitPrice, 189900);
 
-assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2, price: 1 }]), /Carrito|Producto|Cantidad|Total|Color|Talla/);
+const tamperedPrice = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2, price: 1 }]);
+assert.equal(tamperedPrice.items[0].unitPrice, 189900);
+assert.equal(tamperedPrice.total, 379800);
 assert.throws(() => validateCart([{ id: "sandalia-de-cuna-trenzada-en-negro-y-rosado", size: "36", color: "Negro", qty: 1 }]), /precio.*configurado/i);
 assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "33", color: "Negro", qty: 1 }]), /Talla inválida/);
 
