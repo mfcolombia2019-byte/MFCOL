@@ -10,15 +10,20 @@ function retryDelayMs(attempts) {
   return Math.min(60 * 60 * 1000, Math.max(30 * 1000, 2 ** Math.max(0, attempts - 1) * 30 * 1000));
 }
 
+function conditionalOk(result) {
+  if (!result?.modified) return false;
+  if (!result?.etag) throw new Error("La escritura condicional del outbox no pudo confirmarse");
+  return true;
+}
+
 export async function enqueuePurchase(order) {
   const event = buildMetaPurchase(order);
   const eventId = event.event_id;
   const key = outboxKeyForPurchase(order.reference, order.paymentId, order.webhookEventId);
 
   const existing = await outbox.get(key, { type: "json", consistency: "strong" });
-  if (existing?.status === "sent") {
-    return { key, created: false, status: "sent", eventId };
-  }
+  if (existing?.status === "sent") return { key, created: false, status: "sent", eventId };
+  if (existing) return { key, created: false, status: existing.status, eventId };
 
   const record = {
     key,
@@ -28,60 +33,89 @@ export async function enqueuePurchase(order) {
     paymentId: String(order.paymentId || ""),
     webhookEventId: String(order.webhookEventId || ""),
     status: "pending",
-    attempts: Number(existing?.attempts || 0),
-    createdAt: existing?.createdAt || nowIso(),
+    attempts: 0,
+    createdAt: nowIso(),
     updatedAt: nowIso(),
     nextAttemptAt: nowIso(),
-    lastError: existing?.lastError || "",
+    lastError: "",
     event
   };
 
-  await outbox.setJSON(key, record);
-  return { key, created: !existing, status: record.status, eventId };
+  const result = await outbox.setJSON(key, record, { onlyIfNew: true });
+  if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la creación del outbox");
+  if (result?.modified) return { key, created: true, status: "pending", eventId };
+
+  const winner = await outbox.get(key, { type: "json", consistency: "strong" });
+  return { key, created: false, status: winner?.status || "pending", eventId };
 }
 
 export async function processOutboxKey(key) {
-  const record = await outbox.get(key, { type: "json", consistency: "strong" });
-  if (!record) return { ok: false, skipped: true, reason: "not_found" };
-  if (record.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
+  const current = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
+  if (!current?.data) return { ok: false, skipped: true, reason: "not_found" };
+  if (current.data.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
+  if (current.data.status === "processing") {
+    return { ok: false, skipped: true, reason: "busy", key };
+  }
 
   const now = Date.now();
-  if (record.nextAttemptAt && new Date(record.nextAttemptAt).getTime() > now) {
+  if (current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
     return { ok: false, skipped: true, reason: "not_due", key };
   }
 
-  // Best-effort lease only. @netlify/blobs 8.1.0 has no conditional writes,
-  // so this is not a cross-instance lock.
-  const attempts = Number(record.attempts || 0) + 1;
-  record.status = "processing";
-  record.attempts = attempts;
-  record.updatedAt = nowIso();
-  await outbox.setJSON(key, record);
+  const attempts = Number(current.data.attempts || 0) + 1;
+  const processing = {
+    ...current.data,
+    status: "processing",
+    attempts,
+    processingAt: nowIso(),
+    updatedAt: nowIso()
+  };
+
+  const claimed = await outbox.setJSON(key, processing, { onlyIfMatch: current.etag });
+  if (claimed?.modified && !claimed?.etag) throw new Error("No se pudo confirmar el bloqueo del outbox");
+  if (!claimed?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
 
   try {
-    const result = await sendMetaEvent(record.event);
-
-    record.status = "sent";
-    record.updatedAt = nowIso();
-    record.sentAt = record.updatedAt;
-    record.nextAttemptAt = "";
-    record.lastError = "";
-    record.metaResponse = result.response;
-    await outbox.setJSON(key, record);
+    const result = await sendMetaEvent(processing.event);
+    const latest = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
+    if (!latest?.data || latest.data.status !== "processing") {
+      return { ok: false, skipped: true, reason: "state_changed", key };
+    }
+    const sent = {
+      ...latest.data,
+      status: "sent",
+      updatedAt: nowIso(),
+      sentAt: nowIso(),
+      nextAttemptAt: "",
+      lastError: "",
+      processingAt: "",
+      metaResponse: result.response
+    };
+    const written = await outbox.setJSON(key, sent, { onlyIfMatch: latest.etag });
+    if (written?.modified && !written?.etag) throw new Error("No se pudo confirmar Purchase enviado");
+    if (!written?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
     return { ok: true, key, status: "sent", attempts };
   } catch (error) {
+    const latest = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
+    if (!latest?.data || latest.data.status !== "processing") {
+      throw error;
+    }
     const status = Number(error?.metaStatus);
     const retryable = error?.retryable !== false && (status === 429 || status >= 500 || !status);
     const maxAttempts = 8;
-
-    record.status = "error";
-    record.updatedAt = nowIso();
-    record.lastError = String(error?.message || error).slice(0, 1000);
-    record.nextAttemptAt = retryable && attempts < maxAttempts
-      ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
-      : "";
-    await outbox.setJSON(key, record);
-
+    const failed = {
+      ...latest.data,
+      status: "error",
+      updatedAt: nowIso(),
+      processingAt: "",
+      lastError: String(error?.message || error).slice(0, 1000),
+      nextAttemptAt: retryable && attempts < maxAttempts
+        ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
+        : ""
+    };
+    const written = await outbox.setJSON(key, failed, { onlyIfMatch: latest.etag });
+    if (written?.modified && !written?.etag) throw new Error("No se pudo confirmar el error del outbox");
+    if (!written?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
     if (retryable && attempts < maxAttempts) throw error;
     return { ok: false, key, status: "error", attempts, retryable: false };
   }
