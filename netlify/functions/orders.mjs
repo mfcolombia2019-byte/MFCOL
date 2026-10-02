@@ -9,7 +9,24 @@ export default async (req) => {
       if (!reference) throw new Error("Referencia inválida");
 
       const existing = await getJson("orders/" + reference);
-      const order = mergeClientOrder(existing, { ...body, reference });
+      const order = mergeClientOrder(existing, {
+        reference,
+        name: body?.name,
+        address: body?.address,
+        city: body?.city,
+        phone: body?.phone,
+        pedido: body?.pedido,
+        totalNumber: body?.totalNumber,
+        totalFormatted: body?.totalFormatted,
+        paymentMethod: body?.paymentMethod,
+        paymentLink: body?.paymentLink,
+        boldPaymentLink: body?.boldPaymentLink,
+        notes: body?.notes,
+        fbp: body?.fbp,
+        fbc: body?.fbc,
+        clientUserAgent: body?.clientUserAgent,
+        eventSourceUrl: body?.eventSourceUrl
+      });
 
       // The browser is never allowed to choose paymentStatus/status.
       // Existing server-confirmed states are preserved; approval comes only
