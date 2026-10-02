@@ -1,18 +1,40 @@
 import assert from "node:assert/strict";
-import {
+import { mock } from "node:test";
+
+const requestedStoreNames = [];
+const mockBlobStore = {
+  async get() { return null; },
+  async set() {},
+  async setJSON() {},
+  async list() { return { blobs: [] }; }
+};
+
+mock.module("@netlify/blobs", {
+  exports: {
+    getStore(name) {
+      requestedStoreNames.push(String(name));
+      return mockBlobStore;
+    }
+  }
+});
+
+const {
   normalizeClientOrder,
   mergeClientOrder,
   applyBoldPaymentEvent,
   purchaseEventId,
   outboxKeyForPurchase
-} from "../netlify/functions/_orders.mjs";
-import { validateCart } from "../netlify/functions/_catalog.mjs";
-import { buildMetaPurchase } from "../netlify/functions/_meta.mjs";
-import {
+} = await import("../netlify/functions/_orders.mjs");
+const { validateCart } = await import("../netlify/functions/_catalog.mjs");
+const { buildMetaPurchase } = await import("../netlify/functions/_meta.mjs");
+const {
   validateAdminBoldOrder,
   buildAdminBoldDescription
-} from "../netlify/functions/admin-bold.mjs";
-import { validateTokenOrder } from "../netlify/functions/comunidad.mjs";
+} = await import("../netlify/functions/admin-bold.mjs");
+const { validateTokenOrder } = await import("../netlify/functions/comunidad.mjs");
+
+assert.ok(requestedStoreNames.includes("mfc-admin-nonprod"));
+assert.ok(!requestedStoreNames.includes("mfc-admin"));
 
 const client = normalizeClientOrder({
   reference: "MF-123",
