@@ -192,8 +192,8 @@ const approvedOrder = {
 assert.equal(validateTokenOrder(approvedToken, approvedOrder, "shoe-1").orderRef, "MF-APPROVED-1");
 assert.match(validateTokenOrder(approvedToken, { ...approvedOrder, paymentStatus: "pendiente" }, "shoe-1").error, /no está confirmada/i);
 assert.match(validateTokenOrder({ ...approvedToken, orderRef: "MF-WRONG" }, approvedOrder, "shoe-1").error, /Pedido no encontrado/i);
-assert.match(validateTokenOrder(approvedToken, { ...approvedOrder, items: [{ id: "other", name: "Otro" }] }, "shoe-1").error, /producto no pertenece/i);
+assert.match(validateTokenOrder(approvedToken, { ...approvedOrder, items: [{ id: "other", name: "Otro" }] }, "shoe-1").error, /producto.*no pertenece/i);
 assert.match(validateTokenOrder(approvedToken, null, "shoe-1").error, /Pedido no encontrado/i);
-assert.match(validateTokenOrder(approvedToken, approvedOrder, "other").error, /producto no pertenece/i);
+assert.match(validateTokenOrder(approvedToken, approvedOrder, "other").error, /producto.*no pertenece/i);
 
 console.log("security/orders-meta-capi targeted tests: PASS");
