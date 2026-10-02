@@ -44,37 +44,62 @@
     <a class="muted-link" href="/">Volver a la tienda</a>
   </div>
   <script>
-  (function () {
+  (async function () {
     var WHATSAPP_NUMBER = "573115752334";
     var params = new URLSearchParams(window.location.search);
     var ref = params.get("ref") || "";
+    var intro = document.getElementById("intro");
+    var title = document.querySelector("h1");
     var resumenEl = document.getElementById("resumen");
     var waBtn = document.getElementById("waBtn");
-    var msg;
+    var refBox = document.getElementById("refBox");
+    var refNum = document.getElementById("refNum");
 
-    if (ref) {
-      document.getElementById("refNum").textContent = ref;
-      document.getElementById("refBox").hidden = false;
-    }
-
-    var raw = ref ? localStorage.getItem("mf_order_" + ref) : null;
-    if (raw) {
-      try {
-        var o = JSON.parse(raw);
-        resumenEl.textContent = o.pedidoTxt + "\nTotal: " + o.total +
-          "\n\nNombre: " + o.name + "\nDirección: " + o.address + "\nCiudad: " + o.city + "\nTeléfono: " + o.phone;
-        msg = "Hola, MF Colombia. Ya realicé el pago de mi pedido con Bold (referencia " + ref + "):\n" +
-          o.pedidoTxt + "\nTotal: " + o.total +
-          "\n\nDatos de entrega\nNombre: " + o.name + "\nDirección: " + o.address + "\nCiudad: " + o.city + "\nTeléfono: " + o.phone;
-        localStorage.removeItem("mf_order_" + ref);
-      } catch (e) { raw = null; }
-    }
-    if (!raw) {
+    if (!ref) {
+      title.textContent = "Regresaste del proceso de pago";
+      intro.textContent = "No recibimos una referencia de pedido. El estado del pago debe confirmarse desde el servidor.";
       resumenEl.style.display = "none";
-      document.getElementById("intro").textContent = "Recibimos la confirmación de tu pago" + (ref ? " (referencia " + ref + ")" : "") + ". Si necesitas el detalle de tu pedido, escríbenos por WhatsApp.";
-      msg = "Hola, MF Colombia. Ya realicé un pago con Bold" + (ref ? " (referencia " + ref + ")" : "") + ".";
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Regresé del proceso de pago y necesito confirmar el estado de mi pedido.");
+      return;
     }
-    waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+
+    refNum.textContent = ref;
+    refBox.hidden = false;
+
+    try {
+      var res = await fetch("/.netlify/functions/order-status?ref=" + encodeURIComponent(ref), { cache: "no-store" });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || "No se pudo consultar el pedido.");
+
+      if (data.paymentStatus === "aprobado") {
+        title.textContent = "Pago confirmado";
+        intro.textContent = "El servidor confirmó que tu pago fue aprobado.";
+      } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
+        title.textContent = "Pago no confirmado";
+        intro.textContent = "Regresaste del proceso de pago, pero el servidor no tiene un pago aprobado para este pedido.";
+      } else {
+        title.textContent = "Regresaste del proceso de pago";
+        intro.textContent = "Tu regreso desde Bold fue recibido, pero el servidor todavía no confirma un pago aprobado.";
+      }
+
+      resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
+      var localRaw = localStorage.getItem("mf_order_" + ref);
+      var msg = "Hola, MF Colombia. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
+      if (localRaw) {
+        try {
+          var o = JSON.parse(localRaw);
+          resumenEl.textContent += "\n\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
+          msg += "\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
+          if (data.paymentStatus === "aprobado") localStorage.removeItem("mf_order_" + ref);
+        } catch (e) {}
+      }
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+    } catch (error) {
+      title.textContent = "Regresaste del proceso de pago";
+      intro.textContent = "No pudimos consultar el estado confirmado del pedido en este momento. No asumimos que el pago fue aprobado.";
+      resumenEl.textContent = "Referencia: " + ref;
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Necesito confirmar el estado del pedido " + ref + ".");
+    }
   })();
   </script>
 </body>
