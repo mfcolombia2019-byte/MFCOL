@@ -31,7 +31,7 @@
   <p class="m">Panel privado de moderación.</p>
 
   <div id="login">
-    <input id="key" type="password" placeholder="Clave de administración (ADMIN_PASSWORD)" autocomplete="current-password">
+    <input id="key" type="password" placeholder="Contraseña de administración" autocomplete="current-password">
     <button class="s" id="go" type="button">Entrar</button>
     <p class="m" id="lerr" style="color:var(--mauve);margin-top:12px"></p>
   </div>
@@ -40,7 +40,7 @@
     <h2>Enlace de compra verificada</h2>
     <p class="m">Genera un enlace para enviarle a la clienta por WhatsApp o correo después de su compra.</p>
     <select id="prod"></select>
-    <input id="ref" placeholder="Referencia del pedido (opcional)">
+    <input id="ref" placeholder="Referencia del pedido" required>
     <input id="customerName" placeholder="Nombre de la clienta (opcional)">
     <button class="s" id="mk" type="button">Generar enlace</button>
     <div id="link" hidden></div>
@@ -51,14 +51,13 @@
 </main>
 <script>
 (function () {
-  var API = "/.netlify/functions/comunidad", K = sessionStorage.getItem("mfk") || "";
+  var API = "/.netlify/functions/comunidad";
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var H = function () { return { "x-admin-key": K }; };
   var LABEL = { pending: "Pendiente de revisión", approved: "Aprobada", rejected: "Rechazada" };
 
   function load() {
-    fetch(API + "?action=all", { headers: H() }).then(function (r) {
+    fetch(API + "?action=all", { credentials: "same-origin" }).then(function (r) {
       if (!r.ok) throw new Error(r.status === 401 ? "Clave incorrecta." : "No se pudo cargar.");
       return r.json();
     }).then(function (all) {
@@ -83,7 +82,7 @@
         im.alt = "Fotografía enviada por la clienta";
         fetch(API + "?action=photo&id=" + encodeURIComponent(p.id), {
           method: "GET",
-          headers: H(),
+          credentials: "same-origin",
           cache: "no-store"
         }).then(function (r) {
           if (!r.ok) throw new Error("No se pudo cargar la fotografía (" + r.status + ")");
@@ -104,11 +103,11 @@
   }
 
   function post(action, body) {
-    return fetch(API + "?action=" + action, { method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, H()), body: JSON.stringify(body) })
+    return fetch(API + "?action=" + action, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || "Error"); return d; }); });
   }
 
-  $("#go").onclick = function () { K = $("#key").value.trim(); sessionStorage.setItem("mfk", K); load(); };
+  $("#go").onclick = async function () { $("#lerr").textContent = ""; try { var r = await fetch("/.netlify/functions/admin-auth", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "login", password: $("#key").value }) }); var d = await r.json().catch(function () { return {}; }); if (!r.ok) throw new Error(d.error || "No se pudo iniciar sesión"); load(); } catch (e) { $("#lerr").textContent = e.message; } };
   $("#list").onclick = function (e) {
     var b = e.target.closest("[data-op]"); if (!b) return;
     if (b.dataset.op === "delete" && !confirm("¿Eliminar definitivamente?")) return;
