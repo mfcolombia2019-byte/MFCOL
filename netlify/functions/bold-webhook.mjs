@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { store } from "./_admin.mjs";
 import { processBoldWebhook, safeEventId, webhookInboxKey } from "./_bold-webhook.mjs";
+import { processOutboxKey } from "./_meta-outbox.mjs";
 
 function encodeForm(data) {
   return Object.keys(data)
@@ -59,7 +60,16 @@ export default async (req, context) => {
   }
 
   const work = processBoldWebhook(event)
-    .then(async () => {
+    .then(async (result) => {
+      if (result?.outboxKey) {
+        try {
+          await processOutboxKey(result.outboxKey);
+        } catch (error) {
+          // The outbox record remains recoverable even when Meta is unavailable.
+          console.error("No se pudo enviar Purchase a Meta:", error);
+        }
+      }
+
       // Preserve the existing Netlify Forms notification behavior, but do not
       // make a notification failure roll back or duplicate the payment state.
       try {
