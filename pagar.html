@@ -39,17 +39,28 @@
     <a class="btn" id="goBtn" href="#" rel="noopener">Ir a pagar ahora</a>
   </div>
   <script>
-  (function () {
+  (async function () {
     var params = new URLSearchParams(window.location.search);
-    var target = params.get("url") || "";
-    var isValid = /^https:\/\/checkout\.bold\.co\//.test(target);
+    var ref = params.get("ref") || "";
     var btn = document.getElementById("goBtn");
-    if (isValid) {
-      btn.href = target;
-      setTimeout(function () { window.location.href = target; }, 1200);
-    } else {
+    var msg = document.getElementById("msg");
+    if (!ref) {
       document.getElementById("spin").style.display = "none";
-      document.getElementById("msg").textContent = "Este link de pago no es válido o ya expiró. Escríbenos por WhatsApp para generarte uno nuevo.";
+      msg.textContent = "Este enlace de pago no tiene una referencia válida.";
+      btn.remove();
+      return;
+    }
+
+    try {
+      var res = await fetch("/.netlify/functions/order-status?ref=" + encodeURIComponent(ref), { cache: "no-store" });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.paymentLink) throw new Error(data.error || "El link de pago todavía no está disponible.");
+
+      btn.href = data.paymentLink;
+      setTimeout(function () { window.location.href = data.paymentLink; }, 700);
+    } catch (error) {
+      document.getElementById("spin").style.display = "none";
+      msg.textContent = "Este pedido no tiene un link de pago válido o todavía no está disponible. Escríbenos por WhatsApp para recibir ayuda.";
       btn.remove();
     }
   })();
