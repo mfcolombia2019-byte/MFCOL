@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
-import { store, getJson } from "./_admin.mjs";
+import { store } from "./_admin.mjs";
+import { processBoldWebhook, safeEventId, webhookInboxKey } from "./_bold-webhook.mjs";
 
 function encodeForm(data) {
   return Object.keys(data)
@@ -8,17 +9,15 @@ function encodeForm(data) {
 }
 
 function validSignature(rawBody, signature, secret) {
+  if (!secret || !signature) return false;
   const encoded = Buffer.from(rawBody, "utf8").toString("base64");
   const hashed = crypto.createHmac("sha256", secret).update(encoded).digest("hex");
-  if (!signature) return false;
-  try {
-    return crypto.timingSafeEqual(Buffer.from(hashed), Buffer.from(signature));
-  } catch {
-    return false;
-  }
+  const a = Buffer.from(hashed);
+  const b = Buffer.from(signature);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-export default async (req) => {
+export default async (req, context) => {
   if (req.method !== "POST") return new Response("Método no permitido", { status: 405 });
 
   const rawBody = await req.text();
@@ -34,77 +33,47 @@ export default async (req) => {
   try { event = JSON.parse(rawBody); }
   catch { return new Response("JSON inválido", { status: 400 }); }
 
-  const d = event.data || {};
-  const reference = String(d.metadata?.reference || "").trim();
-  const paymentId = String(d.payment_id || event.subject || "").trim();
-  const type = String(event.type || "").trim();
-  const paymentStatus =
-    type === "SALE_APPROVED" ? "aprobado" :
-    type === "SALE_REJECTED" ? "rechazado" :
-    type === "VOID_APPROVED" ? "anulado" :
-    type === "VOID_REJECTED" ? "rechazado" : "pendiente";
-
-  // Idempotencia: si ya procesamos este evento, no volvemos a crear/alterar datos.
-  if (event.id) {
-    const eventKey = "webhooks/" + safeEventId(event.id);
-    if (await getJson(eventKey)) return new Response("OK", { status: 200 });
-    await store.setJSON(eventKey, { receivedAt: new Date().toISOString(), type });
+  const eventId = safeEventId(event?.id);
+  const allowedTypes = new Set(["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"]);
+  if (!eventId || !allowedTypes.has(String(event?.type || ""))) {
+    return new Response("Evento Bold inválido", { status: 400 });
   }
 
-  if (reference) {
-    const existing = await getJson("orders/" + reference);
-    const order = existing || {
-      reference,
-      createdAt: new Date().toISOString(),
-      name: "",
-      address: "",
-      city: "",
-      phone: "",
-      pedido: "",
-      total: Number(d.amount?.total || 0),
-      totalFormatted: "",
-      paymentMethod: String(d.payment_method || ""),
-      paymentLink: "",
-      boldPaymentLink: reference.startsWith("LNK_") ? reference : "",
-      status: "nuevo",
-      paymentStatus: "pendiente",
-      notes: ""
-    };
+  const inboxKey = webhookInboxKey(eventId);
+  const now = new Date().toISOString();
+  const existing = await store.get(inboxKey, { type: "json", consistency: "strong" });
 
-    order.updatedAt = new Date().toISOString();
-    order.paymentStatus = paymentStatus;
-    order.paymentId = paymentId;
-    order.boldPaymentMethod = String(d.payment_method || "");
-    order.boldCode = String(d.bold_code || "");
-    order.payerEmail = String(d.payer_email || "").slice(0, 160);
-    order.boldCreatedAt = String(d.created_at || "");
-    order.webhookType = type;
-    await store.setJSON("orders/" + reference, order);
-  }
-
-  // Conserva el formulario de Netlify existente para las notificaciones por correo.
-  try {
-    const siteUrl = new URL(req.url).origin;
-    await fetch(siteUrl + "/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: encodeForm({
-        "form-name": "pagos-confirmados",
-        reference,
-        payment_id: paymentId,
-        valor: d.amount?.total != null ? String(d.amount.total) : "",
-        medio_pago: d.payment_method || "",
-        estado: paymentStatus
-      })
+  // Persist the signed/validated event before returning 200. The actual order
+  // update and Meta outbox work happens after the response via waitUntil.
+  if (!existing?.processedAt) {
+    await store.setJSON(inboxKey, {
+      id: eventId,
+      type: String(event.type),
+      receivedAt: existing?.receivedAt || now,
+      updatedAt: now,
+      status: "pending",
+      processedAt: "",
+      reference: existing?.reference || "",
+      event
     });
-  } catch (e) {
-    console.error("No se pudo registrar el formulario de pago:", e);
+  }
+
+  const work = processBoldWebhook(event).catch(async (error) => {
+    console.error("No se pudo procesar webhook Bold:", error);
+    const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
+    if (current && !current.processedAt) {
+      current.status = "error";
+      current.lastError = String(error?.message || error).slice(0, 1000);
+      current.updatedAt = new Date().toISOString();
+      await store.setJSON(inboxKey, current);
+    }
+  });
+
+  if (typeof context?.waitUntil === "function") {
+    context.waitUntil(work);
+  } else {
+    await work;
   }
 
   return new Response("OK", { status: 200 });
 };
-
-function safeEventId(id) {
-  const s = String(id || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 100);
-  return s || crypto.randomUUID();
-}
