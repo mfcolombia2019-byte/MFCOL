@@ -10,6 +10,7 @@ let outboxEnqueues = 0;
 let outboxProcessCalls = 0;
 let metaShouldFail = false;
 let persistShouldFail = false;
+let formPostCalls = 0;
 
 const store = {
   async get(key) {
@@ -87,6 +88,15 @@ mock.module(outboxUrl, {
   }
 });
 
+mock.method(globalThis, "fetch", async (url, options = {}) => {
+  formPostCalls++;
+  assert.equal(new URL(url).origin, "https://example.test");
+  assert.equal(options.method, "POST");
+  assert.match(String(options.headers?.["Content-Type"] || ""), /application\/x-www-form-urlencoded/i);
+  assert.match(String(options.body || ""), /form-name=pagos-confirmados/);
+  return new Response("OK", { status: 200 });
+});
+
 const core = await import(coreUrl);
 const webhook = await import(webhookUrl);
 
@@ -104,6 +114,7 @@ function reset() {
   outboxProcessCalls = 0;
   metaShouldFail = false;
   persistShouldFail = false;
+  formPostCalls = 0;
 }
 
 function event(overrides = {}) {
@@ -205,6 +216,7 @@ test("venta aprobada valida importe/moneda, actualiza pedido y crea outbox", asy
   assert.equal(inbox.status, "processed");
   assert.equal(outboxEnqueues, 1);
   assert.equal(outboxProcessCalls, 1);
+  assert.equal(formPostCalls, 1);
 });
 
 test("referencia inexistente termina en error recuperable del inbox", async () => {
@@ -273,10 +285,11 @@ test("referencia LNK_ inexistente no se resuelve y no actualiza pedidos", async 
 test("duplicados y concurrencia procesan una sola vez", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
-  state.set("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+  put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
   const e = event({ id: "evt-concurrent" });
   const [a, b] = await Promise.all([core.processBoldWebhook(e), core.processBoldWebhook(e)]);
-  assert.equal(Number(a.duplicate) + Number(b.duplicate) + Number(a.busy) + Number(b.busy), 1);
+  const skipped = [a, b].filter(result => result?.duplicate === true || result?.busy === true);
+  assert.equal(skipped.length, 1);
   assert.equal(orderUpdates, 1);
   assert.equal(outboxEnqueues, 1);
 });
