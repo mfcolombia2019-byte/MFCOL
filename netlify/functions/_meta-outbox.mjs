@@ -1,5 +1,5 @@
 import { getStore } from "@netlify/blobs";
-import { buildMetaPurchase, sendMetaPurchase } from "./_meta.mjs";
+import { buildMetaPurchase, sendMetaEvent } from "./_meta.mjs";
 import { outboxKeyForPurchase } from "./_orders.mjs";
 
 const outbox = getStore("mfc-admin");
@@ -25,7 +25,9 @@ export async function enqueuePurchase(order) {
     kind: "Purchase",
     eventId,
     orderReference: String(order.reference || ""),
-    status: existing?.status === "error" ? "pending" : (existing?.status || "pending"),
+    paymentId: String(order.paymentId || ""),
+    webhookEventId: String(order.webhookEventId || ""),
+    status: "pending",
     attempts: Number(existing?.attempts || 0),
     createdAt: existing?.createdAt || nowIso(),
     updatedAt: nowIso(),
@@ -57,10 +59,7 @@ export async function processOutboxKey(key) {
   await outbox.setJSON(key, record);
 
   try {
-    const result = await sendMetaPurchase({
-      ...record.event,
-      paymentStatus: "aprobado"
-    }.paymentStatus ? recordToOrder(record) : recordToOrder(record));
+    const result = await sendMetaEvent(record.event);
 
     record.status = "sent";
     record.updatedAt = nowIso();
@@ -71,12 +70,14 @@ export async function processOutboxKey(key) {
     await outbox.setJSON(key, record);
     return { ok: true, key, status: "sent", attempts };
   } catch (error) {
-    const retryable = Number(error?.metaStatus) === 429 || Number(error?.metaStatus) >= 500 || !error?.metaStatus;
+    const status = Number(error?.metaStatus);
+    const retryable = status === 429 || status >= 500 || !status;
     const maxAttempts = 8;
+
     record.status = "error";
     record.updatedAt = nowIso();
     record.lastError = String(error?.message || error).slice(0, 1000);
-    record.nextAttemptAt = attempts < maxAttempts
+    record.nextAttemptAt = retryable && attempts < maxAttempts
       ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
       : "";
     await outbox.setJSON(key, record);
@@ -84,24 +85,4 @@ export async function processOutboxKey(key) {
     if (retryable && attempts < maxAttempts) throw error;
     return { ok: false, key, status: "error", attempts, retryable: false };
   }
-}
-
-function recordToOrder(record) {
-  const e = record.event || {};
-  return {
-    reference: record.orderReference,
-    paymentId: record.paymentId || "",
-    webhookEventId: record.webhookEventId || "",
-    purchaseEventId: e.event_id,
-    paymentStatus: "aprobado",
-    webhookType: "SALE_APPROVED",
-    paymentEventTime: e.event_time,
-    eventSourceUrl: e.event_source_url || "",
-    confirmedAmount: e.custom_data?.value,
-    confirmedCurrency: e.custom_data?.currency || "COP",
-    fbp: e.user_data?.fbp || "",
-    fbc: e.user_data?.fbc || "",
-    name: "",
-    phone: ""
-  };
 }
