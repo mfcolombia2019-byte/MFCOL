@@ -23,6 +23,7 @@ export async function processBoldWebhook(event) {
   const d = event.data || {};
   const reference = safeReference(d.metadata?.reference);
   const now = new Date().toISOString();
+  let outboxResult = null;
 
   if (reference) {
     const existing = await getJson("orders/" + reference);
@@ -53,7 +54,7 @@ export async function processBoldWebhook(event) {
     await store.setJSON("orders/" + reference, order);
 
     if (event.type === "SALE_APPROVED") {
-      await enqueuePurchase(order);
+      outboxResult = await enqueuePurchase(order);
     }
   }
 
@@ -65,5 +66,5 @@ export async function processBoldWebhook(event) {
   inbox.updatedAt = now;
   await store.setJSON(inboxKey, inbox);
 
-  return { ok: true, duplicate: false, reference };
+  return { ok: true, duplicate: false, reference, outboxKey: outboxResult?.key || "" };
 }
