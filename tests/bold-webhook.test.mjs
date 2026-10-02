@@ -90,6 +90,11 @@ mock.module(outboxUrl, {
 const core = await import(coreUrl);
 const webhook = await import(webhookUrl);
 
+function put(key, value) {
+  state.set(key, structuredClone(value));
+  etags.set(key, '"seed-' + (++nextEtag) + '"');
+}
+
 function reset() {
   state.clear();
   etags.clear();
@@ -181,7 +186,7 @@ test("persistencia inicial falla y no responde 200", async () => {
 test("venta aprobada valida importe/moneda, actualiza pedido y crea outbox", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
-  state.set("orders/MF-TEST-1", {
+  put("orders/MF-TEST-1", {
     reference: "MF-TEST-1",
     total: 199900,
     paymentStatus: "pendiente"
@@ -218,7 +223,7 @@ test("referencia inexistente termina en error recuperable del inbox", async () =
 test("importe o moneda incorrectos no permiten aprobar", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
-  state.set("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+  put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
   const wrongAmount = event({
     id: "evt-wrong-amount",
     data: { ...event().data, amount: { currency: "COP", total: 1 } }
@@ -239,7 +244,7 @@ test("rechazada y anulada actualizan el estado correspondiente", async () => {
   ]) {
     reset();
     process.env.CONTEXT = "branch-deploy";
-    state.set("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+    put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
     const e = event({ id, type });
     const body = JSON.stringify(e);
     let background;
@@ -249,6 +254,21 @@ test("rechazada y anulada actualizan el estado correspondiente", async () => {
     assert.equal(state.get("orders/MF-TEST-1").paymentStatus, expected);
   }
 });
+
+test("referencia LNK_ inexistente no se resuelve y no actualiza pedidos", async () => {
+  reset();
+  process.env.CONTEXT = "branch-deploy";
+  put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+  const e = event({
+    id: "evt-unresolved-link",
+    data: { ...event().data, metadata: { reference: "LNK_MISSING_TEST" } }
+  });
+  const resultPromise = core.processBoldWebhook(e);
+  await assert.rejects(resultPromise, /referencia resoluble/);
+  assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "pendiente");
+  assert.equal(state.get("webhook-inbox/evt-unresolved-link").status, "processing");
+});
+
 
 test("duplicados y concurrencia procesan una sola vez", async () => {
   reset();
