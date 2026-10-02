@@ -33,7 +33,7 @@ async function associateBoldLink(reference, paymentLink) {
   const result = await store.setJSON(key, next, { onlyIfMatch: current.etag });
   if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la asociación del link");
   if (!result?.modified) {
-    const latest = await getJson(key);
+    const latest = await store.get(key, { type: "json", consistency: "strong" });
     if (latest?.boldPaymentLink === paymentLink) return latest;
     throw new Error("El pedido cambió mientras se asociaba el link");
   }
@@ -50,7 +50,7 @@ export default async (req) => {
   const reference = String(body?.reference || "").trim();
   if (!safeRef.test(reference)) return json({ error: "Referencia inválida" }, 400);
 
-  const order = await getJson("orders/" + reference);
+  const order = await store.get("orders/" + reference, { type: "json", consistency: "strong" });
   if (!order) return json({ error: "Pedido no encontrado" }, 404);
   if (order.paymentStatus !== "pendiente") return json({ error: "Este pedido ya no está pendiente de pago" }, 409);
   if (order.paymentMethod !== "Link de pago (Bold)") return json({ error: "El pedido no está configurado para pagar con Bold" }, 409);
