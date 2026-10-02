@@ -16,13 +16,13 @@ export function cleanTrackingValue(value, max = 500) {
   return v ? v.slice(0, max) : "";
 }
 
-export function normalizeClientOrder(input, now = new Date().toISOString()) {
+export function normalizeClientOrder(input, now = new Date().toISOString(), serverTotal) {
   const reference = safeReference(input?.reference);
   if (!reference) throw new Error("Referencia inválida");
 
-  const total = Math.round(Number(input?.totalNumber ?? input?.total));
+  const total = Math.round(Number(serverTotal));
   if (!Number.isFinite(total) || total < 1000 || total > 20000000) {
-    throw new Error("Total inválido");
+    throw new Error("Total validado por servidor inválido");
   }
 
   return {
@@ -49,8 +49,11 @@ export function normalizeClientOrder(input, now = new Date().toISOString()) {
   };
 }
 
-export function mergeClientOrder(existing, incoming, now = new Date().toISOString()) {
-  const base = normalizeClientOrder(incoming, now);
+export function mergeClientOrder(existing, incoming, now = new Date().toISOString(), serverTotal) {
+  if (!existing && !Number.isFinite(Number(serverTotal))) {
+    throw new Error("Falta el importe validado por servidor");
+  }
+  const base = normalizeClientOrder(incoming, now, existing ? Number(existing.total) : serverTotal);
   if (!existing) return base;
 
   return {
@@ -63,7 +66,8 @@ export function mergeClientOrder(existing, incoming, now = new Date().toISOStrin
     city: base.city || existing.city || "",
     phone: base.phone || existing.phone || "",
     pedido: base.pedido || existing.pedido || "",
-    total: base.total,
+    // Never replace an existing order amount with a browser-supplied value.
+    total: Number(existing.total),
     totalFormatted: base.totalFormatted || existing.totalFormatted || "",
     paymentMethod: base.paymentMethod || existing.paymentMethod || "por definir",
     paymentLink: base.paymentLink || existing.paymentLink || "",
