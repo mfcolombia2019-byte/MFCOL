@@ -3142,8 +3142,6 @@ try {
 
       // Server-confirmed total is used for all customer-facing legacy data too.
       f.elements["total"].value = fmt(serverTotal);
-      guardarPedidoLegacy(orderRef, "");
-
       if (pay === "Link de pago (Bold)") {
         if (submitBtn) submitBtn.textContent = "Creando pago seguro…";
         var linkRes = await fetch("/.netlify/functions/crear-link-pago", {
