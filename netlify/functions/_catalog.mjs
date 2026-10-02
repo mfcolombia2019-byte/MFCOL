@@ -817,7 +817,7 @@ export function validateCart(items) {
     const qty = Math.round(Number(raw?.qty));
     if (!Number.isInteger(qty) || qty < 1 || qty > 20) throw new Error("Cantidad inválida");
     const size = String(raw?.size ?? "").trim();
-    if (!/^3[4-9]|40$/.test(size)) throw new Error("Talla inválida");
+    if (!/^(?:3[4-9]|40)$/.test(size)) throw new Error("Talla inválida");
     const colors = Array.isArray(product.colors) ? product.colors : [];
     const color = raw?.color == null ? null : String(raw.color).trim();
     if (colors.length && (!color || !colors.includes(color))) throw new Error("Color inválido para " + product.name);
