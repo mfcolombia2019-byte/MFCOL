@@ -8,6 +8,11 @@ import {
 } from "../netlify/functions/_orders.mjs";
 import { validateCart } from "../netlify/functions/_catalog.mjs";
 import { buildMetaPurchase } from "../netlify/functions/_meta.mjs";
+import {
+  validateAdminBoldOrder,
+  buildAdminBoldDescription
+} from "../netlify/functions/admin-bold.mjs";
+import { validateTokenOrder } from "../netlify/functions/comunidad.mjs";
 
 const client = normalizeClientOrder({
   reference: "MF-123",
@@ -130,3 +135,41 @@ assert.throws(() => validateCart([{ id: "sandalia-de-cuna-trenzada-en-negro-y-ro
 assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "33", color: "Negro", qty: 1 }]), /Talla inválida/);
 
 console.log("checkout server-authority tests: PASS");
+
+
+const pendingOrder = {
+  reference: "MF-BOLD-1",
+  paymentStatus: "pendiente",
+  paymentMethod: "Link de pago (Bold)",
+  total: 239900,
+  items: [{ id: "shoe-1", name: "Plataforma Elevé" }]
+};
+const adminValidated = validateAdminBoldOrder(pendingOrder, "MF-BOLD-1");
+assert.equal(adminValidated.total, 239900);
+assert.equal(buildAdminBoldDescription(pendingOrder), "MF Colombia · Plataforma Elevé");
+
+// Client-supplied total is not a source of truth: the validation helper only reads order.total.
+assert.equal(adminValidated.total, pendingOrder.total);
+assert.notEqual(adminValidated.total, 1234);
+assert.match(validateAdminBoldOrder(null, "MF-BOLD-404").error, /Pedido no encontrado/);
+assert.match(validateAdminBoldOrder(pendingOrder, "").error, /referencia.*obligatoria/i);
+assert.match(validateAdminBoldOrder({ ...pendingOrder, paymentStatus: "aprobado" }, "MF-BOLD-1").error, /ya no está pendiente/i);
+assert.match(validateAdminBoldOrder({ ...pendingOrder, paymentMethod: "Transferencia bancaria" }, "MF-BOLD-1").error, /Bold/i);
+
+const approvedToken = {
+  orderRef: "MF-APPROVED-1",
+  products: [{ id: "shoe-1", name: "Plataforma Elevé" }]
+};
+const approvedOrder = {
+  reference: "MF-APPROVED-1",
+  paymentStatus: "aprobado",
+  items: [{ id: "shoe-1", name: "Plataforma Elevé" }]
+};
+assert.equal(validateTokenOrder(approvedToken, approvedOrder, "shoe-1").orderRef, "MF-APPROVED-1");
+assert.match(validateTokenOrder(approvedToken, { ...approvedOrder, paymentStatus: "pendiente" }, "shoe-1").error, /no está confirmada/i);
+assert.match(validateTokenOrder({ ...approvedToken, orderRef: "MF-WRONG" }, approvedOrder, "shoe-1").error, /Pedido no encontrado/i);
+assert.match(validateTokenOrder(approvedToken, { ...approvedOrder, items: [{ id: "other", name: "Otro" }] }, "shoe-1").error, /producto no pertenece/i);
+assert.match(validateTokenOrder(approvedToken, null, "shoe-1").error, /Pedido no encontrado/i);
+assert.match(validateTokenOrder(approvedToken, approvedOrder, "other").error, /producto no pertenece/i);
+
+console.log("security/orders-meta-capi targeted tests: PASS");
