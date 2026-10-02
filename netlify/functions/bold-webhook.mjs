@@ -58,16 +58,45 @@ export default async (req, context) => {
     });
   }
 
-  const work = processBoldWebhook(event).catch(async (error) => {
-    console.error("No se pudo procesar webhook Bold:", error);
-    const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
-    if (current && !current.processedAt) {
-      current.status = "error";
-      current.lastError = String(error?.message || error).slice(0, 1000);
-      current.updatedAt = new Date().toISOString();
-      await store.setJSON(inboxKey, current);
-    }
-  });
+  const work = processBoldWebhook(event)
+    .then(async () => {
+      // Preserve the existing Netlify Forms notification behavior, but do not
+      // make a notification failure roll back or duplicate the payment state.
+      try {
+        const d = event.data || {};
+        const reference = String(d.metadata?.reference || "").trim();
+        const paymentId = String(d.payment_id || event.subject || "").trim();
+        const paymentStatus =
+          event.type === "SALE_APPROVED" ? "aprobado" :
+          event.type === "SALE_REJECTED" ? "rechazado" :
+          event.type === "VOID_APPROVED" ? "anulado" :
+          event.type === "VOID_REJECTED" ? "rechazado" : "pendiente";
+        await fetch(new URL(req.url).origin + "/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: encodeForm({
+            "form-name": "pagos-confirmados",
+            reference,
+            payment_id: paymentId,
+            valor: d.amount?.total != null ? String(d.amount.total) : "",
+            medio_pago: d.payment_method || "",
+            estado: paymentStatus
+          })
+        });
+      } catch (error) {
+        console.error("No se pudo registrar el formulario de pago:", error);
+      }
+    })
+    .catch(async (error) => {
+      console.error("No se pudo procesar webhook Bold:", error);
+      const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
+      if (current && !current.processedAt) {
+        current.status = "error";
+        current.lastError = String(error?.message || error).slice(0, 1000);
+        current.updatedAt = new Date().toISOString();
+        await store.setJSON(inboxKey, current);
+      }
+    });
 
   if (typeof context?.waitUntil === "function") {
     context.waitUntil(work);
