@@ -34,6 +34,7 @@ export function normalizeClientOrder(input, now = new Date().toISOString(), serv
     city: cleanText(input?.city, 100),
     phone: cleanText(input?.phone, 40),
     pedido: cleanText(input?.pedido, 5000),
+    items: Array.isArray(input?.items) ? input.items.slice(0, 50) : [],
     total,
     totalFormatted: cleanText(input?.totalFormatted, 80),
     paymentMethod: cleanText(input?.paymentMethod || "por definir", 80),
@@ -66,6 +67,7 @@ export function mergeClientOrder(existing, incoming, now = new Date().toISOStrin
     city: base.city || existing.city || "",
     phone: base.phone || existing.phone || "",
     pedido: base.pedido || existing.pedido || "",
+    items: Array.isArray(existing.items) && existing.items.length ? existing.items : base.items,
     // Never replace an existing order amount with a browser-supplied value.
     total: Number(existing.total),
     totalFormatted: base.totalFormatted || existing.totalFormatted || "",
