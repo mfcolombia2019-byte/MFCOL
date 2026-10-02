@@ -39,6 +39,7 @@ export function buildMetaPurchase(order) {
   if (phone) userData.ph = [sha256(phone)];
   if (order?.fbp) userData.fbp = String(order.fbp);
   if (order?.fbc) userData.fbc = String(order.fbc);
+  if (order?.clientUserAgent) userData.client_user_agent = String(order.clientUserAgent).slice(0, 1000);
 
   return {
     event_name: "Purchase",
