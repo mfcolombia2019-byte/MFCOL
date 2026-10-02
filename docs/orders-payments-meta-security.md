@@ -114,3 +114,58 @@ tests/orders-meta.test.mjs usa únicamente datos ficticios y comprueba:
 - Purchase no generado para un pedido de WhatsApp;
 - estabilidad de event_id;
 - no degradación de un pago aprobado por una notificación posterior rechazada.
+
+
+## Implementación actual (2026-10-01)
+
+### Checkout
+- El navegador envía carrito estructurado; el servidor valida producto, talla, color, cantidad y precio.
+- El total usado para el pedido y para Bold proviene del servidor.
+- La referencia del pedido la genera el servidor.
+- El cliente no puede fijar paymentStatus, status, callback_url, descripción ni importe para crear el link Bold.
+- Un producto cuyo precio del catálogo es null se rechaza; no se inventa precio.
+- Se usa una clave de idempotencia para evitar crear dos referencias ante doble envío.
+
+### Bold
+- crear-link-pago recibe únicamente la referencia de un pedido persistido y pendiente.
+- El total, descripción y callback se derivan del pedido/configuración servidor.
+- SITE_CANONICAL_ORIGIN es la configuración central prevista para el callback HTTPS canónico. No se eligió automáticamente entre los dominios existentes.
+- El API Link de Bold usa el endpoint/payload existente del repositorio.
+
+### Webhook / outbox
+- Inbox y outbox mantienen sus estados existentes.
+- El inbox y el outbox usan escrituras condicionales para reclamar procesamiento.
+- El pedido se actualiza con CAS y se valida amount/COP contra el total persistido.
+- API Link de Bold puede entregar metadata.reference como LNK_*; se añadió bold-links/LNK_* para resolverlo al pedido.
+- Purchase solo se crea después de SALE_APPROVED.
+- No se instaló scheduler, Background Functions ni Async Workloads; el retry fuera del ciclo del webhook sigue requiriendo recuperación administrativa.
+- @netlify/blobs se fijó en 10.7.12 para disponer de onlyIfNew/onlyIfMatch. Se trata modified=true + etag vacío como fallo por un problema documentado de esa versión.
+
+### Comunidad
+- issue-token requiere sesión administrativa, pedido existente, referencia coincidente y paymentStatus aprobado.
+- El producto del token debe pertenecer a los items del pedido aprobado.
+- moderar.html reutiliza la cookie de sesión firmada; ya no usa x-admin-key ni sessionStorage.
+- El consumo del token usa claim processing con CAS y solo pasa a done después del guardado exitoso.
+
+### Gracias / pagar / navegación
+- gracias.html consulta el estado del pedido en servidor y no presume aprobación por el simple regreso desde Bold.
+- pagar.html usa únicamente ?ref=<referencia del pedido>.
+- Comunidad enlaza a /?producto=<id>.
+- No se reescribió el sistema de history existente.
+
+### Feed Meta pendiente
+El producto Sandalia de cuña trenzada en negro y rosado mantiene price="" en meta-feed/meta-product-feed.csv y price:null en index.html. No existe un precio inequívoco en el repositorio, por lo que no se modificó.
+
+### Dominios
+No se modificaron dominios. Se encontraron:
+- mfcol-links.html → https://mfcol.com
+- meta-feed/meta-product-feed.csv → https://tienda.mfcol.com
+No hay evidencia suficiente para seleccionar uno como dominio canónico de checkout. marlonfootwearcol.netlify.app no fue seleccionado.
+
+### netlify.toml
+Se mantienen publish="." y functions="netlify/functions". Netlify recomienda mantener Functions fuera del directorio publicado; cambiarlo exigiría una reestructuración que no corresponde a esta fase.
+
+### Pruebas
+tests/orders-meta.test.mjs fue actualizado para probar autoridad server-side del total, validación de carrito, precio no configurado, talla inválida, SALE_APPROVED, importe confirmado, Purchase posterior a aprobación, fbp/fbc, event_id estable y no degradación de aprobado.
+
+Las pruebas reales de Netlify/Blobs, Bold y Meta no se ejecutaron en esta sesión. No hubo eventos reales a Meta.
