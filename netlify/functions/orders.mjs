@@ -1,45 +1,20 @@
 import { store, getJson, listJson, json, requireAdmin, safeId } from "./_admin.mjs";
-
-function cleanOrder(input) {
-  const reference = safeId(input?.reference);
-  if (!reference) throw new Error("Referencia inválida");
-  const total = Math.round(Number(input?.totalNumber ?? input?.total));
-  if (!Number.isFinite(total) || total < 1000 || total > 20000000) throw new Error("Total inválido");
-
-  return {
-    reference,
-    createdAt: String(input?.createdAt || new Date().toISOString()),
-    updatedAt: new Date().toISOString(),
-    name: String(input?.name || "").trim().slice(0, 120),
-    address: String(input?.address || "").trim().slice(0, 240),
-    city: String(input?.city || "").trim().slice(0, 100),
-    phone: String(input?.phone || "").trim().slice(0, 40),
-    pedido: String(input?.pedido || "").trim().slice(0, 5000),
-    total,
-    totalFormatted: String(input?.totalFormatted || ""),
-    paymentMethod: String(input?.paymentMethod || "por definir").slice(0, 80),
-    paymentLink: String(input?.paymentLink || "").slice(0, 500),
-    boldPaymentLink: String(input?.boldPaymentLink || "").slice(0, 120),
-    status: String(input?.status || "nuevo").slice(0, 40),
-    paymentStatus: String(input?.paymentStatus || "pendiente").slice(0, 40),
-    notes: String(input?.notes || "").slice(0, 2000)
-  };
-}
+import { mergeClientOrder } from "./_orders.mjs";
 
 export default async (req) => {
   if (req.method === "POST") {
     try {
       const body = await req.json();
-      const order = cleanOrder(body);
-      const existing = await getJson("orders/" + order.reference);
-      if (existing) {
-        order.createdAt = existing.createdAt || order.createdAt;
-        order.status = existing.status || order.status;
-        order.paymentStatus = existing.paymentStatus || order.paymentStatus;
-        order.notes = existing.notes || order.notes;
-        order.boldPaymentLink = order.boldPaymentLink || existing.boldPaymentLink || "";
-      }
-      await store.setJSON("orders/" + order.reference, order);
+      const reference = safeId(body?.reference);
+      if (!reference) throw new Error("Referencia inválida");
+
+      const existing = await getJson("orders/" + reference);
+      const order = mergeClientOrder(existing, { ...body, reference });
+
+      // The browser is never allowed to choose paymentStatus/status.
+      // Existing server-confirmed states are preserved; approval comes only
+      // from the validated Bold webhook.
+      await store.setJSON("orders/" + reference, order);
       return json({ ok: true, reference: order.reference });
     } catch (e) {
       return json({ error: e.message || "No se pudo guardar el pedido" }, 400);
@@ -64,9 +39,14 @@ export default async (req) => {
       if (!current) return json({ error: "Pedido no encontrado" }, 404);
 
       const allowedStatus = ["nuevo","confirmado","preparando","enviado","entregado","cancelado"];
-      const allowedPayment = ["pendiente","aprobado","rechazado","anulado"];
       if (body.status && allowedStatus.includes(body.status)) current.status = body.status;
-      if (body.paymentStatus && allowedPayment.includes(body.paymentStatus)) current.paymentStatus = body.paymentStatus;
+
+      // Payment state is deliberately not writable through this API.
+      // Bold's validated webhook is the sole source of payment confirmation.
+      if (body.paymentStatus != null) {
+        return json({ error: "paymentStatus solo puede actualizarlo el webhook validado de Bold" }, 403);
+      }
+
       if (body.notes != null) current.notes = String(body.notes).slice(0, 2000);
       current.updatedAt = new Date().toISOString();
 
