@@ -16,7 +16,7 @@ export function safeEventId(id) {
 export function webhookInboxKey(eventId) {
   return "webhook-inbox/" + safeEventId(eventId);
 }
-
+const WEBHOOK_PROCESSING_TIMEOUT_MS = 10 * 60 * 1000;
 async function ensureInbox(event) {
   const eventId = safeEventId(event?.id);
   const key = webhookInboxKey(eventId);
