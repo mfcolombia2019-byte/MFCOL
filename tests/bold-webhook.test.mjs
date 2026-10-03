@@ -280,13 +280,96 @@ test("referencia LNK_ inexistente no se resuelve y no actualiza pedidos", async 
   assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "pendiente");
   assert.equal(state.get("webhook-inbox/evt-unresolved-link").status, "processing");
 });
+test("recupera un procesamiento abandonado después de 10 minutos", async () => {
+  reset();
+  process.env.CONTEXT = "branch-deploy";
 
-test("referencia LNK_ inexistente no se resuelve y no actualiza pedidos", async () => {
-  // ...
+  put("orders/MF-TEST-1", {
+    reference: "MF-TEST-1",
+    total: 199900,
+    paymentStatus: "pendiente"
+  });
+
+  const originalEvent = event({ id: "evt-abandoned" });
+
+  put("webhook-inbox/evt-abandoned", {
+    id: "evt-abandoned",
+    type: "SALE_APPROVED",
+    receivedAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
+    status: "processing",
+    processedAt: "",
+    processingAt: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
+    reference: "",
+    event: originalEvent
+  });
+
+  const result = await core.processBoldWebhook(originalEvent);
+
+  assert.equal(result.ok, true);
+  assert.equal(result.reference, "MF-TEST-1");
+  assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "aprobado");
+  assert.equal(state.get("webhook-inbox/evt-abandoned").status, "processed");
+  assert.equal(orderUpdates, 1);
+  assert.equal(outboxEnqueues, 1);
 });
 
-// AQUÍ deben ir las 3 pruebas reales
+test("procesamiento reciente sigue ocupado y no se recupera", async () => {
+  reset();
+  process.env.CONTEXT = "branch-deploy";
 
+  put("orders/MF-TEST-1", {
+    reference: "MF-TEST-1",
+    total: 199900,
+    paymentStatus: "pendiente"
+  });
+
+  const e = event({ id: "evt-recent-processing" });
+
+  put("webhook-inbox/evt-recent-processing", {
+    id: "evt-recent-processing",
+    type: "SALE_APPROVED",
+    receivedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    status: "processing",
+    processedAt: "",
+    processingAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    reference: "",
+    event: e
+  });
+
+  const result = await core.processBoldWebhook(e);
+
+  assert.equal(result.busy, true);
+  assert.equal(orderUpdates, 0);
+  assert.equal(outboxEnqueues, 0);
+  assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "pendiente");
+});
+
+test("processing con processingAt inválido no se recupera automáticamente", async () => {
+  reset();
+  process.env.CONTEXT = "branch-deploy";
+
+  const e = event({ id: "evt-invalid-processing-at" });
+
+  put("webhook-inbox/evt-invalid-processing-at", {
+    id: "evt-invalid-processing-at",
+    type: "SALE_APPROVED",
+    receivedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    status: "processing",
+    processedAt: "",
+    processingAt: "fecha-invalida",
+    reference: "",
+    event: e
+  });
+
+  const result = await core.processBoldWebhook(e);
+
+  assert.equal(result.busy, true);
+  assert.equal(orderUpdates, 0);
+  assert.equal(outboxEnqueues, 0);
+});
 test("duplicados y concurrencia procesan una sola vez", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
