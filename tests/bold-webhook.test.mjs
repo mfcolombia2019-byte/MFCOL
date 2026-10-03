@@ -281,7 +281,10 @@ test("referencia LNK_ inexistente no se resuelve y no actualiza pedidos", async 
   assert.equal(state.get("webhook-inbox/evt-unresolved-link").status, "processing");
 });
 
-
+... prueba LNK_ ...
+        ↓
+[AQUÍ PEGAS las 3 pruebas nuevas]
+        ↓
 test("duplicados y concurrencia procesan una sola vez", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
