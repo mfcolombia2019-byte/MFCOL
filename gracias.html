@@ -66,51 +66,87 @@
     refNum.textContent = ref;
     refBox.hidden = false;
 
-    try {
-      var data = null;
-      var attempts = 0;
-      var maxAttempts = 8;
+    var data = null;
+    var lastTemporaryError = null;
+    var permanentError = null;
+    var maxAttempts = 8;
 
-      while (attempts < maxAttempts) {
-        attempts += 1;
+    for (var attempts = 1; attempts <= maxAttempts; attempts += 1) {
+      try {
         var res = await fetch("/.netlify/functions/order-status?ref=" + encodeURIComponent(ref), { cache: "no-store" });
-        var nextData = await res.json().catch(function () { return {}; });
-        if (!res.ok) throw new Error(nextData.error || "No se pudo consultar el pedido.");
-        data = nextData;
 
-        if (data.paymentStatus === "aprobado" || data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") break;
-        if (attempts < maxAttempts) await new Promise(function (resolve) { setTimeout(resolve, 1500); });
+        if (res.ok) {
+          var nextData = await res.json().catch(function () { return null; });
+          var validStatuses = ["pendiente", "aprobado", "rechazado", "anulado"];
+          var validReference = nextData && typeof nextData.reference === "string" && nextData.reference.length > 0;
+          var validStatus = nextData && validStatuses.indexOf(nextData.paymentStatus) !== -1;
+
+          if (!validReference || !validStatus) {
+            permanentError = new Error("La respuesta del servidor no contiene un estado de pago válido.");
+            break;
+          }
+
+          if (nextData.reference !== ref) {
+            permanentError = new Error("La referencia devuelta por el servidor no coincide con el pedido.");
+            break;
+          }
+
+          data = nextData;
+          if (data.paymentStatus === "aprobado" || data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") break;
+        } else if (res.status === 429 || res.status >= 500) {
+          lastTemporaryError = new Error("Respuesta temporal del servidor: HTTP " + res.status);
+        } else {
+          permanentError = new Error("No se pudo consultar el pedido (HTTP " + res.status + ").");
+          break;
+        }
+      } catch (error) {
+        lastTemporaryError = error;
       }
 
-      if (data.paymentStatus === "aprobado") {
-        title.textContent = "Pago confirmado";
-        intro.textContent = "El servidor confirmó que tu pago fue aprobado.";
-      } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
-        title.textContent = "Pago no confirmado";
-        intro.textContent = "El servidor no tiene un pago aprobado para este pedido.";
-      } else {
-        title.textContent = "Pago pendiente de confirmación";
-        intro.textContent = "El servidor todavía no confirma un pago aprobado. Puedes esperar o consultar con nosotros si necesitas ayuda.";
+      if (attempts < maxAttempts) {
+        await new Promise(function (resolve) { setTimeout(resolve, 1500); });
       }
+    }
 
-      resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
-      var localRaw = localStorage.getItem("mf_order_" + ref);
-      var msg = "Hola, MF Colombia. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
-      if (localRaw) {
-        try {
-          var o = JSON.parse(localRaw);
-          resumenEl.textContent += "\n\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
-          msg += "\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
-          if (data.paymentStatus === "aprobado") localStorage.removeItem("mf_order_" + ref);
-        } catch (e) {}
-      }
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
-    } catch (error) {
-      title.textContent = "Regresaste del proceso de pago";
-      intro.textContent = "No pudimos consultar el estado confirmado del pedido en este momento. No asumimos que el pago fue aprobado.";
+    if (permanentError) {
+      title.textContent = "No pudimos verificar el pago";
+      intro.textContent = "No fue posible validar de forma segura el estado de tu pedido. El pago no se considera confirmado.";
       resumenEl.textContent = "Referencia: " + ref;
       waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Necesito confirmar el estado del pedido " + ref + ".");
+      return;
     }
+
+    if (!data) {
+      title.textContent = "No pudimos verificar el pago";
+      intro.textContent = "No fue posible verificar el estado del pedido en este momento. El pago no se considera confirmado.";
+      resumenEl.textContent = "Referencia: " + ref;
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Necesito confirmar el estado del pedido " + ref + ".");
+      return;
+    }
+
+    if (data.paymentStatus === "aprobado") {
+      title.textContent = "Pago confirmado";
+      intro.textContent = "El servidor confirmó que tu pago fue aprobado.";
+    } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
+      title.textContent = "Pago no confirmado";
+      intro.textContent = "El servidor no tiene un pago aprobado para este pedido.";
+    } else {
+      title.textContent = "Pago pendiente de confirmación";
+      intro.textContent = "El servidor todavía no confirma un pago aprobado. Puedes esperar o consultar con nosotros si necesitas ayuda.";
+    }
+
+    resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
+    var localRaw = localStorage.getItem("mf_order_" + ref);
+    var msg = "Hola, MF Colombia. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
+    if (localRaw) {
+      try {
+        var o = JSON.parse(localRaw);
+        resumenEl.textContent += "\n\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
+        msg += "\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
+        if (data.paymentStatus === "aprobado") localStorage.removeItem("mf_order_" + ref);
+      } catch (e) {}
+    }
+    waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
   })();
   </script>
 </body>
