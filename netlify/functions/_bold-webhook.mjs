@@ -45,8 +45,14 @@ async function claimInbox(eventId) {
     const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
     if (!current?.data) throw new Error("Evento Bold no encontrado en inbox");
     if (current.data.processedAt) return { claimed: false, duplicate: true, current };
-    if (current.data.status === "processing") return { claimed: false, busy: true, current };
+    if (current.data.status === "processing") {
+  const processingAt = Date.parse(String(current.data.processingAt || ""));
+  const abandoned =
+    Number.isFinite(processingAt) &&
+    (Date.now() - processingAt) >= WEBHOOK_PROCESSING_TIMEOUT_MS;
 
+  if (!abandoned) return { claimed: false, busy: true, current };
+}
     const next = {
       ...current.data,
       status: "processing",
