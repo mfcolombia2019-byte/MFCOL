@@ -144,7 +144,26 @@ const rejectedAfterApproved = applyBoldPaymentEvent(approved, {
   }
 });
 assert.equal(rejectedAfterApproved.paymentStatus, "aprobado");
-
+const voidApprovedAfterApproved = applyBoldPaymentEvent(approved, {
+  id: "evt-void-1",
+  type: "VOID_APPROVED",
+  data: {
+    payment_id: "PAY-1",
+    amount: { currency: "COP", total: 199900 },
+    metadata: { reference: "MF-123" }
+  }
+});
+assert.equal(voidApprovedAfterApproved.paymentStatus, "anulado");
+const saleApprovedAfterVoid = applyBoldPaymentEvent(voidApprovedAfterApproved, {
+  id: "evt-sale-after-void",
+  type: "SALE_APPROVED",
+  data: {
+    payment_id: "PAY-1",
+    amount: { currency: "COP", total: 199900 },
+    metadata: { reference: "MF-123" }
+  }
+});
+assert.equal(saleApprovedAfterVoid.paymentStatus, "anulado");
 console.log("orders-meta tests: PASS");
 
 
