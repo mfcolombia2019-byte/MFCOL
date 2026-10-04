@@ -1,4 +1,4 @@
-/* Comunidad Marlon · funciona junto a index.html sin tocar su código.
+/* Comunidad MF · funciona junto a index.html sin tocar su código.
    Se apoya en: #pd (ficha de producto), #productGrid (tarjetas), #comunidad / #cmHome (portada),
    #cmGrid y #cmToken (comunidad.html). */
 (function () {
@@ -44,7 +44,7 @@
           (p.hasPhoto ? '<a class="cm-pr-photo" href="' + API + '?action=photo&id=' + p.id + '" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="' + API + '?action=photo&id=' + p.id + '" alt="Foto de una clienta con ' + esc(p.productName) + '"></a>' : '') +
           '<div class="cm-pr-copy"><div class="cm-pr-stars" aria-label="' + p.rating + ' de 5">' + stars(p.rating) + '</div>' +
           (p.text ? '<p class="cm-pr-text">“' + esc(p.text) + '”</p>' : '') +
-          '<p class="cm-pr-meta">' + (p.customerName ? esc(p.customerName) : 'Clienta Marlon') + (p.verified ? ' · ✓ Compra verificada' : '') + '</p></div>' +
+          '<p class="cm-pr-meta">' + (p.customerName ? esc(p.customerName) : 'Clienta MF') + (p.verified ? ' · ✓ Compra verificada' : '') + '</p></div>' +
           '</article>';
       }).join("") + '</div></section>';
   }
@@ -71,7 +71,7 @@
     return '<figure class="cm-item" style="animation-delay:' + (i % 8) * 60 + 'ms"><div class="cm-img"><img loading="lazy" decoding="async" src="' + API + "?action=photo&id=" + p.id +
       '" alt="Look de una clienta con ' + esc(p.productName) + '"></div><figcaption><p class="cm-model">' + esc(p.productName) + "</p>" +
       (p.instagram ? '<a class="cm-ig" href="https://www.instagram.com/' + esc(p.instagram) + '/" target="_blank" rel="noopener">@' + esc(p.instagram) + "</a>" : "") +
-      '<p class="cm-badges"><span>Cliente Marlon ✓</span>' + (p.verified ? "<span>✓ Compra verificada</span>" : "") + "</p>" +
+      '<p class="cm-badges"><span>Clienta MF ✓</span>' + (p.verified ? "<span>✓ Compra verificada</span>" : "") + "</p>" +
       '<a class="cm-link" href="/?producto=' + esc(p.product) + '">Ver producto</a></figcaption></figure>';
   }
   function render() {
@@ -108,7 +108,7 @@
       '<ul class="cm-guide"><li>Buena iluminación</li><li>Imagen nítida</li><li>Calzado visible</li><li>Outfit cuidado</li><li>Fotografía apropiada para representar la marca</li></ul>' +
       '<p class="cm-avoid">Evitamos fotografías borrosas, de baja calidad, con contenido ofensivo o sin relación con el producto.</p>' +
       '<label class="cm-drop"><input type="file" name="file" accept="image/*"><img alt="Vista previa" hidden><span>Subir fotografía</span></label>' +
-      '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MARLON FOOTWEAR a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
+      '<label class="cm-consent"><input type="checkbox" name="consent"><span>Autorizo a MF a usar mi fotografía en su página web y redes sociales.</span></label></div>' +
       '<div class="field"><span>Tu calificación</span><div class="cm-stars" role="group" aria-label="Calificación">' +
       [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" data-v="' + n + '" aria-label="' + n + (n === 1 ? " estrella" : " estrellas") + '" aria-pressed="false">★</button>'; }).join("") + "</div></div>" +
       '<label class="field"><span>Tu nombre</span><input name="customerName" maxlength="120" autocomplete="name" placeholder="Cómo quieres aparecer"></label>' +
@@ -141,7 +141,7 @@
     nameInput.value = tokenContext.customerName || "";
     nameInput.readOnly = !!TOKEN && !!tokenContext.customerName;
     $(".cm-photo-upload", f).hidden = false;
-    $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde tus Marlon sean protagonistas y formen parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
+    $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde tu MF sean protagonistas y formen parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
     $(".cm-photo-upload .cm-guide", f).hidden = !look;
     $(".cm-photo-upload .cm-avoid", f).hidden = !look;
     $(".cm-photo-upload .cm-consent", f).hidden = false;
@@ -176,7 +176,7 @@
       return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || "No pudimos enviarlo. Inténtalo de nuevo."); });
     }).then(function () {
       f.innerHTML = '<p class="cm-thanks">' + (look ? "Gracias por compartir tu look." : "Gracias por calificar tu compra.") +
-        "<small>" + (look ? "Tu fotografía quedó pendiente de revisión. Si la aprobamos, aparecerá en Comunidad Marlon." : "Tu reseña se publicará después de una revisión rápida.") + "</small></p>" +
+        "<small>" + (look ? "Tu fotografía quedó pendiente de revisión. Si la aprobamos, aparecerá en Comunidad MF." : "Tu reseña se publicará después de una revisión rápida.") + "</small></p>" +
         '<button class="btn btn-block" type="button" data-close style="margin-top:28px">Cerrar</button>';
       $("[data-close]", f).addEventListener("click", function () { dlg.close(); });
     }).catch(function (x) { err.textContent = x.message || "No pudimos enviarlo. Inténtalo de nuevo."; btn.disabled = false; btn.textContent = "Enviar para revisión"; });
