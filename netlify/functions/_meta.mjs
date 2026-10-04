@@ -51,7 +51,18 @@ export function buildMetaPurchase(order) {
     custom_data: {
       currency: String(order.confirmedCurrency || "COP").toUpperCase(),
       value,
-      order_id: String(order.reference || "")
+      order_id: String(order.reference || ""),
+      content_type: "product",
+      content_ids: Array.isArray(order.items)
+        ? order.items.map(item => String(item?.id || "")).filter(Boolean)
+        : [],
+      contents: Array.isArray(order.items)
+        ? order.items.map(item => ({
+            id: String(item?.id || ""),
+            quantity: Math.max(1, Number(item?.qty) || 1),
+            item_price: Number(item?.unitPrice) || undefined
+          })).filter(item => item.id)
+        : []
     }
   };
 }
