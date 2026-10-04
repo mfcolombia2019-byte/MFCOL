@@ -107,7 +107,14 @@ export function applyBoldPaymentEvent(existing, event, now = new Date().toISOStr
   if (current === "aprobado" && (type === "SALE_REJECTED" || type === "VOID_REJECTED")) {
     paymentStatus = "aprobado";
   }
+if (current === "anulado" && type === "SALE_APPROVED") {
+    const currentPaymentId = cleanText(next.paymentId || "", 120);
+    const incomingPaymentId = cleanText(d.payment_id || event?.subject, 120);
 
+    if (currentPaymentId && incomingPaymentId && currentPaymentId === incomingPaymentId) {
+      paymentStatus = "anulado";
+    }
+  }
   next.updatedAt = now;
   next.paymentStatus = paymentStatus;
   next.paymentId = cleanText(d.payment_id || event?.subject, 120);
