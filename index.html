@@ -2074,6 +2074,18 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1092821839891082&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+<script>
+function trackMetaCommerceEvent(eventName, product, extra) {
+  if (typeof window.fbq !== "function" || !product || !product.id) return;
+  var data = Object.assign({
+    content_ids: [String(product.id)],
+    content_type: "product",
+    value: Number(product.price) || 0,
+    currency: "COP"
+  }, extra || {});
+  window.fbq("track", eventName, data);
+}
+</script>
 </head>
 <body>
 <script>
@@ -2463,7 +2475,7 @@ try {
     {id:"mule-de-tacon-alto-con-tira-transparente",name:"Mule de tacón alto con tira transparente",cat:"Tacón de aguja · Banda transparente",group:"tacones",price:219000,isNew:false,imgs:[["assets/foto-035.jpg","Mule de tacón alto con detalles dorados y tira transparente"],["assets/foto-036.jpg","Mule negro de tacón alto con banda transparente"],["assets/foto-037.jpg","Mule nude de tacón alto con banda transparente"],["assets/foto-038.jpg","Mule nude transparente de tacón alto puesto"],["assets/foto-039.jpg","Par de mules nude de tacón alto con banda transparente"]],colors:["Negro","Nude","Dorado"],facts:["Negro","Nude","Dorado","Tacón de aguja","Banda transparente","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con banda transparente y tacón transparente. Disponible en negro, nude y dorado."},
     {id:"sandalia-de-tacon-con-tira-transparente-2",name:"Sandalia de tacón con tira transparente",cat:"Punta abierta · Tacón aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-040.jpg","Sandalia negra de tacón alto con tira transparente y correa al tobillo"],["assets/foto-041.jpg","Sandalia nude de tacón alto con tira transparente"],["assets/foto-042.jpg","Detalle frontal de sandalia nude con tira transparente"],["assets/foto-043.jpg","Sandalia blanca de tacón alto con correa al tobillo"]],colors:["Negro","Nude","Blanco"],facts:["Negro","Nude","Blanco","Punta abierta","Tacón aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con banda transparente en la parte delantera y correa ajustable al tobillo. Disponible en negro, nude y blanco."},
     {id:"sandalia-nude-de-cuna-con-correa-transparente",name:"Sandalia nude de cuña con correa transparente",cat:"Cuña alta · Plataforma trenzada · Correa al tobillo",group:"plataformas",price:209900,isNew:false,imgs:[["assets/foto-044.jpg","Sandalia nude de cuña trenzada con correa transparente, vista lateral"],["assets/foto-045.jpg","Detalle de sandalia nude con cuña trenzada y correa al tobillo"]],colors:["Nude"],facts:["Nude","Cuña alta","Plataforma trenzada","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia nude de cuña alta con plataforma trenzada y correa transparente al tobillo."},
-    {id:"sandalia-de-cuna-trenzada-en-negro-y-rosado",name:"Sandalia de cuña trenzada en negro y rosado",cat:"Cuña alta · Detalle trenzado",group:"plataformas",price:null,isNew:false,imgs:[["assets/foto-046.jpg","Sandalia de cuña trenzada en negro"],["assets/foto-047.png","Sandalia de cuña trenzada en rosado"]],colors:["Negro","Rosado"],facts:["Negro","Rosado","Cuña alta","Detalle trenzado","34","35","36","37","38","39","40"],desc:"Sandalia de cuña con detalle trenzado, disponible en negro y rosado."},
+    {id:"sandalia-de-cuna-trenzada-en-negro-y-rosado",name:"Sandalia de cuña trenzada en negro y rosado",cat:"Cuña alta · Detalle trenzado",group:"plataformas",price:210000,isNew:false,imgs:[["assets/foto-046.jpg","Sandalia de cuña trenzada en negro"],["assets/foto-047.png","Sandalia de cuña trenzada en rosado"]],colors:["Negro","Rosado"],facts:["Negro","Rosado","Cuña alta","Detalle trenzado","34","35","36","37","38","39","40"],desc:"Sandalia de cuña con detalle trenzado, disponible en negro y rosado."},
     {id:"sandalia-de-cuna-con-pedreria-y-tiras-transparentes",name:"Sandalia de cuña con pedrería y tiras transparentes",cat:"Punta abierta · Cuña alta · Correa al tobillo",group:"plataformas",price:249900,isNew:false,imgs:[["assets/foto-048.png","Sandalia nude de cuña brillante puesta"],["assets/foto-049.jpg","Sandalia de plataforma nude con cuña brillante y correa transparente"]],colors:["Nude con pedrería"],facts:["Nude con pedrería","Punta abierta","Cuña alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma con cuña cubierta de pedrería brillante, plantilla nude, tira transparente y correa al tobillo con hebilla. Disponible en nude con pedrería."},
     {id:"mule-de-tacon-alto-con-textura-croco",name:"Mule de tacón alto con textura croco",cat:"Punta estilizada · Tacón tipo aguja",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-050.jpg","Mule nude de tacón alto con textura croco"],["assets/foto-051.jpg","Mule negro con textura croco, detalle en mano"],["assets/foto-052.png","Mule dorado de tacón alto con textura croco"],["assets/foto-053.png","Mule dorado de tacón alto puesto"],["assets/foto-054.jpg","Mule plateado de tacón alto, vista lateral"],["assets/foto-055.jpg","Mule negro de tacón alto con textura croco"],["assets/foto-056.jpg","Mules blancos de tacón alto con textura croco"]],colors:["Nude","Negro","Dorado","Plateado","Blanco"],facts:["Nude","Negro","Dorado","Plateado","Blanco","Punta estilizada","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con tira amplia al frente y acabado con textura tipo croco. Disponible en nude, negro, dorado, plateado y blanco."},
     {id:"sandalia-nude-de-tacon-fino-transparente",name:"Sandalia nude de tacón fino transparente",cat:"Punta abierta · Tiras transparentes · Tacón tipo aguja",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-057.jpg","Sandalia nude con tiras transparentes y tacón fino transparente, vista lateral"],["assets/foto-058.jpg","Sandalia nude con tira transparente y tacón fino, vista frontal"]],colors:["Nude"],facts:["Nude","Punta abierta","Tiras transparentes","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con tira transparente al frente, correa ajustable al tobillo y tacón fino transparente tipo aguja."},
@@ -3013,6 +3025,7 @@ try {
     resetProductViewport(pd);
     openDlg(pd);
     resetProductViewport(pd);
+    trackMetaCommerceEvent("ViewContent", p, { content_name: p.name });
 
     if (mustPickSize && !pending) {
       if (p.colors && p.colors.length) needField($(".pd-info", pd), "color", "Elige tu color para comprar.");
@@ -3429,6 +3442,7 @@ try {
         var v1 = pickVariant(scope, p); if (!v1) return;
         var addedQty = qtyOf(scope);
         addToBag(p.id, v1.size, v1.color, true, addedQty);
+        trackMetaCommerceEvent("AddToCart", p, { quantity: addedQty, content_name: p.name });
         if (el.closest("#pd")) {
           confirmBagAdded(el, p, addedQty);
         } else {
@@ -3443,7 +3457,9 @@ try {
         var s2 = el.closest("[data-product]"), p2 = byId(s2.dataset.product);
         var v2 = pickVariant(s2, p2, "Elige tu color para añadir a la bolsa.", "Elige tu talla para añadir a la bolsa.");
         if (!v2) return;
-        addToBag(p2.id, v2.size, v2.color, false, qtyOf(s2)); return;
+        var addedQty2 = qtyOf(s2);
+        addToBag(p2.id, v2.size, v2.color, false, addedQty2);
+        trackMetaCommerceEvent("AddToCart", p2, { quantity: addedQty2, content_name: p2.name }); return;
       }
       if (el.matches("[data-qty-step]")) {
         var qv = el.parentElement.querySelector("[data-qty-val]");
