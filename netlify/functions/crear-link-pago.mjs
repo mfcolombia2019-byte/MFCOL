@@ -6,24 +6,39 @@ import { store, getJson, json } from "./_admin.mjs";
 const safeRef = /^[A-Za-z0-9_-]{1,80}$/;
 
 function canonicalOrigin() {
-  const raw = String(process.env.SITE_CANONICAL_ORIGIN || "").trim().replace(/\/+$/, "");
-  if (!raw) return "";
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== "https:") return "";
-    return u.origin;
-  } catch {
-    return "";
-  }
+const isProduction = String(process.env.CONTEXT || "").toLowerCase() === "production";
+
+const candidates = isProduction
+? [process.env.SITE_CANONICAL_ORIGIN, process.env.URL]
+: [process.env.DEPLOY_PRIME_URL, process.env.URL];
+
+for (const candidate of candidates) {
+const raw = String(candidate || "").trim().replace(/\/+$/, "");
+if (!raw) continue;
+
+```
+try {
+  const u = new URL(raw);
+  if (u.protocol !== "https:") continue;
+  return u.origin;
+} catch {
+  continue;
 }
+```
+
+}
+
+return "";
+}
+
 
 async function associateBoldLink(reference, paymentLink) {
   const key = "orders/" + reference;
   const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) throw new Error("Pedido no encontrado");
-  if (current.boldPaymentLink && current.paymentLink) {
-    return current;
-  }
+ if (current.data.boldPaymentLink && current.data.paymentLink) {
+return current.data;
+}
   const next = {
     ...current.data,
     paymentLink: "https://checkout.bold.co/" + paymentLink,
