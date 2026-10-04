@@ -2876,9 +2876,9 @@ try {
     }).join("");
     var shipping = shippingFeeForPackages(n), grandTotal = subtotal + shipping;
     var msg = "Hola, MF. Quiero comprar:\n" + lines.join("\n") + "\nSubtotal productos: " + fmt(subtotal) +
-      "\nEnvío nacional (" + packageLabel(n) + "): " + fmt(shipping) + "\nTotal: " + fmt(grandTotal);
+      "\nValor envío: " + fmt(shipping) + "\nTotal: " + fmt(grandTotal);
     foot.innerHTML = '<div class="dr-sub"><span>Subtotal productos</span><strong>' + fmt(subtotal) + "</strong></div>" +
-      '<div class="dr-sub"><span>Envío nacional (' + packageLabel(n) + ')</span><strong>' + fmt(shipping) + "</strong></div>" +
+      '<div class="dr-sub"><span>Valor envío</span><strong>' + fmt(shipping) + "</strong></div>" +
       '<div class="dr-sub dr-grand"><span>Total</span><strong>' + fmt(grandTotal) + "</strong></div>" +
       '<p class="dr-delivery">Entrega estimada: 3–5 días hábiles desde el despacho.</p>' +
       '<button class="btn btn-solid btn-block" type="button" data-checkout>Ir a finalizar mi pedido</button>';
@@ -3124,7 +3124,7 @@ try {
     }).join("");
     var shipping = shippingFeeForPackages(packages);
     $("#coItems").innerHTML = itemsHTML +
-      '<li class="co-shipping"><span>Envío nacional (' + packageLabel(packages) + ')</span><span>' + fmt(shipping) + '</span></li>';
+      '<li class="co-shipping"><span>Valor envío</span><span>' + fmt(shipping) + '</span></li>';
     $("#coTotal").textContent = fmt(subtotal + shipping);
     syncPayUI();
     openDlg($("#co"));
