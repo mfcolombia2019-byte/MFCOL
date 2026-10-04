@@ -1,6 +1,4 @@
-import { getStore } from "@netlify/blobs";
-
-const store = getStore("mfc-admin");
+import { store } from "./_admin.mjs";
 
 export default async (req) => {
   if (req.method !== "GET") return Response.json({ error: "Método no permitido" }, { status: 405 });

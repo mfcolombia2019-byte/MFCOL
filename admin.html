@@ -66,11 +66,11 @@ function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";se
 async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok)throw new Error(d.error||"Error");return d}
 function showLogin(){ $("#app").classList.add("hidden");$("#login").classList.remove("hidden"); }
 function showApp(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard"); }
-$("#loginForm").addEventListener("submit",async e=>{e.preventDefault();$("#loginMsg").textContent="";try{await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value})});}catch(_){}});
 async function login(){
  const r=await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value}),credentials:"same-origin"});
  const d=await r.json().catch(()=>({}));
  if(!r.ok){$("#loginMsg").textContent=d.error||"No se pudo iniciar sesión";return}
+ $("#loginMsg").textContent="";
  showApp();
 }
 $("#loginForm").onsubmit=e=>{e.preventDefault();login()};
