@@ -15,8 +15,7 @@ const candidates = isProduction
 for (const candidate of candidates) {
 const raw = String(candidate || "").trim().replace(/\/+$/, "");
 if (!raw) continue;
-
-```
+  
 try {
   const u = new URL(raw);
   if (u.protocol !== "https:") continue;
