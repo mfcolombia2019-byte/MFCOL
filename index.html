@@ -2065,6 +2065,53 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   transition:opacity .35s ease!important;
 }
 .reveal.in{transform:none!important}
+
+/* MF — filtros de colección compactos, centrados y discretos */
+#productos .tabs{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+  width:100%!important;
+  margin:22px auto 14px!important;
+  padding:0!important;
+  border:0!important;
+  overflow:visible!important;
+}
+#productos .tabs button{
+  flex:0 0 auto!important;
+  min-height:0!important;
+  padding:7px 12px!important;
+  border:1px solid #dedede!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#555!important;
+  font-size:9px!important;
+  font-weight:400!important;
+  line-height:1.2!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+  box-shadow:none!important;
+  transform:none!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease!important;
+}
+#productos .tabs button[aria-pressed="true"]{
+  background:#f1f1ef!important;
+  color:#111!important;
+  border-color:#bdbdb8!important;
+  box-shadow:none!important;
+}
+#productos .tabs button:hover{
+  background:#f7f7f5!important;
+  color:#111!important;
+  border-color:#c8c8c3!important;
+}
+@media(max-width:520px){
+  #productos .tabs{gap:6px!important;margin:18px auto 12px!important}
+  #productos .tabs button{padding:7px 10px!important;font-size:8px!important}
+}
+
 </style>
 <!-- Meta Pixel Code -->
 <script>
