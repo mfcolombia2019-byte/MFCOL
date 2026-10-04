@@ -461,6 +461,10 @@ dialog[open]{animation:dialogIn .22s ease}
 .dr-item .meta{color:#777;font-size:12px}
 .dr-foot{padding:18px 22px calc(22px + env(safe-area-inset-bottom));border-top:1px solid #111;display:grid;gap:12px}
 .dr-sub{display:flex;justify-content:space-between;font-size:14px}
+.dr-grand{border-top:1px solid var(--line);padding-top:10px;font-weight:600}
+.dr-delivery,.co-delivery{font-size:12px;line-height:1.5;color:#777;margin:2px 0 0}
+.co-delivery{margin:0 0 14px}
+.co-shipping{border-top:1px solid var(--line);margin-top:4px;padding-top:14px!important}
 
 /* Search */
 .sd{margin:0 auto;width:min(760px,100%);max-height:100dvh;overflow:auto;padding:12px 18px 25px}
@@ -2078,6 +2082,53 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   transition:opacity .35s ease!important;
 }
 .reveal.in{transform:none!important}
+
+/* MF — filtros de colección compactos, centrados y discretos */
+#productos .tabs{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+  width:100%!important;
+  margin:22px auto 14px!important;
+  padding:0!important;
+  border:0!important;
+  overflow:visible!important;
+}
+#productos .tabs button{
+  flex:0 0 auto!important;
+  min-height:0!important;
+  padding:7px 12px!important;
+  border:1px solid #dedede!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#555!important;
+  font-size:9px!important;
+  font-weight:400!important;
+  line-height:1.2!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+  box-shadow:none!important;
+  transform:none!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease!important;
+}
+#productos .tabs button[aria-pressed="true"]{
+  background:#f1f1ef!important;
+  color:#111!important;
+  border-color:#bdbdb8!important;
+  box-shadow:none!important;
+}
+#productos .tabs button:hover{
+  background:#f7f7f5!important;
+  color:#111!important;
+  border-color:#c8c8c3!important;
+}
+@media(max-width:520px){
+  #productos .tabs{gap:6px!important;margin:18px auto 12px!important}
+  #productos .tabs button{padding:7px 10px!important;font-size:8px!important}
+}
+
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -2422,6 +2473,7 @@ try {
       <div class="co-sum">
         <ul class="co-items" id="coItems"></ul>
         <div class="co-total"><span>Total del pedido</span><strong id="coTotal"></strong></div>
+        <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
         <button class="co-edit" type="button" data-edit-bag>Editar bolsa</button>
       </div>
       <button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
@@ -2812,6 +2864,13 @@ try {
     if (f) f.qty += qty; else bag.push({ id: id, size: size, color: color || null, qty: qty });
     saveBag(); renderBag(); if (!quiet) toast(qty > 1 ? "Añadido a la bolsa (x" + qty + ")" : "Añadido a la bolsa");
   }
+  function shippingFeeForPackages(count) {
+    if (count <= 1) return 17000;
+    if (count === 2) return 20000;
+    return 24000;
+  }
+  function packageLabel(count) { return count + (count === 1 ? " paquete" : " paquetes"); }
+
   function renderBag() {
     var n = bag.reduce(function (a, i) { return a + i.qty; }, 0), b = $("#bagCount");
     b.textContent = n; b.hidden = n === 0;
@@ -2822,18 +2881,23 @@ try {
       foot.innerHTML = '<button class="btn btn-solid btn-block" type="button" data-close data-goto="#productos">Ver el catálogo</button>';
       return;
     }
-    var total = 0, lines = [];
+    var subtotal = 0, lines = [];
     list.innerHTML = bag.map(function (i, idx) {
       var p = byId(i.id), meta = (i.color ? i.color + " · Talla " + i.size : "Talla " + i.size);
-      total += p.price * i.qty;
+      subtotal += p.price * i.qty;
       lines.push("- " + p.name + (i.color ? ", color " + i.color : "") + ", talla " + i.size + " (x" + i.qty + ") " + fmt(p.price * i.qty));
       return '<div class="dr-item"><div class="dr-thumb"><img src="' + esc((p.imgs && p.imgs[0] ? p.imgs[0][0] : '')) + '" alt="' + esc(p.name) + '"></div><div class="dr-item-main"><strong>' + esc(p.name) + '</strong><p class="meta">' + esc(meta) + "</p>" +
         '<div class="qty"><button type="button" data-qty="-1" data-idx="' + idx + '" aria-label="Quitar una unidad de ' + esc(p.name) + '">−</button><span aria-live="polite">' + i.qty +
         '</span><button type="button" data-qty="1" data-idx="' + idx + '" aria-label="Agregar una unidad de ' + esc(p.name) + '">+</button>' +
         '<button class="rm" type="button" data-remove="' + idx + '">Quitar</button></div></div><div>' + fmt(p.price * i.qty) + "</div></div>";
     }).join("");
-    var msg = "Hola, MF. Quiero comprar:\n" + lines.join("\n") + "\nSubtotal: " + fmt(total);
-    foot.innerHTML = '<div class="dr-sub"><span>Subtotal</span><strong>' + fmt(total) + "</strong></div>" +
+    var shipping = shippingFeeForPackages(n), grandTotal = subtotal + shipping;
+    var msg = "Hola, MF. Quiero comprar:\n" + lines.join("\n") + "\nSubtotal productos: " + fmt(subtotal) +
+      "\nValor envío: " + fmt(shipping) + "\nTotal: " + fmt(grandTotal);
+    foot.innerHTML = '<div class="dr-sub"><span>Subtotal productos</span><strong>' + fmt(subtotal) + "</strong></div>" +
+      '<div class="dr-sub"><span>Valor envío</span><strong>' + fmt(shipping) + "</strong></div>" +
+      '<div class="dr-sub dr-grand"><span>Total</span><strong>' + fmt(grandTotal) + "</strong></div>" +
+      '<p class="dr-delivery">Entrega estimada: 3–5 días hábiles desde el despacho.</p>' +
       '<button class="btn btn-solid btn-block" type="button" data-checkout>Ir a finalizar mi pedido</button>';
   }
 
@@ -3070,12 +3134,15 @@ try {
   function openCheckout() {
     if (!bag.length) return;
     closeAllDlg();
-    var total = 0;
-    $("#coItems").innerHTML = bag.map(function (i) {
-      var p = byId(i.id), sub = p.price * i.qty; total += sub;
+    var subtotal = 0, packages = bag.reduce(function (sum, i) { return sum + i.qty; }, 0);
+    var itemsHTML = bag.map(function (i) {
+      var p = byId(i.id), sub = p.price * i.qty; subtotal += sub;
       return "<li><span>" + esc(p.name) + " <small>· " + (i.color ? esc(i.color) + " · " : "") + "T" + i.size + " × " + i.qty + "</small></span><span>" + fmt(sub) + "</span></li>";
     }).join("");
-    $("#coTotal").textContent = fmt(total);
+    var shipping = shippingFeeForPackages(packages);
+    $("#coItems").innerHTML = itemsHTML +
+      '<li class="co-shipping"><span>Valor envío</span><span>' + fmt(shipping) + '</span></li>';
+    $("#coTotal").textContent = fmt(subtotal + shipping);
     syncPayUI();
     openDlg($("#co"));
     $("#co").scrollTop = 0;

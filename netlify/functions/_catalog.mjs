@@ -802,11 +802,18 @@ export function getCatalogProduct(id) {
   return PRODUCTS.find(p => p.id === String(id || "")) || null;
 }
 
+function shippingFeeForPackages(count) {
+  if (count <= 1) return 17000;
+  if (count === 2) return 20000;
+  return 24000;
+}
+
 export function validateCart(items) {
   if (!Array.isArray(items) || !items.length || items.length > 50) {
     throw new Error("Carrito inválido");
   }
-  let total = 0;
+  let subtotal = 0;
+  let packageCount = 0;
   const normalized = [];
   for (const raw of items) {
     const product = getCatalogProduct(raw?.id);
@@ -822,8 +829,12 @@ export function validateCart(items) {
     const color = raw?.color == null ? null : String(raw.color).trim();
     if (colors.length && (!color || !colors.includes(color))) throw new Error("Color inválido para " + product.name);
     normalized.push({ id: product.id, name: product.name, size, color, qty, unitPrice: product.price });
-    total += product.price * qty;
-    if (total > 20000000) throw new Error("Total del pedido fuera de rango");
+    subtotal += product.price * qty;
+    packageCount += qty;
+    if (subtotal > 20000000) throw new Error("Total del pedido fuera de rango");
   }
-  return { items: normalized, total };
+  const shippingFee = shippingFeeForPackages(packageCount);
+  const total = subtotal + shippingFee;
+  if (total > 20000000) throw new Error("Total del pedido fuera de rango");
+  return { items: normalized, subtotal, packageCount, shippingFee, total };
 }

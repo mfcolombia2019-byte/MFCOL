@@ -10,13 +10,18 @@ function money(total) {
   return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(total);
 }
 
-function orderText(items) {
-  return items.map(i =>
+function orderText(cart) {
+  const lines = cart.items.map(i =>
     "- " + i.name +
     (i.color ? ", color " + i.color : "") +
     ", talla " + i.size +
     " (x" + i.qty + ") " + money(i.unitPrice * i.qty)
-  ).join("\n");
+  );
+  lines.push("Subtotal productos: " + money(cart.subtotal));
+  lines.push("Envío nacional (" + cart.packageCount + (cart.packageCount === 1 ? " paquete" : " paquetes") + "): " + money(cart.shippingFee));
+  lines.push("Total del pedido: " + money(cart.total));
+  lines.push("Entrega estimada: 3–5 días hábiles desde el despacho.");
+  return lines.join("\n");
 }
 
 function fingerprint(body, cart) {
@@ -73,7 +78,7 @@ async function createOrReuseOrder(body) {
     address: body?.address,
     city: body?.city,
     phone: body?.phone,
-    pedido: orderText(cart.items),
+    pedido: orderText(cart),
     totalFormatted: money(cart.total),
     paymentMethod,
     paymentLink: "",
