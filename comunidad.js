@@ -141,7 +141,7 @@
     nameInput.value = tokenContext.customerName || "";
     nameInput.readOnly = !!TOKEN && !!tokenContext.customerName;
     $(".cm-photo-upload", f).hidden = false;
-    $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde tu MF sean protagonistas y formen parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
+    $(".cm-photo-upload .cm-intro", f).textContent = look ? "Comparte una foto donde el calzado MF sea protagonista y forme parte de un outfit cuidado." : "¿Quieres compartir una foto? Es opcional y quedará pendiente de revisión.";
     $(".cm-photo-upload .cm-guide", f).hidden = !look;
     $(".cm-photo-upload .cm-avoid", f).hidden = !look;
     $(".cm-photo-upload .cm-consent", f).hidden = false;
