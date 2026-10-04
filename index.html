@@ -3024,7 +3024,7 @@ try {
   // Texto del botón final: cambia según el método de pedido elegido, para que
   // el cliente siempre sepa qué va a pasar al pulsarlo (nunca un "Enviar" ambiguo).
   var PAY_LABELS = {
-    "Link de pago (Bold)": "Pagar ahora con Bold",
+    "Link de pago (Bold)": "Pagar ahora",
     "Transferencia bancaria": "Enviar mi pedido por WhatsApp"
   };
   function syncPayUI() {
@@ -3049,8 +3049,25 @@ try {
   function encodeForm(data) {
     return Object.keys(data).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]); }).join("&");
   }
+  function readCookie(name) {
+    var prefix = name + "=";
+    var parts = document.cookie ? document.cookie.split(";") : [];
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i].trim();
+      if (part.indexOf(prefix) === 0) return decodeURIComponent(part.slice(prefix.length));
+    }
+    return "";
+  }
+  function metaAttribution() {
+    return {
+      fbp: readCookie("_fbp"),
+      fbc: readCookie("_fbc"),
+      clientUserAgent: navigator.userAgent || "",
+      eventSourceUrl: location.href
+    };
+  }
 
-  $("#coForm").addEventListener("submit", function (e) {
+  $("#coForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     var f = e.target, v = {}, ok = true, first = null;
     ["name", "address", "city", "phone"].forEach(function (k) {
@@ -3063,40 +3080,30 @@ try {
     });
     if (!ok) { first.focus(); return; }
     if (!PAY_LABELS[pay]) { $("#payTitle").scrollIntoView({ block: "center" }); return; }
+    if (!bag.length) { alert("Tu bolsa está vacía."); return; }
 
-    var total = 0, lines = bag.map(function (i) {
-      var p = byId(i.id); total += p.price * i.qty;
+    var lines = bag.map(function (i) {
+      var p = byId(i.id);
       return "- " + p.name + (i.color ? ", color " + i.color : "") + ", talla " + i.size + " (x" + i.qty + ") " + fmt(p.price * i.qty);
     });
     var pedidoTxt = lines.join("\n");
     var submitBtn = f.querySelector('button[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = pay === "Link de pago (Bold)" ? "Redirigiendo a Bold…" : "Abriendo WhatsApp…"; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = pay === "Link de pago (Bold)" ? "Validando pedido…" : "Guardando pedido…"; }
 
-    var orderRef = "MF" + Date.now();
-
-    function guardarPedidoAdmin(linkPagoMostrar, boldPaymentLink) {
-      fetch("/.netlify/functions/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reference: orderRef,
-          name: v.name,
-          address: v.address,
-          city: v.city,
-          phone: v.phone,
-          pedido: pedidoTxt,
-          totalNumber: total,
-          totalFormatted: fmt(total),
-          paymentMethod: pay || "por definir",
-          paymentLink: linkPagoMostrar || "",
-          boldPaymentLink: boldPaymentLink || ""
-        })
-      }).catch(function () {});
+    var idem = "";
+    try {
+      idem = sessionStorage.getItem("mf_checkout_idem") || "";
+      if (!idem) {
+        idem = "web_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 18);
+        sessionStorage.setItem("mf_checkout_idem", idem);
+      }
+    } catch (e) {
+      idem = "web_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 18);
     }
 
-    function guardarPedido(linkPagoMostrar) {
+    function guardarPedidoLegacy(orderRef, linkPagoMostrar) {
       f.elements["pedido"].value = pedidoTxt;
-      f.elements["total"].value = fmt(total);
+      f.elements["total"].value = fmt(Number(f.elements["total"].value.replace(/[^0-9]/g, "")) || 0);
       f.elements["medio_pago"].value = pay || "por definir";
       f.elements["link_pago"].value = linkPagoMostrar || "";
       f.elements["reference"].value = orderRef;
@@ -3105,51 +3112,71 @@ try {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: encodeForm({
           "form-name": "pedidos", name: v.name, address: v.address, city: v.city, phone: v.phone,
-          pedido: pedidoTxt, total: fmt(total), medio_pago: pay || "por definir",
+          pedido: pedidoTxt, total: f.elements["total"].value, medio_pago: pay || "por definir",
           link_pago: linkPagoMostrar || "", reference: orderRef
         })
       }).catch(function () {});
     }
 
-    if (pay === "Link de pago (Bold)") {
-      fetch("/.netlify/functions/crear-link-pago", {
+    try {
+      // The server receives the structured cart and owns the amount/reference.
+      var orderRes = await fetch("/.netlify/functions/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          descripcion: "MF Colombia: " + pedidoTxt.slice(0, 80), total: total, reference: orderRef,
-          callback_url: location.origin + "/gracias.html?ref=" + encodeURIComponent(orderRef)
+          idempotencyKey: idem,
+          items: bag.map(function (i) { return { id: i.id, size: i.size, color: i.color || null, qty: i.qty }; }),
+          name: v.name, address: v.address, city: v.city, phone: v.phone,
+          paymentMethod: pay,
+          ...metaAttribution()
         })
-      }).then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (d && d.url) {
-            try {
-              localStorage.setItem("mf_order_" + orderRef, JSON.stringify({
-                pedidoTxt: pedidoTxt, total: fmt(total), name: v.name, address: v.address, city: v.city, phone: v.phone
-              }));
-            } catch (e) {}
-            guardarPedidoAdmin(location.origin + "/pagar.html?ref=" + encodeURIComponent(d.url.split("/").pop()), d.payment_link || d.referencia || "");
-            guardarPedido(location.origin + "/pagar.html?ref=" + encodeURIComponent(d.url.split("/").pop()));
-            window.location.href = d.url;
-          } else {
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
-            alert("No pudimos generar el link de pago en este momento. Intenta de nuevo o elige \"Pedir por WhatsApp\".");
-          }
-        })
-        .catch(function () {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
-          alert("No pudimos generar el link de pago en este momento. Intenta de nuevo o elige \"Pedir por WhatsApp\".");
+      });
+      var orderData = await orderRes.json().catch(function () { return {}; });
+      if (!orderRes.ok || !orderData.reference) {
+        throw new Error(orderData.error || "No pudimos validar tu pedido en el servidor.");
+      }
+
+      var orderRef = orderData.reference;
+      var serverTotal = Number(orderData.total);
+      if (!Number.isFinite(serverTotal)) throw new Error("El servidor no devolvió un importe válido.");
+
+      // Server-confirmed total is used for all customer-facing legacy data too.
+      f.elements["total"].value = fmt(serverTotal);
+      if (pay === "Link de pago (Bold)") {
+        if (submitBtn) submitBtn.textContent = "Creando pago seguro…";
+        var linkRes = await fetch("/.netlify/functions/crear-link-pago", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: orderRef })
         });
-      return;
+        var linkData = await linkRes.json().catch(function () { return {}; });
+        if (!linkRes.ok || !linkData.url) {
+          throw new Error(linkData.error || "No pudimos generar el link de pago.");
+        }
+
+        try {
+          localStorage.setItem("mf_order_" + orderRef, JSON.stringify({
+            pedidoTxt: pedidoTxt, total: fmt(serverTotal), name: v.name, address: v.address, city: v.city, phone: v.phone
+          }));
+        } catch (e) {}
+
+        guardarPedidoLegacy(orderRef, linkData.url);
+        try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
+        window.location.href = linkData.url;
+        return;
+      }
+
+      try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
+      var msg = "Hola, MF Colombia. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(serverTotal) +
+        "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address + "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
+        "\nMedio de pago: " + (pay || "por definir");
+
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
+      openWA(msg);
+    } catch (error) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
+      alert(error && error.message ? error.message : "No pudimos guardar tu pedido. Intenta de nuevo.");
     }
-
-    guardarPedidoAdmin("", "");
-    guardarPedido("");
-    var msg = "Hola, MF Colombia. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(total) +
-      "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address + "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
-      "\nMedio de pago: " + (pay || "por definir");
-
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
-    openWA(msg);
   });
   $("#coForm").addEventListener("input", function (e) { if (e.target.getAttribute("aria-invalid") === "true") { e.target.setAttribute("aria-invalid", "false"); $("#err-" + e.target.name).textContent = ""; } });
 

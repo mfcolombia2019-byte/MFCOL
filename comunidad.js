@@ -68,7 +68,7 @@
       '" alt="Look de una clienta con ' + esc(p.productName) + '"></div><figcaption><p class="cm-model">' + esc(p.productName) + "</p>" +
       (p.instagram ? '<a class="cm-ig" href="https://www.instagram.com/' + esc(p.instagram) + '/" target="_blank" rel="noopener">@' + esc(p.instagram) + "</a>" : "") +
       '<p class="cm-badges"><span>Cliente Marlon ✓</span>' + (p.verified ? "<span>✓ Compra verificada</span>" : "") + "</p>" +
-      '<a class="cm-link" href="/?p=' + esc(p.product) + '">Ver producto</a></figcaption></figure>';
+      '<a class="cm-link" href="/?producto=' + esc(p.product) + '">Ver producto</a></figcaption></figure>';
   }
   function render() {
     var ph = DATA.filter(function (p) { return p.hasPhoto; }), g = $("#cmGrid"), h = $("#cmHome");
@@ -192,7 +192,7 @@
   });
   ["#pd", "#productGrid"].forEach(function (s) { var el = $(s); if (el) new MutationObserver(decorate).observe(el, { childList: true, subtree: true }); });
 
-  // Enlace desde la comunidad: /?p=id-del-producto abre esa ficha en la tienda.
+  // Enlace desde la comunidad: /?producto=id-del-producto abre esa ficha en la tienda.
   var pid = new URLSearchParams(location.search).get("p");
   if (pid && $("#productGrid")) {
     var opener = document.createElement("button"); opener.hidden = true; opener.dataset.view = pid;

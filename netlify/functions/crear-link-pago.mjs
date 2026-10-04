@@ -1,10 +1,44 @@
-// API Link de pagos de Bold.
-// La API key nunca llega al navegador: vive en BOLD_API_KEY de Netlify.
+// Creates a Bold payment link only for a server-persisted, pending order.
+// The browser cannot choose amount, description, reference, or callback URL.
 
-const json = (data, status = 200) => Response.json(data, {
-  status,
-  headers: { "Cache-Control": "no-store" }
-});
+import { store, getJson, json } from "./_admin.mjs";
+
+const safeRef = /^[A-Za-z0-9_-]{1,80}$/;
+
+function canonicalOrigin() {
+  const raw = String(process.env.SITE_CANONICAL_ORIGIN || "").trim().replace(/\/+$/, "");
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return "";
+    return u.origin;
+  } catch {
+    return "";
+  }
+}
+
+async function associateBoldLink(reference, paymentLink) {
+  const key = "orders/" + reference;
+  const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
+  if (!current?.data) throw new Error("Pedido no encontrado");
+  if (current.boldPaymentLink && current.paymentLink) {
+    return current;
+  }
+  const next = {
+    ...current.data,
+    paymentLink: "https://checkout.bold.co/" + paymentLink,
+    boldPaymentLink: paymentLink,
+    updatedAt: new Date().toISOString()
+  };
+  const result = await store.setJSON(key, next, { onlyIfMatch: current.etag });
+  if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la asociación del link");
+  if (!result?.modified) {
+    const latest = await store.get(key, { type: "json", consistency: "strong" });
+    if (latest?.boldPaymentLink === paymentLink) return latest;
+    throw new Error("El pedido cambió mientras se asociaba el link");
+  }
+  return next;
+}
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
@@ -13,29 +47,44 @@ export default async (req) => {
   try { body = await req.json(); }
   catch { return json({ error: "JSON inválido" }, 400); }
 
-  const total = Math.round(Number(body?.total));
-  const descripcion = String(body?.descripcion || "Pedido MF Colombia").trim().slice(0, 100);
-  const reference = /^[A-Za-z0-9_-]{1,60}$/.test(body?.reference || "") ? body.reference : undefined;
-  const callbackUrl = /^https:\/\//.test(body?.callback_url || "") ? body.callback_url : undefined;
-  const payerEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body?.payer_email || "") ? body.payer_email : undefined;
+  const reference = String(body?.reference || "").trim();
+  if (!safeRef.test(reference)) return json({ error: "Referencia inválida" }, 400);
 
+  const order = await store.get("orders/" + reference, { type: "json", consistency: "strong" });
+  if (!order) return json({ error: "Pedido no encontrado" }, 404);
+  if (order.paymentStatus !== "pendiente") return json({ error: "Este pedido ya no está pendiente de pago" }, 409);
+  if (order.paymentMethod !== "Link de pago (Bold)") return json({ error: "El pedido no está configurado para pagar con Bold" }, 409);
+
+  const total = Math.round(Number(order.total));
   if (!Number.isFinite(total) || total < 1000 || total > 20000000) {
-    return json({ error: "Total inválido" }, 400);
+    return json({ error: "El importe del pedido no es válido" }, 409);
   }
-  if (descripcion.length < 2) return json({ error: "Descripción inválida" }, 400);
+
+  if (order.boldPaymentLink && order.paymentLink) {
+    return json({ ok: true, url: order.paymentLink, payment_link: order.boldPaymentLink, reference, total });
+  }
+
+  const origin = canonicalOrigin();
+  if (!origin) {
+    return json({ error: "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos." }, 503);
+  }
+
   if (!process.env.BOLD_API_KEY) {
     return json({ error: "Falta configurar BOLD_API_KEY en Netlify" }, 500);
   }
 
+  const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
+  const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
+  const callbackUrl = origin + "/gracias.html?ref=" + encodeURIComponent(reference);
+
   const payload = {
     amount_type: "CLOSE",
     amount: { currency: "COP", total_amount: total, tip_amount: 0 },
-    description: descripcion,
+    reference,
+    description: description.length >= 2 ? description : "Pedido MF Colombia",
+    callback_url: callbackUrl,
     expiration_date: (Date.now() * 1e6) + (24 * 60 * 60 * 1e9)
   };
-  if (reference) payload.reference = reference;
-  if (callbackUrl) payload.callback_url = callbackUrl;
-  if (payerEmail) payload.payer_email = payerEmail;
 
   const res = await fetch("https://integrations.api.bold.co/online/link/v1", {
     method: "POST",
@@ -47,16 +96,27 @@ export default async (req) => {
   });
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.payload?.url) {
+  if (!res.ok || !data.payload?.url || !data.payload?.payment_link) {
     console.error("Bold create link:", res.status, JSON.stringify(data));
     return json({ error: "No se pudo crear el link de pago", detail: data.errors || undefined }, 502);
   }
 
+  const paymentLink = String(data.payload.payment_link);
+  const saved = await associateBoldLink(reference, paymentLink);
+
+  // Bold's API Link webhook documentation identifies metadata.reference as the
+  // generated LNK_* payment link. Keep an explicit mapping so the webhook can
+  // resolve the original order without trusting browser data.
+  await store.setJSON("bold-links/" + paymentLink, {
+    reference,
+    createdAt: new Date().toISOString()
+  });
+
   return json({
+    ok: true,
     url: data.payload.url,
-    payment_link: data.payload.payment_link,
-    referencia: data.payload.payment_link,
-    reference: reference || data.payload.payment_link,
-    total
+    payment_link: paymentLink,
+    reference,
+    total: saved.total
   });
 };

@@ -1,0 +1,23 @@
+name: MFCOL webhook tests
+
+on:
+  push:
+    branches:
+      - security/orders-meta-capi
+      - repair/bold-webhook-test-safe
+  pull_request:
+    branches:
+      - security/orders-meta-capi
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        run: npm install
+      - name: Run test suite
+        run: node --test --experimental-test-module-mocks tests/*.test.mjs
