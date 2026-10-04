@@ -4,6 +4,7 @@
 (function () {
   "use strict";
   var API = "/.netlify/functions/comunidad";
+   var REVIEWS_LOADED = false;
   var TOKEN = new URLSearchParams(location.search).get("t") || "";
   var DATA = [], tokenProducts = [], tokenContext = {}, tokenReady = Promise.resolve([]), cur = { mode: "look" }, rating = 0, file = null, dlg;
   var CLIENT_ID = "";
@@ -49,19 +50,22 @@
   }
 
   function decorate() {
-    $$(".card[data-product]").forEach(function (c) {
-      var h = $("h3", c), r = h && !$(".cm-rate", c) ? rateHTML(c.dataset.product) : "";
-      if (r) h.insertAdjacentHTML("afterend", r);
-    });
-    var i = $("#pd .pd-info[data-product]");
-    if (!i) return;
-    var id = i.dataset.product, r = !$(".cm-rate", i) ? rateHTML(id) : "";
-    if (r) $("h2", i).insertAdjacentHTML("afterend", r);
-    if (!$(".cm-share", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
-    if (!$(".cm-review", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-review" type="button" data-cm-review="' + esc(id) + '">Escribir reseña</button>');
-    if (!$(".cm-product-reviews", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
+  $$(".card[data-product]").forEach(function (c) {
+    var h = $("h3", c), r = h && !$(".cm-rate", c) ? rateHTML(c.dataset.product) : "";
+    if (r) h.insertAdjacentHTML("afterend", r);
+  });
+  var i = $("#pd .pd-info[data-product]");
+  if (!i) return;
+  var id = i.dataset.product, r = !$(".cm-rate", i) ? rateHTML(id) : "";
+  if (r) {
+    $("h2", i).insertAdjacentHTML("afterend", r);
+  } else if (REVIEWS_LOADED && !$(".cm-no-reviews", i)) {
+    $("h2", i).insertAdjacentHTML("afterend", '<p class="cm-no-reviews">Aún no hay reseñas</p>');
   }
-
+  if (!$(".cm-share", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-share" type="button" data-cm-share="' + esc(id) + '">Comparte tu look</button>');
+  if (!$(".cm-review", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", '<button class="cm-review" type="button" data-cm-review="' + esc(id) + '">Escribir reseña</button>');
+  if (!$(".cm-product-reviews", i)) $(".pd-btns", i).insertAdjacentHTML("afterend", productReviewsHTML(id));
+}
   /* ---------- Galería ---------- */
   function itemHTML(p, i) {
     return '<figure class="cm-item" style="animation-delay:' + (i % 8) * 60 + 'ms"><div class="cm-img"><img loading="lazy" decoding="async" src="' + API + "?action=photo&id=" + p.id +
@@ -226,5 +230,16 @@
     });
   }
 
-  fetch(API + "?action=public").then(function (r) { return r.ok ? r.json() : []; }).then(function (d) { DATA = d; render(); decorate(); }).catch(function () {});
-})();
+fetch(API + "?action=public")
+  .then(function (r) {
+    if (!r.ok) throw new Error("reviews");
+    return r.json();
+  })
+  .then(function (d) {
+    if (!Array.isArray(d)) throw new Error("reviews");
+    REVIEWS_LOADED = true;
+    DATA = d;
+    render();
+    decorate();
+  })
+  .catch(function () {});
