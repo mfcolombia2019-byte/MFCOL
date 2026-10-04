@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>¡Pago recibido! — MF Colombia</title>
-<meta name="description" content="Confirmación de pago de tu pedido con MF Colombia.">
+<title>¡Pago recibido! — MF</title>
+<meta name="description" content="Confirmación de pago de tu pedido con MF.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F3EFE7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%231A1613'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B08F63' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
@@ -59,7 +59,7 @@
       title.textContent = "Regresaste del proceso de pago";
       intro.textContent = "No recibimos una referencia de pedido. El estado del pago debe confirmarse desde el servidor.";
       resumenEl.style.display = "none";
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Regresé del proceso de pago y necesito confirmar el estado de mi pedido.");
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Regresé del proceso de pago y necesito confirmar el estado de mi pedido.");
       return;
     }
 
@@ -112,7 +112,7 @@
       title.textContent = "No pudimos verificar el pago";
       intro.textContent = "No fue posible validar de forma segura el estado de tu pedido. El pago no se considera confirmado.";
       resumenEl.textContent = "Referencia: " + ref;
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Necesito confirmar el estado del pedido " + ref + ".");
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
       return;
     }
 
@@ -120,7 +120,7 @@
       title.textContent = "No pudimos verificar el pago";
       intro.textContent = "No fue posible verificar el estado del pedido en este momento. El pago no se considera confirmado.";
       resumenEl.textContent = "Referencia: " + ref;
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF Colombia. Necesito confirmar el estado del pedido " + ref + ".");
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
       return;
     }
 
@@ -137,7 +137,7 @@
 
     resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
     var localRaw = localStorage.getItem("mf_order_" + ref);
-    var msg = "Hola, MF Colombia. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
+    var msg = "Hola, MF. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
     if (localRaw) {
       try {
         var o = JSON.parse(localRaw);
