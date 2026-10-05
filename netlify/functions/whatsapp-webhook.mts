@@ -33,7 +33,14 @@ export default async (req) => {
     const challenge = url.searchParams.get("hub.challenge");
 
     if (!mode && !token && !challenge) {
-      return json({ ok: true, service: "marlon-footwear-whatsapp-webhook" });
+      return json({
+        ok: true,
+        service: "marlon-footwear-whatsapp-webhook",
+        diagnostics: {
+          verifyTokenConfigured: Boolean(verifyToken),
+          context: Netlify.env.get("CONTEXT") || null,
+        },
+      });
     }
 
     if (mode === "subscribe" && token === verifyToken && challenge) {
