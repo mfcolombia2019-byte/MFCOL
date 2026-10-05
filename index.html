@@ -2159,6 +2159,54 @@ function trackMetaCommerceEvent(eventName, product, extra) {
   }, extra || {});
   window.fbq("track", eventName, data);
 }
+
+function trackMetaInitiateCheckout(orderRef) {
+  if (typeof window.fbq !== "function" || !bag.length) return;
+
+  var storageKey = "mf_initiate_checkout_" + String(orderRef || "");
+  try {
+    if (orderRef && sessionStorage.getItem(storageKey) === "1") return;
+    if (orderRef) sessionStorage.setItem(storageKey, "1");
+  } catch (e) {}
+
+  var total = 0;
+  var numItems = 0;
+  var contentIds = [];
+  var contents = [];
+
+  bag.forEach(function (item) {
+    var product = byId(item.id);
+    if (!product) return;
+
+    var quantity = Math.max(1, Number(item.qty) || 1);
+    var price = Number(product.price) || 0;
+    total += price * quantity;
+    numItems += quantity;
+    contentIds.push(String(product.id));
+    contents.push({
+      id: String(product.id),
+      quantity: quantity,
+      item_price: price
+    });
+  });
+
+  if (!contentIds.length) return;
+
+  var data = {
+    content_ids: contentIds,
+    content_type: "product",
+    value: Number(total) || 0,
+    currency: "COP",
+    num_items: numItems,
+    contents: contents
+  };
+
+  if (orderRef) {
+    window.fbq("track", "InitiateCheckout", data, { eventID: String(orderRef) });
+  } else {
+    window.fbq("track", "InitiateCheckout", data);
+  }
+}
 </script>
 </head>
 <body>
@@ -3245,7 +3293,7 @@ try {
       // Server-confirmed total is used for all customer-facing legacy data too.
       f.elements["total"].value = fmt(serverTotal);
       if (pay === "Link de pago (Bold)") {
-        if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
+        trackMetaInitiateCheckout(orderRef);\n        if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
 
         var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
           method: "POST",
