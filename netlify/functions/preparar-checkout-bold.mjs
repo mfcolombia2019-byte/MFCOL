@@ -5,7 +5,7 @@ function getEnv(name) {
   try {
     if (typeof Netlify !== "undefined" && Netlify?.env?.get) return String(Netlify.env.get(name) || "");
   } catch (e) {}
-  return String(process.env[name] || "");
+  return "";
 }
 
 function validReference(value) {
