@@ -3,7 +3,13 @@ import { store, json } from "./_admin.mjs";
 
 function getEnv(name) {
   try {
-    if (typeof Netlify !== "undefined" && Netlify?.env?.get) return String(Netlify.env.get(name) || "");
+    const value = typeof process !== "undefined" ? process.env?.[name] : "";
+    if (value) return String(value);
+  } catch (e) {}
+  try {
+    if (typeof Netlify !== "undefined" && Netlify?.env?.get) {
+      return String(Netlify.env.get(name) || "");
+    }
   } catch (e) {}
   return "";
 }
