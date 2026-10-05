@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='40' font-family='Helvetica,Arial,sans-serif' font-weight='800' font-size='24' fill='%23EDE8DF' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,380;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,380;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n<script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
 
 
 <style>
@@ -2457,15 +2457,15 @@ try {
       <p class="err" id="err-phone" role="alert"></p>
 
       <div class="co-pay">
-        <h3 class="co-pay-q" id="payTitle">¿Cómo quieres realizar tu pedido?</h3>
+        <h3 class="co-pay-q" id="payTitle">¿Cómo quieres continuar?</h3>
         <div class="pays" role="group" aria-labelledby="payTitle">
           <button class="pay" type="button" data-pay="Link de pago (Bold)" aria-pressed="false">
-            <span class="pay-name">Pagar en línea</span>
-            <span class="pay-desc">Pago seguro directamente en línea mediante Bold.</span>
+            <span class="pay-name">Finalizar compra</span>
+            <span class="pay-desc">Pago seguro en línea</span>
           </button>
           <button class="pay" type="button" data-pay="Transferencia bancaria" aria-pressed="false">
-            <span class="pay-name">Pedir por WhatsApp</span>
-            <span class="pay-desc">Realiza tu pedido por WhatsApp y paga mediante transferencia.</span>
+            <span class="pay-name">Finalizar pedido por WhatsApp</span>
+            <span class="pay-desc">Envíanos tu carrito y recibe atención personalizada</span>
           </button>
         </div>
       </div>
@@ -3122,8 +3122,8 @@ try {
   // Texto del botón final: cambia según el método de pedido elegido, para que
   // el cliente siempre sepa qué va a pasar al pulsarlo (nunca un "Enviar" ambiguo).
   var PAY_LABELS = {
-    "Link de pago (Bold)": "Pagar ahora",
-    "Transferencia bancaria": "Enviar mi pedido por WhatsApp"
+    "Link de pago (Bold)": "Finalizar compra",
+    "Transferencia bancaria": "Finalizar pedido por WhatsApp"
   };
   function syncPayUI() {
     $$(".pay").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.pay === pay ? "true" : "false"); });
@@ -3244,15 +3244,16 @@ try {
       // Server-confirmed total is used for all customer-facing legacy data too.
       f.elements["total"].value = fmt(serverTotal);
       if (pay === "Link de pago (Bold)") {
-        if (submitBtn) submitBtn.textContent = "Creando pago seguro…";
-        var linkRes = await fetch("/.netlify/functions/crear-link-pago", {
+        if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
+
+        var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: orderRef })
         });
-        var linkData = await linkRes.json().catch(function () { return {}; });
-        if (!linkRes.ok || !linkData.url) {
-          throw new Error(linkData.error || "No pudimos generar el link de pago.");
+        var checkoutData = await checkoutRes.json().catch(function () { return {}; });
+        if (!checkoutRes.ok || !checkoutData.orderId || !checkoutData.integritySignature || !checkoutData.apiKey) {
+          throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
 
         try {
@@ -3261,9 +3262,29 @@ try {
           }));
         } catch (e) {}
 
-        guardarPedidoLegacy(orderRef, linkData.url);
+        guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
-        window.location.href = linkData.url;
+
+        if (typeof window.BoldCheckout !== "function") {
+          throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
+        }
+
+        var checkout = new window.BoldCheckout({
+          orderId: checkoutData.orderId,
+          currency: checkoutData.currency,
+          amount: checkoutData.amount,
+          apiKey: checkoutData.apiKey,
+          integritySignature: checkoutData.integritySignature,
+          description: checkoutData.description,
+          redirectionUrl: checkoutData.redirectionUrl,
+          originUrl: checkoutData.originUrl,
+          renderMode: "embedded",
+          customerData: checkoutData.customerData,
+          billingAddress: checkoutData.billingAddress
+        });
+
+        closeDlg($("#co"));
+        checkout.open();
         return;
       }
 
