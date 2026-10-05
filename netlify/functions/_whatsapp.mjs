@@ -1,3 +1,5 @@
+import { store } from "./_admin.mjs";
+
 function env(name) {
   return String(process.env?.[name] || "").trim();
 }
@@ -42,6 +44,12 @@ function orderMessage(order) {
   return lines.filter(Boolean).join("\n").slice(0, 4096);
 }
 
+function notificationKey(order) {
+  const eventId = clean(order.purchaseEventId || order.webhookEventId || "", 200)
+    .replace(/[^A-Za-z0-9_-]/g, "");
+  return eventId ? "whatsapp-outbox/" + eventId : "";
+}
+
 export function isWhatsAppConfigured() {
   return Boolean(
     env("WHATSAPP_ACCESS_TOKEN") &&
@@ -56,6 +64,32 @@ export async function sendWhatsAppOrderNotification(order) {
     return { ok: false, skipped: true, reason: "WhatsApp no está configurado" };
   }
 
+  const key = notificationKey(order);
+  if (!key) throw new Error("No hay identificador estable para la notificación WhatsApp");
+
+  const now = new Date().toISOString();
+  const existing = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
+  if (existing?.data?.status === "sent") {
+    return { ok: true, skipped: true, duplicate: true };
+  }
+
+  if (existing?.data?.status === "sending") {
+    return { ok: false, skipped: true, duplicate: true, reason: "Notificación en curso" };
+  }
+
+  const claim = await store.setJSON(key, {
+    status: "sending",
+    reference: clean(order.reference, 80),
+    purchaseEventId: clean(order.purchaseEventId || "", 200),
+    createdAt: existing?.data?.createdAt || now,
+    updatedAt: now
+  }, existing?.etag ? { onlyIfMatch: existing.etag } : { onlyIfNew: true });
+
+  if (!claim?.modified) {
+    return { ok: false, skipped: true, duplicate: true, reason: "Otra ejecución tomó la notificación" };
+  }
+  if (!claim?.etag) throw new Error("No se pudo confirmar el bloqueo de WhatsApp");
+
   const version = env("WHATSAPP_GRAPH_API_VERSION") || "v23.0";
   const language = env("WHATSAPP_TEMPLATE_LANGUAGE") || "es_CO";
   const endpoint =
@@ -65,8 +99,6 @@ export async function sendWhatsAppOrderNotification(order) {
     encodeURIComponent(env("WHATSAPP_PHONE_NUMBER_ID")) +
     "/messages";
 
-  // The approved WhatsApp template should contain a single body variable
-  // ({{1}}). The complete order summary is passed as that variable.
   const payload = {
     messaging_product: "whatsapp",
     to: env("WHATSAPP_NOTIFY_TO"),
@@ -85,22 +117,43 @@ export async function sendWhatsAppOrderNotification(order) {
     }
   };
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + env("WHATSAPP_ACCESS_TOKEN"),
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + env("WHATSAPP_ACCESS_TOKEN"),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error("WhatsApp rechazó la notificación (" + response.status + ")");
-    error.whatsappStatus = response.status;
-    error.whatsappResponse = data;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error("WhatsApp rechazó la notificación (" + response.status + ")");
+      error.whatsappStatus = response.status;
+      error.whatsappResponse = data;
+      throw error;
+    }
+
+    await store.setJSON(key, {
+      status: "sent",
+      reference: clean(order.reference, 80),
+      purchaseEventId: clean(order.purchaseEventId || "", 200),
+      createdAt: existing?.data?.createdAt || now,
+      updatedAt: new Date().toISOString(),
+      whatsappMessageId: clean(data?.messages?.[0]?.id || "", 200)
+    });
+
+    return { ok: true, response: data };
+  } catch (error) {
+    await store.setJSON(key, {
+      status: "error",
+      reference: clean(order.reference, 80),
+      purchaseEventId: clean(order.purchaseEventId || "", 200),
+      createdAt: existing?.data?.createdAt || now,
+      updatedAt: new Date().toISOString(),
+      lastError: clean(error?.message || error, 500)
+    });
     throw error;
   }
-
-  return { ok: true, response: data };
 }
