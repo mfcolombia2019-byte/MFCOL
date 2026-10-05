@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { store } from "./_admin.mjs";
 import { processBoldWebhook, safeEventId, webhookInboxKey, ensureInbox } from "./_bold-webhook.mjs";
 import { processOutboxKey } from "./_meta-outbox.mjs";
+import { sendWhatsAppOrderNotification } from "./_whatsapp.mjs";
 
 function encodeForm(data) {
   return Object.keys(data).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")).join("&");
@@ -68,6 +69,25 @@ export default async (req, context) => {
           await processOutboxKey(result.outboxKey);
         } catch (error) {
           console.error("No se pudo enviar Purchase a Meta:", error);
+        }
+      }
+
+      if (event.type === "SALE_APPROVED" && result?.reference) {
+        try {
+          const approvedOrder = await store.get("orders/" + String(result.reference), {
+            type: "json",
+            consistency: "strong"
+          });
+          if (approvedOrder?.paymentStatus === "aprobado") {
+            const notification = await sendWhatsAppOrderNotification(approvedOrder);
+            if (notification?.skipped) {
+              console.log("WhatsApp pedido omitido:", notification.reason);
+            } else {
+              console.log("WhatsApp pedido enviado:", result.reference);
+            }
+          }
+        } catch (error) {
+          console.error("No se pudo enviar notificación de pedido por WhatsApp:", error);
         }
       }
 
