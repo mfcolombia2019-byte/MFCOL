@@ -174,7 +174,8 @@ export default async (req) => {
       }
 
       if (!validReference(reference)) return json({ error: "Referencia inválida" }, 400);
-      const data = await boldFetch("/v1/payment-intent/" + encodeURIComponent(reference), { method: "GET" });
+      const statusPath = "/v1/" + "payment/" + encodeURIComponent(reference);
+      const data = await boldFetch(statusPath, { method: "GET" });
       return json(data);
     }
 
