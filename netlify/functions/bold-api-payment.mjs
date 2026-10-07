@@ -15,7 +15,7 @@ function validReference(value) {
   return /^[A-Za-z0-9_-]{1,60}$/.test(String(value || "").trim());
 }
 
-function deviceFingerprint(input) {
+function deviceFingerprint(input, ip) {
   const d = input && typeof input === "object" ? input : {};
   return {
     device_type: String(d.device_type || "").slice(0, 30),
@@ -214,7 +214,7 @@ export default async (req) => {
         reference_id: reference,
         payer,
         payment_method: paymentMethod,
-        device_fingerprint: deviceFingerprint(body?.device_fingerprint)
+        device_fingerprint: deviceFingerprint(body?.device_fingerprint, req.headers.get("x-forwarded-for") || req.headers.get("x-nf-client-connection-ip") || "")
       })
     });
 
