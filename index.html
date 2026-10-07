@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,380;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+
 
 
 <style>
@@ -3485,64 +3485,7 @@ try {
 
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
-        if (typeof window.BoldCheckout !== "function") {
-          throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
-        }
-
-        var checkout = new window.BoldCheckout({
-          orderId: checkoutData.orderId,
-          currency: checkoutData.currency,
-          amount: checkoutData.amount,
-          apiKey: checkoutData.apiKey,
-          integritySignature: checkoutData.integritySignature,
-          description: checkoutData.description,
-          redirectionUrl: checkoutData.redirectionUrl,
-          originUrl: checkoutData.originUrl,
-          renderMode: "embedded",
-          customerData: checkoutData.customerData,
-          billingAddress: checkoutData.billingAddress
-        });
-
-        var mfPayLayer = document.getElementById("mfBoldLayer");
-        var mfPayItems = document.getElementById("mfPayItems");
-        var mfPayTotal = document.getElementById("mfPayTotal");
-        var mfPayRef = document.getElementById("mfPayRef");
-        if (!mfPayLayer || !mfPayItems || !mfPayTotal || !mfPayRef) {
-          throw new Error("No pudimos cargar la experiencia de pago de Marlon Footwear.");
-        }
-        mfPayRef.textContent = "Pedido MF " + orderRef;
-        mfPayTotal.textContent = fmt(serverTotal);
-        mfPayItems.innerHTML = "";
-        bag.forEach(function (item) {
-          var product = (typeof PRODUCTS !== "undefined" ? PRODUCTS.filter(function (p) { return p.id === item.id; })[0] : null) || {};
-          var li = document.createElement("li");
-          li.className = "mf-pay-item";
-          var info = document.createElement("div");
-          var name = document.createElement("div");
-          name.className = "mf-pay-item-name";
-          name.textContent = String(product.name || item.id);
-          var meta = document.createElement("div");
-          meta.className = "mf-pay-item-meta";
-          meta.textContent = [item.size ? "Talla " + item.size : "", item.color || "", "Cantidad " + item.qty].filter(Boolean).join(" · ");
-          var price = document.createElement("div");
-          price.className = "mf-pay-item-price";
-          price.textContent = fmt((Number(product.price) || 0) * Number(item.qty || 1));
-          info.appendChild(name);
-          info.appendChild(meta);
-          li.appendChild(info);
-          li.appendChild(price);
-          mfPayItems.appendChild(li);
-        });
-        window.__mfBoldCheckout = checkout;
-        closeDlg($("#co"));
-        mfPayLayer.classList.add("is-open");
-        mfPayLayer.setAttribute("aria-hidden","false");
-        document.body.classList.add("lock");
-        return;
-      }
-
-      try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
-      var msg = "Hola, MF. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(serverTotal) +
+        var msg = "Hola, MF. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(serverTotal) +
         "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address + "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
         "\nMedio de pago: " + (pay || "por definir");
 
