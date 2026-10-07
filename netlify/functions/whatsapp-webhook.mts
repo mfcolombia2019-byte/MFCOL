@@ -83,3 +83,5 @@ export default async (req) => {
 export const config = {
   path: "/api/whatsapp-webhook",
 };
+
+// Preview retrigger marker: safe diagnostic-only update.
