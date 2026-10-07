@@ -142,6 +142,7 @@ async function ensurePaymentIntent(reference, order, payer, fingerprint) {
         city: String(order.city || ""),
         province: String(order.city || ""),
         country_code: "CO",
+        zip_code: String(order.zip_code || "050001"),
         phone: payer.phone
       },
       shipping_address: {
