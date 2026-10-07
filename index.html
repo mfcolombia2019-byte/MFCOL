@@ -4061,7 +4061,7 @@ try {
     for(var i=0;i<30;i++){
       await new Promise(function(resolve){setTimeout(resolve,2000);});
       try{
-        var res=await fetch("/.netlify/functions/bold-api-payment?reference="+encodeURIComponent(reference),{cache:"no-store"}),data=await res.json().catch(function(){return {};});
+        var res=await fetch("/.netlify/functions/bold-api-payment?status="+encodeURIComponent(reference),{cache:"no-store"}),data=await res.json().catch(function(){return {};});
         var status=String(data?.payload?.status||data?.status||"").toUpperCase();
         if(status==="APPROVED"){window.location.href="/gracias.html?ref="+encodeURIComponent(reference);return;}
         if(status==="REJECTED")throw new Error("El pago fue rechazado. Puedes revisar los datos e intentarlo nuevamente.");
@@ -4079,7 +4079,9 @@ try {
     submitBtn.disabled=true;submitBtn.textContent="Procesando pago…";
     var res=await fetch("/.netlify/functions/bold-api-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),data=await res.json().catch(function(){return {};});
     if(!res.ok||!data.ok)throw new Error(data.error||"No pudimos procesar el pago.");
-    var next=data.next_actions||{};\n    if(next.redirect_url){\n      if(String(next.redirect_method||"GET").toUpperCase()==="POST"){\n        var redirectForm=document.createElement("form");\n        redirectForm.method="POST";\n        redirectForm.action=next.redirect_url;\n        redirectForm.style.display="none";\n        document.body.appendChild(redirectForm);\n        redirectForm.submit();\n      }else{\n        window.location.href=next.redirect_url;\n      }\n      return;\n    }\n    var status=String(data.status||"").toUpperCase();
+    var next=data.next_actions||{};
+    if(next.redirect_url){
+      if(String(next.redirect_method||"GET").toUpperCase()==="POST"){\n        var redirectForm=document.createElement("form");\n        redirectForm.method="POST";\n        redirectForm.action=next.redirect_url;\n        redirectForm.style.display="none";\n        document.body.appendChild(redirectForm);\n        redirectForm.submit();\n      }else{\n        window.location.href=next.redirect_url;\n      }\n      return;\n    }\n    var status=String(data.status||"").toUpperCase();
     if(status==="APPROVED"){window.location.href="/gracias.html?ref="+encodeURIComponent(ctx.reference);return;}
     if(status==="REJECTED")throw new Error("El pago fue rechazado. Revisa los datos e inténtalo nuevamente.");
     submitBtn.textContent="Verificando pago…";pollStatus(ctx.reference);
