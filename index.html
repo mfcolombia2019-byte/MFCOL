@@ -3299,12 +3299,28 @@ try {
     var submitBtn = f.querySelector('button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = pay === "Link de pago (Bold)" ? "Validando pedido…" : "Guardando pedido…"; }
 
+    // Reuse the idempotency key only for an identical checkout attempt.
+    // A single global session key would collide when the customer starts a new order
+    // with different cart/customer data.
     var idem = "";
+    var idemFingerprint = JSON.stringify({
+      items: bag.map(function (i) { return { id: i.id, size: i.size, color: i.color || null, qty: i.qty }; }),
+      paymentMethod: pay,
+      name: String(v.name || "").trim(),
+      address: String(v.address || "").trim(),
+      city: String(v.city || "").trim(),
+      phone: String(v.phone || "").trim()
+    });
     try {
-      idem = sessionStorage.getItem("mf_checkout_idem") || "";
-      if (!idem) {
+      var savedIdem = JSON.parse(sessionStorage.getItem("mf_checkout_idem") || "null");
+      if (savedIdem && savedIdem.fingerprint === idemFingerprint && savedIdem.key) {
+        idem = savedIdem.key;
+      } else {
         idem = "web_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 18);
-        sessionStorage.setItem("mf_checkout_idem", idem);
+        sessionStorage.setItem("mf_checkout_idem", JSON.stringify({
+          key: idem,
+          fingerprint: idemFingerprint
+        }));
       }
     } catch (e) {
       idem = "web_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 18);
