@@ -4036,7 +4036,7 @@ try {
   function fmtPayment(value){return new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value)||0);}
   function setMethod(next){
     method=next;
-    document.querySelectorAll("[data-mf-method]").forEach(function(btn){var active=btn.dataset.mfMethod===method;btn.classList.toggle("is-active",active);btn.setAttribute("aria-selected",active?"true":"false");});
+    document.querySelectorAll("[data-mf-method]").forEach(function(btn){var active=btn.getAttribute("data-mf-method")===method;btn.classList.toggle("is-active",active);btn.setAttribute("aria-selected",active?"true":"false");});
     document.querySelectorAll("[data-mf-panel]").forEach(function(panel){panel.classList.toggle("is-active",panel.dataset.mfPanel===method);});
     setError("");
     if(method==="PSE"&&!banksLoaded)loadBanks();
@@ -4091,7 +4091,12 @@ try {
     if(year&&!year.options.length){for(var y=now;y<=now+15;y++){var yo=document.createElement("option");yo.value=String(y);yo.textContent=String(y);year.appendChild(yo);}}
   }
   window.mfInitCustomPayment=init;
-  document.querySelectorAll("[data-mf-method]").forEach(function(btn){btn.addEventListener("click",function(){setMethod(btn.dataset.mfMethod);});});
+  document.addEventListener("click",function(event){
+    var btn=event.target.closest("[data-mf-method]");
+    if(!btn)return;
+    event.preventDefault();
+    setMethod(btn.getAttribute("data-mf-method"));
+  });
   if(backBtn)backBtn.addEventListener("click",function(){closeLayer();var dlg=document.getElementById("co");if(dlg&&typeof dlg.showModal==="function"){dlg.showModal();dlg.scrollTop=0;}});
   if(form)form.addEventListener("submit",async function(e){e.preventDefault();try{await submitPayment();}catch(error){setError(error.message||"No pudimos procesar el pago.");submitBtn.disabled=false;submitBtn.textContent="Pagar "+fmtPayment(context().total);}});
 })();
