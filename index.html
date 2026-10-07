@@ -2221,7 +2221,7 @@ function trackMetaInitiateCheckout(orderRef, bagItems) {
   var contents = [];
 
   bagItems.forEach(function (item) {
-    var product = byId(item.id);
+    var product = (typeof PRODUCTS !== "undefined" ? PRODUCTS.filter(function (p) { return p.id === item.id; })[0] : null);
     if (!product) return;
 
     var quantity = Math.max(1, Number(item.qty) || 1);
