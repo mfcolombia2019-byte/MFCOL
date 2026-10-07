@@ -4148,7 +4148,10 @@ try {
         redirectForm.submit();
       }else{
         window.location.href=next.redirect_url;
-      }\n      return;\n    }\n    var status=String(data.status||"").toUpperCase();
+      }
+      return;
+    }
+    var status=String(data.status||"").toUpperCase();
     if(status==="APPROVED"){window.location.href="/gracias.html?ref="+encodeURIComponent(ctx.reference);return;}
     if(status==="REJECTED")throw new Error("El pago fue rechazado. Revisa los datos e inténtalo nuevamente.");
     submitBtn.textContent="Verificando pago…";pollStatus(ctx.reference);
