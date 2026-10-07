@@ -3457,11 +3457,27 @@ try {
         }
         mfPayRef.textContent = "Pedido MF " + orderRef;
         mfPayTotal.textContent = fmt(serverTotal);
-        mfPayItems.innerHTML = bag.map(function (item) {
-          var product = PRODUCTS.filter(function (p) { return p.id === item.id; })[0] || {};
-          var meta = [item.size ? "Talla " + item.size : "", item.color || "", "Cantidad " + item.qty].filter(Boolean).join(" · ");
-          return "<li class="mf-pay-item"><div><div class="mf-pay-item-name">" + String(product.name || item.id).replace(/[&<>"]/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch];}) + "</div><div class="mf-pay-item-meta">" + meta.replace(/[&<>"]/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch];}) + "</div></div><div class="mf-pay-item-price">" + fmt((Number(product.price)||0)*Number(item.qty||1)) + "</div></li>";
-        }).join("");
+        mfPayItems.innerHTML = "";
+        bag.forEach(function (item) {
+          var product = (typeof PRODUCTS !== "undefined" ? PRODUCTS.filter(function (p) { return p.id === item.id; })[0] : null) || {};
+          var li = document.createElement("li");
+          li.className = "mf-pay-item";
+          var info = document.createElement("div");
+          var name = document.createElement("div");
+          name.className = "mf-pay-item-name";
+          name.textContent = String(product.name || item.id);
+          var meta = document.createElement("div");
+          meta.className = "mf-pay-item-meta";
+          meta.textContent = [item.size ? "Talla " + item.size : "", item.color || "", "Cantidad " + item.qty].filter(Boolean).join(" · ");
+          var price = document.createElement("div");
+          price.className = "mf-pay-item-price";
+          price.textContent = fmt((Number(product.price) || 0) * Number(item.qty || 1));
+          info.appendChild(name);
+          info.appendChild(meta);
+          li.appendChild(info);
+          li.appendChild(price);
+          mfPayItems.appendChild(li);
+        });
         window.__mfBoldCheckout = checkout;
         closeDlg($("#co"));
         mfPayLayer.classList.add("is-open");
