@@ -1360,6 +1360,46 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
     font-weight: 400;
   }
 }
+
+/* ---------- MARLON FOOTWEAR · Capa visual de pago ---------- */
+.mf-pay-layer{position:fixed;inset:0;z-index:99990;display:none;overflow:auto;background:#f7f5f1;color:#151515;font-family:inherit}
+.mf-pay-layer.is-open{display:block}
+.mf-pay-shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 48px}
+.mf-pay-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 0 28px;border-bottom:1px solid rgba(21,21,21,.12)}
+.mf-pay-brand{font-size:14px;letter-spacing:.18em;font-weight:800}
+.mf-pay-secure{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65}
+.mf-pay-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:24px;margin-top:28px}
+.mf-pay-card{background:#fff;border:1px solid rgba(21,21,21,.1);border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.05)}
+.mf-pay-kicker{margin:0 0 8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55}
+.mf-pay-title{margin:0;font-size:clamp(30px,5vw,54px);line-height:.98;letter-spacing:-.04em;font-weight:700}
+.mf-pay-sub{margin:14px 0 0;max-width:600px;line-height:1.55;color:#5c5c5c}
+.mf-pay-steps{display:flex;gap:8px;margin:26px 0 0;flex-wrap:wrap}
+.mf-pay-step{padding:9px 12px;border-radius:999px;background:#f1efeb;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.mf-pay-step.is-active{background:#151515;color:#fff}
+.mf-pay-summary{margin-top:26px}
+.mf-pay-summary-head{display:flex;justify-content:space-between;gap:16px;align-items:end;padding-bottom:14px;border-bottom:1px solid rgba(21,21,21,.1)}
+.mf-pay-summary-head h3{margin:0;font-size:18px}
+.mf-pay-ref{font-size:11px;color:#777;text-align:right}
+.mf-pay-items{list-style:none;margin:0;padding:0}
+.mf-pay-item{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid rgba(21,21,21,.08)}
+.mf-pay-item-name{font-weight:600}
+.mf-pay-item-meta{margin-top:4px;font-size:12px;color:#777}
+.mf-pay-item-price{font-weight:700;white-space:nowrap}
+.mf-pay-total{display:flex;justify-content:space-between;align-items:center;padding-top:20px;font-size:14px}
+.mf-pay-total strong{font-size:24px}
+.mf-pay-methods{display:grid;gap:10px;margin-top:18px}
+.mf-pay-method{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid rgba(21,21,21,.14);border-radius:14px;background:#fff}
+.mf-pay-method-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#151515;color:#fff;font-size:11px;font-weight:800}
+.mf-pay-method-copy strong{display:block;font-size:14px}
+.mf-pay-method-copy span{display:block;margin-top:3px;font-size:12px;color:#777}
+.mf-pay-continue{width:100%;margin-top:20px;padding:16px 18px;border:0;border-radius:999px;background:#151515;color:#fff;font:inherit;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.mf-pay-continue:hover{opacity:.9}
+.mf-pay-note{margin:14px 0 0;text-align:center;font-size:11px;color:#777;line-height:1.5}
+.mf-pay-close{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:8px 0;color:#151515;cursor:pointer;font:inherit;font-size:12px}
+.mf-pay-trust{display:grid;gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(21,21,21,.1)}
+.mf-pay-trust div{font-size:12px;color:#666}
+.mf-pay-trust b{color:#151515}
+@media(max-width:760px){.mf-pay-shell{width:min(100% - 20px,680px);padding-top:14px}.mf-pay-top{padding-bottom:18px}.mf-pay-grid{grid-template-columns:1fr;margin-top:18px}.mf-pay-card{padding:20px;border-radius:16px}.mf-pay-title{font-size:38px}.mf-pay-secure{display:none}}
 </style>
 
 <style id="mf-new-neon-hero">
@@ -3408,8 +3448,25 @@ try {
           billingAddress: checkoutData.billingAddress
         });
 
+        var mfPayLayer = document.getElementById("mfBoldLayer");
+        var mfPayItems = document.getElementById("mfPayItems");
+        var mfPayTotal = document.getElementById("mfPayTotal");
+        var mfPayRef = document.getElementById("mfPayRef");
+        if (!mfPayLayer || !mfPayItems || !mfPayTotal || !mfPayRef) {
+          throw new Error("No pudimos cargar la experiencia de pago de Marlon Footwear.");
+        }
+        mfPayRef.textContent = "Pedido MF " + orderRef;
+        mfPayTotal.textContent = fmt(serverTotal);
+        mfPayItems.innerHTML = bag.map(function (item) {
+          var product = PRODUCTS.filter(function (p) { return p.id === item.id; })[0] || {};
+          var meta = [item.size ? "Talla " + item.size : "", item.color || "", "Cantidad " + item.qty].filter(Boolean).join(" · ");
+          return "<li class="mf-pay-item"><div><div class="mf-pay-item-name">" + String(product.name || item.id).replace(/[&<>"]/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch];}) + "</div><div class="mf-pay-item-meta">" + meta.replace(/[&<>"]/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch];}) + "</div></div><div class="mf-pay-item-price">" + fmt((Number(product.price)||0)*Number(item.qty||1)) + "</div></li>";
+        }).join("");
+        window.__mfBoldCheckout = checkout;
         closeDlg($("#co"));
-        checkout.open();
+        mfPayLayer.classList.add("is-open");
+        mfPayLayer.setAttribute("aria-hidden","false");
+        document.body.classList.add("lock");
         return;
       }
 
@@ -3887,6 +3944,70 @@ try {
   };
   prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
   next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
+})();
+</script>
+
+<div class="mf-pay-layer" id="mfBoldLayer" aria-hidden="true">
+  <div class="mf-pay-shell">
+    <div class="mf-pay-top">
+      <div class="mf-pay-brand">MARLON FOOTWEAR</div>
+      <div class="mf-pay-secure">Compra segura · Pago protegido</div>
+    </div>
+    <button class="mf-pay-close" type="button" id="mfBoldBack">← Volver al pedido</button>
+    <div class="mf-pay-grid">
+      <section class="mf-pay-card">
+        <p class="mf-pay-kicker">Paso 2 · Pago</p>
+        <h1 class="mf-pay-title">Finaliza tu compra.</h1>
+        <p class="mf-pay-sub">Tu pedido ya está preparado. Revisa los detalles y continúa al pago seguro.</p>
+        <div class="mf-pay-steps" aria-label="Progreso del pedido">
+          <span class="mf-pay-step">01 Pedido</span>
+          <span class="mf-pay-step is-active">02 Pago</span>
+          <span class="mf-pay-step">03 Confirmación</span>
+        </div>
+        <div class="mf-pay-summary">
+          <div class="mf-pay-summary-head"><h3>Resumen</h3><div class="mf-pay-ref" id="mfPayRef"></div></div>
+          <ul class="mf-pay-items" id="mfPayItems"></ul>
+          <div class="mf-pay-total"><span>Total</span><strong id="mfPayTotal"></strong></div>
+        </div>
+      </section>
+      <aside class="mf-pay-card">
+        <p class="mf-pay-kicker">Método de pago</p>
+        <h2 style="margin:0;font-size:24px">Paga con confianza</h2>
+        <div class="mf-pay-methods">
+          <div class="mf-pay-method"><span class="mf-pay-method-mark">CARD</span><div class="mf-pay-method-copy"><strong>Pago en línea</strong><span>Tarjeta y medios disponibles en el checkout seguro</span></div></div>
+        </div>
+        <button type="button" class="mf-pay-continue" id="mfPayContinue">Continuar con el pago</button>
+        <p class="mf-pay-note">Al continuar, el procesamiento de los datos de pago se realiza de forma segura mediante nuestro proveedor de pagos.</p>
+        <div class="mf-pay-trust">
+          <div>✓ <b>Pedido protegido</b> · Referencia asociada a tu compra</div>
+          <div>✓ <b>Datos sensibles protegidos</b> · Marlon Footwear no almacena los datos de tu tarjeta</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var layer=document.getElementById("mfBoldLayer");
+  var continueBtn=document.getElementById("mfPayContinue");
+  var backBtn=document.getElementById("mfBoldBack");
+  function closeMarlonPay(){
+    if(!layer)return;
+    layer.classList.remove("is-open");
+    layer.setAttribute("aria-hidden","true");
+    document.body.classList.remove("lock");
+  }
+  if(backBtn) backBtn.addEventListener("click",function(){ closeMarlonPay(); var dlg=document.getElementById("co"); if(dlg && typeof dlg.showModal==="function") dlg.showModal(); });
+  if(continueBtn) continueBtn.addEventListener("click",function(){
+    var checkout=window.__mfBoldCheckout;
+    if(!checkout || typeof checkout.open!=="function"){ alert("No pudimos abrir el pago seguro. Intenta de nuevo."); return; }
+    continueBtn.disabled=true;
+    continueBtn.textContent="Abriendo pago seguro…";
+    closeMarlonPay();
+    checkout.open();
+    setTimeout(function(){continueBtn.disabled=false;continueBtn.textContent="Continuar con el pago";},1200);
+  });
 })();
 </script>
 </body>
