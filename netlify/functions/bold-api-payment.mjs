@@ -165,7 +165,7 @@ export default async (req) => {
     const url = new URL(req.url);
 
     if (req.method === "GET") {
-      const reference = String(url.searchParams.get("reference") || "").trim();
+      const reference = String(url.searchParams.get("reference") || url.searchParams.get("status") || "").trim();
       const banks = url.searchParams.get("banks") === "1";
 
       if (banks) {
