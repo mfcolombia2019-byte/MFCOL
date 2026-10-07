@@ -1361,45 +1361,57 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
   }
 }
 
-/* ---------- MARLON FOOTWEAR · Capa visual de pago ---------- */
-.mf-pay-layer{position:fixed;inset:0;z-index:99990;display:none;overflow:auto;background:#f7f5f1;color:#151515;font-family:inherit}
+/* ---------- MARLON FOOTWEAR · Checkout y pago personalizado ---------- */
+.mf-pay-layer{position:fixed;inset:0;z-index:99990;display:none;overflow:auto;background:#fff;color:#111;font-family:var(--sans)}
 .mf-pay-layer.is-open{display:block}
-.mf-pay-shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 48px}
-.mf-pay-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 0 28px;border-bottom:1px solid rgba(21,21,21,.12)}
-.mf-pay-brand{font-size:14px;letter-spacing:.18em;font-weight:800}
-.mf-pay-secure{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65}
-.mf-pay-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:24px;margin-top:28px}
-.mf-pay-card{background:#fff;border:1px solid rgba(21,21,21,.1);border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.05)}
-.mf-pay-kicker{margin:0 0 8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55}
-.mf-pay-title{margin:0;font-size:clamp(30px,5vw,54px);line-height:.98;letter-spacing:-.04em;font-weight:700}
-.mf-pay-sub{margin:14px 0 0;max-width:600px;line-height:1.55;color:#5c5c5c}
-.mf-pay-steps{display:flex;gap:8px;margin:26px 0 0;flex-wrap:wrap}
-.mf-pay-step{padding:9px 12px;border-radius:999px;background:#f1efeb;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-.mf-pay-step.is-active{background:#151515;color:#fff}
-.mf-pay-summary{margin-top:26px}
-.mf-pay-summary-head{display:flex;justify-content:space-between;gap:16px;align-items:end;padding-bottom:14px;border-bottom:1px solid rgba(21,21,21,.1)}
-.mf-pay-summary-head h3{margin:0;font-size:18px}
-.mf-pay-ref{font-size:11px;color:#777;text-align:right}
+.mf-pay-shell{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:24px 0 56px}
+.mf-pay-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 0 22px;border-bottom:1px solid var(--line)}
+.mf-pay-brand{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:.02em}
+.mf-pay-secure{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#666}
+.mf-pay-close{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:18px 0 10px;color:#111;cursor:pointer;font:inherit;font-size:12px}
+.mf-pay-progress{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 28px}
+.mf-pay-progress span{padding:8px 10px;border:1px solid var(--line);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#777;background:#fff}
+.mf-pay-progress span.is-active{background:#111;border-color:#111;color:#fff}
+.mf-pay-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:28px;align-items:start}
+.mf-pay-card{background:#fff;border:1px solid var(--line);padding:30px}
+.mf-pay-kicker{margin:0 0 9px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#777}
+.mf-pay-title{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(36px,5vw,64px);line-height:.92;letter-spacing:-.03em}
+.mf-pay-sub{margin:15px 0 0;max-width:62ch;line-height:1.55;color:#666;font-size:14px}
+.mf-pay-method-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:28px 0 24px}
+.mf-pay-method-tab{min-height:48px;border:1px solid #ddd;background:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer}
+.mf-pay-method-tab.is-active{background:#111;border-color:#111;color:#fff}
+.mf-pay-section-title{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.mf-pay-payer{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid var(--line)}
+.mf-pay-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.mf-pay-field{display:grid;gap:7px}
+.mf-pay-field-wide{grid-column:1/-1}
+.mf-pay-field span{font-size:11px;color:#555}
+.mf-pay-field input,.mf-pay-field select{width:100%;height:48px;border:1px solid #d9d9d9;background:#fff;padding:0 13px;color:#111;font:inherit;font-size:13px;border-radius:0}
+.mf-pay-field input:focus,.mf-pay-field select:focus{outline:2px solid #111;outline-offset:0}
+.mf-pay-expiry{display:grid;grid-template-columns:1fr 1.4fr;gap:7px}
+.mf-pay-panel{display:none}
+.mf-pay-panel.is-active{display:block}
+.mf-pay-helper{margin:0;color:#666;font-size:13px;line-height:1.55}
+.mf-pay-error{min-height:20px;margin:18px 0 0;color:#a21b1b;font-size:12px}
+.mf-pay-submit{width:100%;min-height:54px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.mf-pay-submit:hover{background:#333}
+.mf-pay-submit:disabled{opacity:.55;cursor:wait}
+.mf-pay-note{margin:13px 0 0;color:#777;text-align:center;font-size:11px;line-height:1.5}
+.mf-pay-summary-head{display:flex;justify-content:space-between;align-items:end;gap:15px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.mf-pay-summary-head h2{margin:0;font-family:var(--serif);font-weight:400;font-size:30px}
+.mf-pay-ref{font-size:10px;color:#777;text-align:right}
 .mf-pay-items{list-style:none;margin:0;padding:0}
-.mf-pay-item{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid rgba(21,21,21,.08)}
-.mf-pay-item-name{font-weight:600}
-.mf-pay-item-meta{margin-top:4px;font-size:12px;color:#777}
-.mf-pay-item-price{font-weight:700;white-space:nowrap}
-.mf-pay-total{display:flex;justify-content:space-between;align-items:center;padding-top:20px;font-size:14px}
-.mf-pay-total strong{font-size:24px}
-.mf-pay-methods{display:grid;gap:10px;margin-top:18px}
-.mf-pay-method{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid rgba(21,21,21,.14);border-radius:14px;background:#fff}
-.mf-pay-method-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#151515;color:#fff;font-size:11px;font-weight:800}
-.mf-pay-method-copy strong{display:block;font-size:14px}
-.mf-pay-method-copy span{display:block;margin-top:3px;font-size:12px;color:#777}
-.mf-pay-continue{width:100%;margin-top:20px;padding:16px 18px;border:0;border-radius:999px;background:#151515;color:#fff;font:inherit;font-weight:700;cursor:pointer;letter-spacing:.02em}
-.mf-pay-continue:hover{opacity:.9}
-.mf-pay-note{margin:14px 0 0;text-align:center;font-size:11px;color:#777;line-height:1.5}
-.mf-pay-close{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:8px 0;color:#151515;cursor:pointer;font:inherit;font-size:12px}
-.mf-pay-trust{display:grid;gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(21,21,21,.1)}
-.mf-pay-trust div{font-size:12px;color:#666}
-.mf-pay-trust b{color:#151515}
-@media(max-width:760px){.mf-pay-shell{width:min(100% - 20px,680px);padding-top:14px}.mf-pay-top{padding-bottom:18px}.mf-pay-grid{grid-template-columns:1fr;margin-top:18px}.mf-pay-card{padding:20px;border-radius:16px}.mf-pay-title{font-size:38px}.mf-pay-secure{display:none}}
+.mf-pay-item{display:flex;justify-content:space-between;gap:15px;padding:16px 0;border-bottom:1px solid var(--line)}
+.mf-pay-item-name{font-size:13px;font-weight:600;line-height:1.35}
+.mf-pay-item-meta{margin-top:4px;font-size:11px;color:#777}
+.mf-pay-item-price{font-size:12px;font-weight:600;white-space:nowrap}
+.mf-pay-total{display:flex;justify-content:space-between;align-items:center;padding-top:20px;font-size:13px}
+.mf-pay-total strong{font-family:var(--serif);font-size:28px;font-weight:400}
+.mf-pay-trust{display:grid;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.mf-pay-trust div{font-size:11px;line-height:1.55;color:#666}
+.mf-pay-trust b{color:#111}
+@media(max-width:820px){.mf-pay-shell{width:min(100% - 20px,680px);padding-top:12px}.mf-pay-secure{display:none}.mf-pay-grid{grid-template-columns:1fr;gap:14px}.mf-pay-card{padding:20px}.mf-pay-method-tabs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.mf-pay-fields{grid-template-columns:1fr}.mf-pay-field-wide{grid-column:auto}.mf-pay-progress{display:grid;grid-template-columns:1fr 1fr}}
 </style>
 
 <style id="mf-new-neon-hero">
@@ -2581,7 +2593,7 @@ try {
       </div>
       <button class="dlg-close" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     </div>
-    <div class="co-progress" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
+    <div class="co-progress" aria-hidden="true"><span class="is-active"></span><span></span><span></span><span></span></div>
     <form id="coForm" name="pedidos" method="POST" data-netlify="true" netlify-honeypot="empresa" novalidate>
       <input type="hidden" name="form-name" value="pedidos">
       <p class="sr"><label>No llenar: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
@@ -2592,7 +2604,7 @@ try {
       <input type="hidden" name="reference">
 
       <section class="co-section" aria-labelledby="coDeliveryTitle">
-        <div class="co-section-head"><span class="co-index">01</span><div><h3 id="coDeliveryTitle">Datos de entrega</h3><p>Los usamos únicamente para preparar tu pedido.</p></div></div>
+        <div class="co-section-head"><span class="co-index">02</span><div><h3 id="coDeliveryTitle">Datos de entrega</h3><p>Los usamos únicamente para preparar tu pedido.</p></div></div>
         <div class="co-fields">
           <div class="co-field"><label class="field"><span>Nombre completo</span><input name="name" type="text" autocomplete="name" placeholder="Daniela Restrepo Ocampo" aria-describedby="err-name" required></label><p class="err" id="err-name" role="alert"></p></div>
           <div class="co-field"><label class="field"><span>Dirección de entrega</span><input name="address" type="text" autocomplete="street-address" placeholder="Carrera 43A # 18-95, apto 702" aria-describedby="err-address" required></label><p class="err" id="err-address" role="alert"></p></div>
@@ -2602,7 +2614,7 @@ try {
       </section>
 
       <section class="co-section co-pay" aria-labelledby="payTitle">
-        <div class="co-section-head"><span class="co-index">02</span><div><h3 id="payTitle">Elige cómo pagar</h3><p>Selecciona tu forma de continuar con el pedido.</p></div></div>
+        <div class="co-section-head"><span class="co-index">03</span><div><h3 id="payTitle">Elige cómo pagar</h3><p>Selecciona la forma de pago que prefieras.</p></div></div>
         <div class="pays" role="group" aria-labelledby="payTitle">
           <button class="pay" type="button" data-pay="Link de pago (Bold)" aria-pressed="false">
             <span class="pay-top"><span class="pay-mark">MF</span><span class="pay-state">EN LÍNEA</span></span>
@@ -2618,14 +2630,14 @@ try {
       </section>
 
       <section class="co-section co-sum" aria-labelledby="coSummaryTitle">
-        <div class="co-section-head"><span class="co-index">03</span><div><h3 id="coSummaryTitle">Resumen del pedido</h3><p>Revisa tu selección antes de continuar.</p></div></div>
+        <div class="co-section-head"><span class="co-index">04</span><div><h3 id="coSummaryTitle">Revisa y confirma</h3><p>Revisa tu selección antes de continuar.</p></div></div>
         <ul class="co-items" id="coItems"></ul>
         <div class="co-total"><span>Total del pedido</span><strong id="coTotal"></strong></div>
         <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
         <button class="co-edit" type="button" data-edit-bag>Editar bolsa</button>
       </section>
-      <button class="btn btn-solid btn-block co-submit" type="submit" id="coSubmit" disabled>Elige cómo quieres pedir</button>
-      <p class="co-fine"><span>✓</span> No se cobra nada en línea hasta que confirmes tu medio de pago.</p>
+      <button class="btn btn-solid btn-block co-submit" type="submit" id="coSubmit" disabled>Revisar y continuar</button>
+      <p class="co-fine"><span>✓</span> Tu pago se procesa de forma segura y la confirmación llegará al finalizar la transacción.</p>
     </form>
   </div>
 </dialog>
@@ -3409,26 +3421,69 @@ try {
       f.elements["total"].value = fmt(serverTotal);
       if (pay === "Link de pago (Bold)") {
         trackMetaInitiateCheckout(orderRef, bag);
-        if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
-
-        var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reference: orderRef })
-        });
-        var checkoutData = await checkoutRes.json().catch(function () { return {}; });
-        if (!checkoutRes.ok || !checkoutData.orderId || !checkoutData.integritySignature || !checkoutData.apiKey) {
-          throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
-        }
+        if (submitBtn) submitBtn.textContent = "Preparando tu pago…";
 
         try {
           localStorage.setItem("mf_order_" + orderRef, JSON.stringify({
-            pedidoTxt: pedidoTxt, total: fmt(serverTotal), name: v.name, address: v.address, city: v.city, phone: v.phone
+            pedidoTxt: pedidoTxt,
+            total: fmt(serverTotal),
+            name: v.name,
+            address: v.address,
+            city: v.city,
+            phone: v.phone
           }));
         } catch (e) {}
 
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
+
+        var mfPayLayer = document.getElementById("mfBoldLayer");
+        var mfPayItems = document.getElementById("mfPayItems");
+        var mfPayTotal = document.getElementById("mfPayTotal");
+        var mfPayRef = document.getElementById("mfPayRef");
+        if (!mfPayLayer || !mfPayItems || !mfPayTotal || !mfPayRef) {
+          throw new Error("No pudimos cargar el pago de Marlon Footwear.");
+        }
+
+        mfPayRef.textContent = "Pedido " + orderRef;
+        mfPayTotal.textContent = fmt(serverTotal);
+        mfPayItems.innerHTML = "";
+        bag.forEach(function (item) {
+          var product = (typeof PRODUCTS !== "undefined" ? PRODUCTS.filter(function (p) { return p.id === item.id; })[0] : null) || {};
+          var li = document.createElement("li");
+          li.className = "mf-pay-item";
+          var info = document.createElement("div");
+          var name = document.createElement("div");
+          name.className = "mf-pay-item-name";
+          name.textContent = String(product.name || item.id);
+          var meta = document.createElement("div");
+          meta.className = "mf-pay-item-meta";
+          meta.textContent = [item.size ? "Talla " + item.size : "", item.color || "", "Cantidad " + item.qty].filter(Boolean).join(" · ");
+          var price = document.createElement("div");
+          price.className = "mf-pay-item-price";
+          price.textContent = fmt((Number(product.price) || 0) * Number(item.qty || 1));
+          info.appendChild(name);
+          info.appendChild(meta);
+          li.appendChild(info);
+          li.appendChild(price);
+          mfPayItems.appendChild(li);
+        });
+
+        window.__mfPaymentContext = {
+          reference: orderRef,
+          total: serverTotal,
+          customer: { name: v.name, address: v.address, city: v.city, phone: v.phone }
+        };
+
+        closeDlg($("#co"));
+        mfPayLayer.classList.add("is-open");
+        mfPayLayer.setAttribute("aria-hidden", "false");
+        document.body.classList.add("lock");
+        if (typeof window.mfInitCustomPayment === "function") window.mfInitCustomPayment();
+        return;
+      }
+
+      try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
         if (typeof window.BoldCheckout !== "function") {
           throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
@@ -3965,38 +4020,64 @@ try {
 
 <div class="mf-pay-layer" id="mfBoldLayer" aria-hidden="true">
   <div class="mf-pay-shell">
-    <div class="mf-pay-top">
+    <header class="mf-pay-top">
       <div class="mf-pay-brand">MARLON FOOTWEAR</div>
-      <div class="mf-pay-secure">Compra segura · Pago protegido</div>
+      <div class="mf-pay-secure">Pago seguro · Procesado por Bold</div>
+    </header>
+    <button class="mf-pay-close" type="button" id="mfBoldBack" aria-label="Volver al pedido">← Volver al pedido</button>
+    <div class="mf-pay-progress" aria-label="Proceso de compra">
+      <span>01 Tu pedido</span><span>02 Datos de entrega</span><span class="is-active">03 Elige cómo pagar</span><span>04 Revisa y confirma</span><span>05 Pago seguro</span>
     </div>
-    <button class="mf-pay-close" type="button" id="mfBoldBack">← Volver al pedido</button>
     <div class="mf-pay-grid">
-      <section class="mf-pay-card">
-        <p class="mf-pay-kicker">Paso 2 · Pago</p>
-        <h1 class="mf-pay-title">Finaliza tu compra.</h1>
-        <p class="mf-pay-sub">Tu pedido ya está preparado. Revisa los detalles y continúa al pago seguro.</p>
-        <div class="mf-pay-steps" aria-label="Progreso del pedido">
-          <span class="mf-pay-step">01 Pedido</span>
-          <span class="mf-pay-step is-active">02 Pago</span>
-          <span class="mf-pay-step">03 Confirmación</span>
+      <section class="mf-pay-card mf-pay-main">
+        <p class="mf-pay-kicker">Elige cómo pagar</p>
+        <h1 class="mf-pay-title">Tu pago, a tu manera.</h1>
+        <p class="mf-pay-sub">Toda la experiencia permanece en Marlon Footwear. Bold procesa el pago de forma segura por detrás.</p>
+        <div class="mf-pay-method-tabs" role="tablist" aria-label="Método de pago">
+          <button type="button" class="mf-pay-method-tab is-active" data-mf-method="CREDIT_CARD" aria-selected="true">Tarjeta</button>
+          <button type="button" class="mf-pay-method-tab" data-mf-method="PSE" aria-selected="false">PSE</button>
+          <button type="button" class="mf-pay-method-tab" data-mf-method="NEQUI" aria-selected="false">Nequi</button>
+          <button type="button" class="mf-pay-method-tab" data-mf-method="BOTON_BANCOLOMBIA" aria-selected="false">Bancolombia</button>
         </div>
-        <div class="mf-pay-summary">
-          <div class="mf-pay-summary-head"><h3>Resumen</h3><div class="mf-pay-ref" id="mfPayRef"></div></div>
-          <ul class="mf-pay-items" id="mfPayItems"></ul>
-          <div class="mf-pay-total"><span>Total</span><strong id="mfPayTotal"></strong></div>
-        </div>
+        <form id="mfPaymentForm" novalidate>
+          <div class="mf-pay-payer">
+            <div class="mf-pay-section-title">Datos del comprador</div>
+            <div class="mf-pay-fields">
+              <label class="mf-pay-field mf-pay-field-wide"><span>Correo electrónico</span><input id="mfPayEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
+              <label class="mf-pay-field"><span>Tipo de documento</span><select id="mfPayDocType"><option value="CEDULA">Cédula</option><option value="CEDULA_EXTRANJERIA">Cédula de extranjería</option><option value="PASAPORTE">Pasaporte</option><option value="NIT">NIT</option></select></label>
+              <label class="mf-pay-field"><span>Número de documento</span><input id="mfPayDocNumber" inputmode="numeric" autocomplete="off" placeholder="1234567890"></label>
+            </div>
+          </div>
+          <div class="mf-pay-panel is-active" data-mf-panel="CREDIT_CARD">
+            <div class="mf-pay-section-title">Datos de tu tarjeta</div>
+            <div class="mf-pay-fields">
+              <label class="mf-pay-field mf-pay-field-wide"><span>Nombre del titular</span><input id="mfCardName" autocomplete="cc-name" placeholder="Como aparece en la tarjeta"></label>
+              <label class="mf-pay-field mf-pay-field-wide"><span>Número de tarjeta</span><input id="mfCardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000"></label>
+              <label class="mf-pay-field"><span>Vencimiento</span><div class="mf-pay-expiry"><select id="mfCardMonth" autocomplete="cc-exp-month" aria-label="Mes de vencimiento"></select><select id="mfCardYear" autocomplete="cc-exp-year" aria-label="Año de vencimiento"></select></div></label>
+              <label class="mf-pay-field"><span>Código de seguridad</span><input id="mfCardCvc" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="CVC"></label>
+              <label class="mf-pay-field"><span>Cuotas</span><select id="mfCardInstallments"><option value="1">1 cuota</option><option value="2">2 cuotas</option><option value="3">3 cuotas</option><option value="4">4 cuotas</option><option value="5">5 cuotas</option><option value="6">6 cuotas</option></select></label>
+            </div>
+          </div>
+          <div class="mf-pay-panel" data-mf-panel="PSE">
+            <div class="mf-pay-section-title">Elige tu banco</div>
+            <label class="mf-pay-field"><span>Banco</span><select id="mfPseBank"><option value="">Cargando bancos…</option></select></label>
+            <p class="mf-pay-helper">Al continuar te llevaremos al sitio de tu banco para completar el pago.</p>
+          </div>
+          <div class="mf-pay-panel" data-mf-panel="NEQUI"><div class="mf-pay-section-title">Pago con Nequi</div><p class="mf-pay-helper">Usaremos el número de teléfono de tu pedido para continuar con Nequi.</p></div>
+          <div class="mf-pay-panel" data-mf-panel="BOTON_BANCOLOMBIA"><div class="mf-pay-section-title">Pago con Bancolombia</div><p class="mf-pay-helper">Al continuar te llevaremos al proceso seguro de Bancolombia.</p></div>
+          <p class="mf-pay-error" id="mfPayError" role="alert" aria-live="polite"></p>
+          <button type="submit" class="mf-pay-submit" id="mfPaySubmit">Pagar <span id="mfPaySubmitAmount"></span></button>
+          <p class="mf-pay-note">No almacenamos los datos de tu tarjeta. El procesamiento se realiza directamente a través de la API de Pagos en Línea de Bold.</p>
+        </form>
       </section>
-      <aside class="mf-pay-card">
-        <p class="mf-pay-kicker">Método de pago</p>
-        <h2 style="margin:0;font-size:24px">Paga con confianza</h2>
-        <div class="mf-pay-methods">
-          <div class="mf-pay-method"><span class="mf-pay-method-mark">CARD</span><div class="mf-pay-method-copy"><strong>Pago en línea</strong><span>Tarjeta y medios disponibles en el checkout seguro</span></div></div>
-        </div>
-        <button type="button" class="mf-pay-continue" id="mfPayContinue">Continuar con el pago</button>
-        <p class="mf-pay-note">Al continuar, el procesamiento de los datos de pago se realiza de forma segura mediante nuestro proveedor de pagos.</p>
+      <aside class="mf-pay-card mf-pay-side">
+        <div class="mf-pay-summary-head"><div><p class="mf-pay-kicker">Revisa y confirma</p><h2>Tu pedido</h2></div><div class="mf-pay-ref" id="mfPayRef"></div></div>
+        <ul class="mf-pay-items" id="mfPayItems"></ul>
+        <div class="mf-pay-total"><span>Total</span><strong id="mfPayTotal"></strong></div>
         <div class="mf-pay-trust">
-          <div>✓ <b>Pedido protegido</b> · Referencia asociada a tu compra</div>
-          <div>✓ <b>Datos sensibles protegidos</b> · Marlon Footwear no almacena los datos de tu tarjeta</div>
+          <div>✓ <b>Compra protegida</b><br>Tu pedido queda asociado a una referencia única.</div>
+          <div>✓ <b>Pago seguro</b><br>Bold procesa la transacción y la autenticación cuando corresponda.</div>
+          <div>✓ <b>Experiencia Marlon</b><br>El checkout conserva la identidad visual de Marlon Footwear.</div>
         </div>
       </aside>
     </div>
@@ -4005,25 +4086,73 @@ try {
 
 <script>
 (function(){
-  var layer=document.getElementById("mfBoldLayer");
-  var continueBtn=document.getElementById("mfPayContinue");
-  var backBtn=document.getElementById("mfBoldBack");
-  function closeMarlonPay(){
-    if(!layer)return;
-    layer.classList.remove("is-open");
-    layer.setAttribute("aria-hidden","true");
-    document.body.classList.remove("lock");
+  var layer=document.getElementById("mfBoldLayer"), form=document.getElementById("mfPaymentForm"), backBtn=document.getElementById("mfBoldBack"), submitBtn=document.getElementById("mfPaySubmit"), submitAmount=document.getElementById("mfPaySubmitAmount"), errorEl=document.getElementById("mfPayError"), method="CREDIT_CARD", banksLoaded=false, polling=false;
+  function closeLayer(){if(!layer)return;layer.classList.remove("is-open");layer.setAttribute("aria-hidden","true");document.body.classList.remove("lock");}
+  function context(){return window.__mfPaymentContext||{};}
+  function setError(message){if(errorEl)errorEl.textContent=message||"";}
+  function fmtPayment(value){return new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value)||0);}
+  function setMethod(next){
+    method=next;
+    document.querySelectorAll("[data-mf-method]").forEach(function(btn){var active=btn.dataset.mfMethod===method;btn.classList.toggle("is-active",active);btn.setAttribute("aria-selected",active?"true":"false");});
+    document.querySelectorAll("[data-mf-panel]").forEach(function(panel){panel.classList.toggle("is-active",panel.dataset.mfPanel===method);});
+    setError("");
+    if(method==="PSE"&&!banksLoaded)loadBanks();
   }
-  if(backBtn) backBtn.addEventListener("click",function(){ closeMarlonPay(); var dlg=document.getElementById("co"); if(dlg && typeof dlg.showModal==="function") dlg.showModal(); });
-  if(continueBtn) continueBtn.addEventListener("click",function(){
-    var checkout=window.__mfBoldCheckout;
-    if(!checkout || typeof checkout.open!=="function"){ alert("No pudimos abrir el pago seguro. Intenta de nuevo."); return; }
-    continueBtn.disabled=true;
-    continueBtn.textContent="Abriendo pago seguro…";
-    closeMarlonPay();
-    checkout.open();
-    setTimeout(function(){continueBtn.disabled=false;continueBtn.textContent="Continuar con el pago";},1200);
-  });
+  async function loadBanks(){
+    var select=document.getElementById("mfPseBank");if(!select)return;
+    try{
+      var res=await fetch("/.netlify/functions/bold-api-payment?banks=1",{cache:"no-store"}),data=await res.json().catch(function(){return {};});
+      var banks=data?.payload?.banks||data?.banks||[];
+      if(!res.ok||!banks.length)throw new Error(data.error||"No pudimos cargar los bancos.");
+      select.innerHTML='<option value="">Selecciona tu banco</option>';
+      banks.forEach(function(bank){var opt=document.createElement("option");opt.value=String(bank.bank_code||"");opt.textContent=String(bank.bank_name||"");opt.dataset.bankName=String(bank.bank_name||"");select.appendChild(opt);});
+      banksLoaded=true;
+    }catch(error){select.innerHTML='<option value="">No disponible</option>';setError(error.message||"No pudimos cargar los bancos de PSE.");}
+  }
+  function deviceFingerprint(){
+    var ua=navigator.userAgent||"",mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    return {device_type:mobile?"MOBILE":"DESKTOP",os:navigator.platform||"",browser:ua,java_enabled:false,language:navigator.language||"es-CO",color_depth:screen.colorDepth||24,screen_height:screen.height||0,screen_width:screen.width||0,time_zone_offset:new Date().getTimezoneOffset(),model:"",platform:navigator.platform||""};
+  }
+  async function pollStatus(reference){
+    if(polling)return;polling=true;
+    for(var i=0;i<30;i++){
+      await new Promise(function(resolve){setTimeout(resolve,2000);});
+      try{
+        var res=await fetch("/.netlify/functions/bold-api-payment?reference="+encodeURIComponent(reference),{cache:"no-store"}),data=await res.json().catch(function(){return {};});
+        var status=String(data?.payload?.status||data?.status||"").toUpperCase();
+        if(status==="APPROVED"){window.location.href="/gracias.html?ref="+encodeURIComponent(reference);return;}
+        if(status==="REJECTED")throw new Error("El pago fue rechazado. Puedes revisar los datos e intentarlo nuevamente.");
+      }catch(error){polling=false;setError(error.message||"No pudimos confirmar el estado del pago.");if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="Intentar de nuevo";}return;}
+    }
+    polling=false;setError("El pago sigue en proceso. Si realizaste la autenticación, espera unos segundos y revisa el estado de tu pedido.");if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="Pagar "+fmtPayment(context().total);}
+  }
+  async function submitPayment(){
+    setError("");var ctx=context();if(!ctx.reference)throw new Error("No encontramos la referencia de tu pedido.");
+    var payer={name:ctx.customer?.name||"",phone:ctx.customer?.phone||"",email:(document.getElementById("mfPayEmail")?.value||"").trim(),document_type:document.getElementById("mfPayDocType")?.value||"CEDULA",document_number:(document.getElementById("mfPayDocNumber")?.value||"").replace(/\D/g,"")};
+    if(!payer.document_number)throw new Error("Escribe tu número de documento.");
+    var body={reference:ctx.reference,method:method,payer:payer,device_fingerprint:deviceFingerprint()};
+    if(method==="CREDIT_CARD")body.card={cardholder_name:(document.getElementById("mfCardName")?.value||"").trim(),card_number:(document.getElementById("mfCardNumber")?.value||"").replace(/\D/g,""),expiration_month:Number(document.getElementById("mfCardMonth")?.value||0),expiration_year:Number(document.getElementById("mfCardYear")?.value||0),installments:Number(document.getElementById("mfCardInstallments")?.value||1),cvc:(document.getElementById("mfCardCvc")?.value||"").replace(/\D/g,"")};
+    if(method==="PSE"){var bank=document.getElementById("mfPseBank"),opt=bank?.options[bank.selectedIndex];if(!bank?.value)throw new Error("Selecciona tu banco.");body.bank_code=bank.value;body.bank_name=opt?.dataset.bankName||opt?.textContent||"";}
+    submitBtn.disabled=true;submitBtn.textContent="Procesando pago…";
+    var res=await fetch("/.netlify/functions/bold-api-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),data=await res.json().catch(function(){return {};});
+    if(!res.ok||!data.ok)throw new Error(data.error||"No pudimos procesar el pago.");
+    var next=data.next_actions||{};
+    if(next.redirect_url){window.location.href=next.redirect_url;return;}
+    var status=String(data.status||"").toUpperCase();
+    if(status==="APPROVED"){window.location.href="/gracias.html?ref="+encodeURIComponent(ctx.reference);return;}
+    if(status==="REJECTED")throw new Error("El pago fue rechazado. Revisa los datos e inténtalo nuevamente.");
+    submitBtn.textContent="Verificando pago…";pollStatus(ctx.reference);
+  }
+  function init(){
+    var ctx=context();if(submitAmount)submitAmount.textContent=fmtPayment(ctx.total);setMethod("CREDIT_CARD");
+    var now=new Date().getFullYear(),month=document.getElementById("mfCardMonth"),year=document.getElementById("mfCardYear");
+    if(month&&!month.options.length){for(var m=1;m<=12;m++){var mo=document.createElement("option");mo.value=String(m);mo.textContent=String(m).padStart(2,"0");month.appendChild(mo);}}
+    if(year&&!year.options.length){for(var y=now;y<=now+15;y++){var yo=document.createElement("option");yo.value=String(y);yo.textContent=String(y);year.appendChild(yo);}}
+  }
+  window.mfInitCustomPayment=init;
+  document.querySelectorAll("[data-mf-method]").forEach(function(btn){btn.addEventListener("click",function(){setMethod(btn.dataset.mfMethod);});});
+  if(backBtn)backBtn.addEventListener("click",function(){closeLayer();var dlg=document.getElementById("co");if(dlg&&typeof dlg.showModal==="function"){dlg.showModal();dlg.scrollTop=0;}});
+  if(form)form.addEventListener("submit",async function(e){e.preventDefault();try{await submitPayment();}catch(error){setError(error.message||"No pudimos procesar el pago.");submitBtn.disabled=false;submitBtn.textContent="Pagar "+fmtPayment(context().total);}});
 })();
 </script>
 </body>
