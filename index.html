@@ -2206,8 +2206,8 @@ function trackMetaCommerceEvent(eventName, product, extra) {
   window.fbq("track", eventName, data);
 }
 
-function trackMetaInitiateCheckout(orderRef) {
-  if (typeof window.fbq !== "function" || !bag.length) return;
+function trackMetaInitiateCheckout(orderRef, bagItems) {
+  if (typeof window.fbq !== "function" || !Array.isArray(bagItems) || !bagItems.length) return;
 
   var storageKey = "mf_initiate_checkout_" + String(orderRef || "");
   try {
@@ -2220,7 +2220,7 @@ function trackMetaInitiateCheckout(orderRef) {
   var contentIds = [];
   var contents = [];
 
-  bag.forEach(function (item) {
+  bagItems.forEach(function (item) {
     var product = byId(item.id);
     if (!product) return;
 
@@ -3352,7 +3352,7 @@ try {
       // Server-confirmed total is used for all customer-facing legacy data too.
       f.elements["total"].value = fmt(serverTotal);
       if (pay === "Link de pago (Bold)") {
-        trackMetaInitiateCheckout(orderRef);
+        trackMetaInitiateCheckout(orderRef, bag);
         if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
 
         var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
