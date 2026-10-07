@@ -2,11 +2,20 @@ import { store, json } from "./_admin.mjs";
 
 const BOLD_BASE = "https://api.online.payments.bold.co";
 
+function getEnv(name) {
+  try {
+    if (typeof Netlify !== "undefined" && Netlify.env && typeof Netlify.env.get === "function") {
+      return Netlify.env.get(name) || "";
+    }
+  } catch (_) {}
+  return typeof process !== "undefined" && process.env ? (process.env[name] || "") : "";
+}
+
 function getApiKey() {
   return String(
-    process.env.BOLD_ONLINE_API_KEY ||
-    process.env.BOLD_API_PAYMENTS_KEY ||
-    process.env.BOLD_API_KEY ||
+    getEnv("BOLD_ONLINE_API_KEY") ||
+    getEnv("BOLD_API_PAYMENTS_KEY") ||
+    getEnv("BOLD_API_KEY") ||
     ""
   ).trim();
 }
