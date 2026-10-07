@@ -1,6 +1,12 @@
 import { store } from "./_admin.mjs";
 
 function env(name) {
+  try {
+    if (typeof Netlify !== "undefined" && Netlify?.env?.get) {
+      const value = Netlify.env.get(name);
+      if (value) return String(value).trim();
+    }
+  } catch {}
   return String(process.env[name] || "").trim();
 }
 
@@ -137,7 +143,27 @@ export async function sendWhatsAppConfirmation(order) {
 }
 
 export async function sendWhatsAppConfirmationForReference(reference) {
-  const order = await store.get("orders/" + reference, { type: "json", consistency: "strong" });
+  const key = "orders/" + reference;
+  const order = await store.get(key, { type: "json", consistency: "strong" });
   if (!order) throw new Error("Pedido no encontrado para WhatsApp");
-  return sendWhatsAppConfirmation(order);
+
+  // Idempotencia: un reintento de Bold no debe enviar dos confirmaciones al cliente.
+  if (order.whatsappConfirmationSentAt) {
+    return { skipped: true, reason: "already_sent", sentAt: order.whatsappConfirmationSentAt };
+  }
+
+  const result = await sendWhatsAppConfirmation(order);
+  const sentAt = new Date().toISOString();
+
+  // Persistimos la marca solo después de que Meta acepte el mensaje.
+  const latest = await store.get(key, { type: "json", consistency: "strong" });
+  if (latest) {
+    await store.setJSON(key, {
+      ...latest,
+      whatsappConfirmationSentAt: sentAt,
+      updatedAt: latest.updatedAt || sentAt
+    });
+  }
+
+  return { ...result, skipped: false, sentAt };
 }
