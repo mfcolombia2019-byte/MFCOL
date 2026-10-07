@@ -2306,7 +2306,40 @@ function trackMetaInitiateCheckout(orderRef, bagItems) {
   }
 }
 </script>
-</head>
+<style id="mf-checkout-final-design">
+#mfBoldLayer{background:rgba(245,244,241,.98);color:#151515}
+#mfBoldLayer .mf-pay-shell{width:min(1180px,calc(100% - 40px));padding:28px 0 56px}
+#mfBoldLayer .mf-pay-progress{margin-bottom:28px}
+#mfBoldLayer .mf-pay-grid{grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:22px;align-items:start}
+#mfBoldLayer .mf-pay-card{border:1px solid #e3e0da;border-radius:18px;background:#fff;padding:30px;box-shadow:0 12px 40px rgba(20,20,20,.05)}
+#mfBoldLayer .mf-pay-main{padding:34px}
+#mfBoldLayer .mf-pay-kicker{font-size:10px;letter-spacing:.18em;color:#8a847b;margin-bottom:10px}
+#mfBoldLayer .mf-pay-title{font-family:var(--sans);font-size:clamp(28px,3.2vw,42px);font-weight:600;letter-spacing:-.035em;line-height:1.05}
+#mfBoldLayer .mf-pay-sub{font-size:14px;color:#6f6b65;max-width:620px;margin-top:12px}
+#mfBoldLayer .mf-pay-method-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0}
+#mfBoldLayer .mf-pay-method-tab{min-height:58px;border:1px solid #dedbd5;border-radius:12px;background:#fff;color:#34312d;font-size:12px;font-weight:600;letter-spacing:.01em;transition:.18s ease}
+#mfBoldLayer .mf-pay-method-tab:hover{border-color:#aaa49a;transform:translateY(-1px)}
+#mfBoldLayer .mf-pay-method-tab.is-active{background:#171717;border-color:#171717;color:#fff;box-shadow:0 5px 16px rgba(0,0,0,.12)}
+#mfBoldLayer .mf-pay-section-title{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:none;margin-bottom:14px}
+#mfBoldLayer .mf-pay-payer{padding-bottom:25px;margin-bottom:25px;border-bottom:1px solid #ece9e4}
+#mfBoldLayer .mf-pay-fields{gap:14px}
+#mfBoldLayer .mf-pay-field{gap:7px}
+#mfBoldLayer .mf-pay-field span{font-size:11px;font-weight:600;color:#4d4943}
+#mfBoldLayer .mf-pay-field input,#mfBoldLayer .mf-pay-field select{height:50px;border:1px solid #d8d5cf;border-radius:10px;padding:0 14px;background:#fff;transition:border-color .18s,box-shadow .18s}
+#mfBoldLayer .mf-pay-field input:focus,#mfBoldLayer .mf-pay-field select:focus{outline:0;border-color:#171717;box-shadow:0 0 0 3px rgba(23,23,23,.08)}
+#mfBoldLayer .mf-pay-panel{padding:2px 0 0}
+#mfBoldLayer .mf-pay-helper{padding:15px 16px;border-radius:10px;background:#f7f6f3;color:#68635c}
+#mfBoldLayer .mf-pay-submit{border:0;border-radius:11px;min-height:56px;background:#171717;box-shadow:0 7px 18px rgba(0,0,0,.13);font-size:12px}
+#mfBoldLayer .mf-pay-submit:hover{background:#2b2b2b;transform:translateY(-1px)}
+#mfBoldLayer .mf-pay-note{color:#858078}
+#mfBoldLayer .mf-pay-side{position:sticky;top:20px}
+#mfBoldLayer .mf-pay-summary-head h2{font-family:var(--sans);font-size:24px;font-weight:600}
+#mfBoldLayer .mf-pay-total strong{font-family:var(--sans);font-size:25px;font-weight:700}
+#mfBoldLayer .mf-pay-trust{background:#faf9f7;border:1px solid #ebe8e2;border-radius:12px;padding:16px;margin-top:22px}
+#mfBoldLayer .mf-pay-error{padding:0 2px;color:#a52828;font-weight:600}
+@media(max-width:900px){#mfBoldLayer .mf-pay-grid{grid-template-columns:1fr}#mfBoldLayer .mf-pay-side{position:static}}
+@media(max-width:620px){#mfBoldLayer .mf-pay-shell{width:min(100% - 20px,680px)}#mfBoldLayer .mf-pay-main,#mfBoldLayer .mf-pay-card{padding:20px}#mfBoldLayer .mf-pay-method-tabs{grid-template-columns:repeat(2,1fr)}}
+</style></head>
 <body>
 <script>
 try {
@@ -3974,8 +4007,8 @@ try {
     <div class="mf-pay-grid">
       <section class="mf-pay-card mf-pay-main">
         <p class="mf-pay-kicker">Elige cómo pagar</p>
-        <h1 class="mf-pay-title">Tu pago, a tu manera.</h1>
-        <p class="mf-pay-sub">Toda la experiencia permanece en Marlon Footwear. Bold procesa el pago de forma segura por detrás.</p>
+        <h1 class="mf-pay-title">Elige cómo pagar</h1>
+        <p class="mf-pay-sub">Completa tus datos y elige el método de pago que prefieras. Tu pago será procesado de forma segura por Bold.</p>
         <div class="mf-pay-method-tabs" role="tablist" aria-label="Método de pago">
           <button type="button" class="mf-pay-method-tab is-active" data-mf-method="CREDIT_CARD" aria-selected="true">Tarjeta</button>
           <button type="button" class="mf-pay-method-tab" data-mf-method="PSE" aria-selected="false">PSE</button>
@@ -4054,7 +4087,7 @@ try {
   }
   function deviceFingerprint(){
     var ua=navigator.userAgent||"",mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-    return {device_type:mobile?"MOBILE":"DESKTOP",os:navigator.platform||"",browser:ua,java_enabled:false,language:navigator.language||"es-CO",color_depth:screen.colorDepth||24,screen_height:screen.height||0,screen_width:screen.width||0,time_zone_offset:new Date().getTimezoneOffset(),model:"",platform:navigator.platform||""};
+    return {device_type:mobile?"MOBILE":"DESKTOP",os:navigator.platform||"",browser:ua,accept_header:"text/html,application/xhtml+xml",user_agent:ua,java_enabled:false,language:navigator.language||"es-CO",color_depth:screen.colorDepth||24,screen_height:screen.height||0,screen_width:screen.width||0,time_zone_offset:new Date().getTimezoneOffset(),model:"",platform:navigator.platform||""};
   }
   async function pollStatus(reference){
     if(polling)return;polling=true;
@@ -4068,6 +4101,30 @@ try {
       }catch(error){polling=false;setError(error.message||"No pudimos confirmar el estado del pago.");if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="Intentar de nuevo";}return;}
     }
     polling=false;setError("El pago sigue en proceso. Si realizaste la autenticación, espera unos segundos y revisa el estado de tu pedido.");if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="Pagar "+fmtPayment(context().total);}
+  }
+  function validEmail(value){return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(value||"").trim());}
+  function luhn(value){
+    var digits=String(value||"").replace(/\\D/g,""); if(digits.length<13)return false;
+    var sum=0,alt=false;
+    for(var i=digits.length-1;i>=0;i--){var n=Number(digits.charAt(i));if(alt){n*=2;if(n>9)n-=9;}sum+=n;alt=!alt;}
+    return sum%10===0;
+  }
+  function validatePayment(){
+    var email=document.getElementById("mfPayEmail")?.value||"";
+    if(!validEmail(email))throw new Error("Escribe un correo electrónico válido.");
+    var doc=document.getElementById("mfPayDocNumber")?.value||"";
+    if(doc.replace(/\\D/g,"").length<5)throw new Error("Escribe un número de documento válido.");
+    if(method!=="CREDIT_CARD")return;
+    var name=(document.getElementById("mfCardName")?.value||"").trim();
+    var number=(document.getElementById("mfCardNumber")?.value||"").replace(/\\D/g,"");
+    var month=Number(document.getElementById("mfCardMonth")?.value||0);
+    var year=Number(document.getElementById("mfCardYear")?.value||0);
+    var cvc=(document.getElementById("mfCardCvc")?.value||"").replace(/\\D/g,"");
+    if(!name)throw new Error("Escribe el nombre del titular.");
+    if(!luhn(number))throw new Error("Revisa el número de tarjeta.");
+    var now=new Date(), currentYear=now.getFullYear(), currentMonth=now.getMonth()+1;
+    if(!month||!year||(year===currentYear&&month<currentMonth)||year<currentYear)throw new Error("Revisa la fecha de vencimiento.");
+    if(cvc.length<3||cvc.length>4)throw new Error("Revisa el código de seguridad.");
   }
   async function submitPayment(){
     setError("");var ctx=context();if(!ctx.reference)throw new Error("No encontramos la referencia de tu pedido.");
