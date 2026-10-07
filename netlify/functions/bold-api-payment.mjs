@@ -18,6 +18,7 @@ function validReference(value) {
 function deviceFingerprint(input, ip) {
   const d = input && typeof input === "object" ? input : {};
   return {
+    ip: String(ip || "").split(",")[0].trim().slice(0, 64),
     device_type: String(d.device_type || "").slice(0, 30),
     os: String(d.os || "").slice(0, 80),
     browser: String(d.browser || "").slice(0, 120),
@@ -108,7 +109,7 @@ function paymentMethodFrom(body) {
   throw new Error("Método de pago no disponible.");
 }
 
-async function ensurePaymentIntent(reference, order, payer) {
+async function ensurePaymentIntent(reference, order, payer, fingerprint) {
   const existing = await fetch(BOLD_BASE + "/v1/payment-intent/" + encodeURIComponent(reference), {
     headers: { "Authorization": "x-api-key " + getApiKey() }
   });
@@ -131,6 +132,7 @@ async function ensurePaymentIntent(reference, order, payer) {
     },
     description: "Compra Marlon Footwear " + reference,
     callback_url: origin.origin + "/gracias.html?ref=" + encodeURIComponent(reference),
+    device_fingerprint: fingerprint,
     customer: {
       name: payer.name,
       phone: payer.phone,
@@ -206,7 +208,8 @@ export default async (req) => {
       }
     }
 
-    await ensurePaymentIntent(reference, order, payer);
+    const fingerprint = deviceFingerprint(body?.device_fingerprint, req.headers.get("x-forwarded-for") || req.headers.get("x-nf-client-connection-ip") || "");
+    await ensurePaymentIntent(reference, order, payer, fingerprint);
 
     const attempt = await boldFetch("/v1/payment", {
       method: "POST",
@@ -214,7 +217,7 @@ export default async (req) => {
         reference_id: reference,
         payer,
         payment_method: paymentMethod,
-        device_fingerprint: deviceFingerprint(body?.device_fingerprint, req.headers.get("x-forwarded-for") || req.headers.get("x-nf-client-connection-ip") || "")
+        device_fingerprint: fingerprint
       })
     });
 
