@@ -43,14 +43,35 @@ export default async (req) => {
       });
     }
 
-    if (mode === "subscribe" && token === verifyToken && challenge) {
+    const tokenMatches =
+      Boolean(verifyToken) &&
+      token !== null &&
+      token.trim() === verifyToken.trim();
+
+    if (mode === "subscribe" && tokenMatches && challenge) {
       return new Response(challenge, {
         status: 200,
         headers: { "content-type": "text/plain; charset=utf-8" },
       });
     }
 
-    return new Response("Forbidden", { status: 403 });
+    return json(
+      {
+        ok: false,
+        error: "Webhook verification failed",
+        diagnostics: {
+          mode,
+          verifyTokenConfigured: Boolean(verifyToken),
+          tokenReceived: token !== null,
+          tokenLength: token ? token.length : 0,
+          configuredTokenLength: verifyToken ? verifyToken.length : 0,
+          tokenMatches,
+          challengeReceived: Boolean(challenge),
+          context: Netlify.env.get("CONTEXT") || null,
+        },
+      },
+      403
+    );
   }
 
   if (req.method === "POST") {
@@ -84,4 +105,4 @@ export const config = {
   path: "/api/whatsapp-webhook",
 };
 
-// Preview retrigger marker: safe diagnostic-only update.
+// Diagnostic-only update: exposes token lengths/match status, never the token value.
