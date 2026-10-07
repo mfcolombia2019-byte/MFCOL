@@ -2130,6 +2130,52 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   #productos .tabs button{padding:7px 10px!important;font-size:8px!important}
 }
 
+
+/* =========================================================
+   MF CHECKOUT — MARLON FOOTWEAR PREVIEW
+   Solo capa visual/markup. Flujo de pago y lógica sin cambios.
+   ========================================================= */
+.co{width:min(760px,100%);background:#fff;border:0;box-shadow:0 25px 80px rgba(0,0,0,.16)}
+.co::backdrop{background:rgba(10,10,10,.55);backdrop-filter:blur(5px)}
+.co-in{max-width:700px;margin:auto;padding:0 28px calc(38px + env(safe-area-inset-bottom))}
+.co-brandline{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:19px 0 16px;border-bottom:1px solid #111}
+.co-brand{font-size:9px;font-weight:600;letter-spacing:.22em}
+.co-secure{font-size:8px;letter-spacing:.16em;color:#777}
+.co-head{min-height:104px;padding:20px 0 12px}
+.co-kicker{font-size:8px;text-transform:uppercase;letter-spacing:.2em;color:#777;margin-bottom:9px}
+.co-head h2{font-size:clamp(34px,6vw,48px);letter-spacing:-.035em}
+.co-head .dlg-close{width:42px;height:42px;border:1px solid #ddd;background:#fff}
+.co-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:28px}
+.co-progress span{height:2px;background:#e5e5e5}.co-progress .is-active{background:#111}
+.co-section{margin-top:30px;padding-top:4px}
+.co-section-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.co-index{font-size:9px;letter-spacing:.15em;color:#888;padding-top:4px}
+.co-section-head h3{font-family:var(--serif);font-size:25px;font-weight:400;line-height:1.05}
+.co-section-head p{font-size:11px;color:#777;margin-top:5px}
+.co-fields{display:grid;grid-template-columns:1fr 1fr;column-gap:22px}
+.co-field .field{margin-top:12px}.co-field .err{min-height:0}
+.co-pay{margin-top:38px}
+.pays{grid-template-columns:1fr 1fr;gap:10px;margin-top:0}
+.pay{min-height:152px;padding:17px 17px 18px;border:1px solid #d8d8d8;border-radius:0;background:#fff;position:relative}
+.pay:hover{border-color:#111;transform:translateY(-1px)}
+.pay[aria-pressed="true"]{background:#111;border-color:#111;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+.pay-top{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:auto}
+.pay-mark{font-size:9px;font-weight:600;letter-spacing:.12em;border:1px solid currentColor;padding:5px 6px}
+.pay-state{font-size:7px;letter-spacing:.14em;color:#777}.pay[aria-pressed="true"] .pay-state{color:#aaa}
+.pay-name{font-size:20px;line-height:1.05;margin-top:22px}.pay-desc{font-size:11px;line-height:1.45;color:#777;margin-top:6px}.pay[aria-pressed="true"] .pay-desc{color:#bdbdbd}
+.co-sum{margin-top:38px;padding-top:4px;border-top:0}
+.co-items{border-top:1px solid #111}
+.co-items li{padding:13px 0;border-bottom:1px solid #e7e7e7;font-size:13px}
+.co-items small{font-size:11px}.co-shipping{border-top:0;margin-top:0;padding-top:13px!important}
+.co-total{padding:20px 0 14px;border-top:1px solid #111}.co-total strong{font-size:38px}
+.co-delivery{font-size:11px}.co-edit{font-size:11px}
+.co-submit{margin-top:24px!important;min-height:56px;letter-spacing:.14em}
+.co-fine{display:flex;justify-content:center;align-items:center;gap:6px;font-size:10px;margin-top:13px}.co-fine span{font-size:12px}
+@media(max-width:559px){
+  .co-in{padding-left:20px;padding-right:20px}.co-brandline{padding-top:15px}.co-secure{display:none}
+  .co-head{min-height:92px}.co-fields{grid-template-columns:1fr}.co-section{margin-top:27px}
+  .pays{grid-template-columns:1fr}.pay{min-height:132px}.pay-name{font-size:19px}
+}
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -2484,10 +2530,18 @@ try {
 
 <dialog class="co" id="co" aria-labelledby="coTitle">
   <div class="co-in">
+    <div class="co-brandline">
+      <div class="co-brand">MARLON FOOTWEAR</div>
+      <div class="co-secure">CHECKOUT · SEGURO</div>
+    </div>
     <div class="co-head">
-      <h2 id="coTitle">Finaliza tu pedido</h2>
+      <div>
+        <p class="co-kicker">Tu selección</p>
+        <h2 id="coTitle">Finaliza tu pedido</h2>
+      </div>
       <button class="dlg-close" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     </div>
+    <div class="co-progress" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
     <form id="coForm" name="pedidos" method="POST" data-netlify="true" netlify-honeypot="empresa" novalidate>
       <input type="hidden" name="form-name" value="pedidos">
       <p class="sr"><label>No llenar: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
@@ -2496,37 +2550,42 @@ try {
       <input type="hidden" name="medio_pago">
       <input type="hidden" name="link_pago">
       <input type="hidden" name="reference">
-      <label class="field"><span>Nombre completo</span><input name="name" type="text" autocomplete="name" placeholder="Daniela Restrepo Ocampo" aria-describedby="err-name" required></label>
-      <p class="err" id="err-name" role="alert"></p>
-      <label class="field"><span>Dirección de entrega</span><input name="address" type="text" autocomplete="street-address" placeholder="Carrera 43A # 18-95, apto 702" aria-describedby="err-address" required></label>
-      <p class="err" id="err-address" role="alert"></p>
-      <label class="field"><span>Ciudad</span><input name="city" type="text" autocomplete="address-level2" placeholder="Medellín, Antioquia" aria-describedby="err-city" required></label>
-      <p class="err" id="err-city" role="alert"></p>
-      <label class="field"><span>Teléfono / WhatsApp</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="300 123 4567" aria-describedby="err-phone" required></label>
-      <p class="err" id="err-phone" role="alert"></p>
 
-      <div class="co-pay">
-        <h3 class="co-pay-q" id="payTitle">¿Cómo quieres continuar?</h3>
+      <section class="co-section" aria-labelledby="coDeliveryTitle">
+        <div class="co-section-head"><span class="co-index">01</span><div><h3 id="coDeliveryTitle">Datos de entrega</h3><p>Los usamos únicamente para preparar tu pedido.</p></div></div>
+        <div class="co-fields">
+          <div class="co-field"><label class="field"><span>Nombre completo</span><input name="name" type="text" autocomplete="name" placeholder="Daniela Restrepo Ocampo" aria-describedby="err-name" required></label><p class="err" id="err-name" role="alert"></p></div>
+          <div class="co-field"><label class="field"><span>Dirección de entrega</span><input name="address" type="text" autocomplete="street-address" placeholder="Carrera 43A # 18-95, apto 702" aria-describedby="err-address" required></label><p class="err" id="err-address" role="alert"></p></div>
+          <div class="co-field"><label class="field"><span>Ciudad</span><input name="city" type="text" autocomplete="address-level2" placeholder="Medellín, Antioquia" aria-describedby="err-city" required></label><p class="err" id="err-city" role="alert"></p></div>
+          <div class="co-field"><label class="field"><span>Teléfono / WhatsApp</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="300 123 4567" aria-describedby="err-phone" required></label><p class="err" id="err-phone" role="alert"></p></div>
+        </div>
+      </section>
+
+      <section class="co-section co-pay" aria-labelledby="payTitle">
+        <div class="co-section-head"><span class="co-index">02</span><div><h3 id="payTitle">Elige cómo pagar</h3><p>Selecciona tu forma de continuar con el pedido.</p></div></div>
         <div class="pays" role="group" aria-labelledby="payTitle">
           <button class="pay" type="button" data-pay="Link de pago (Bold)" aria-pressed="false">
+            <span class="pay-top"><span class="pay-mark">MF</span><span class="pay-state">EN LÍNEA</span></span>
             <span class="pay-name">Finalizar compra</span>
-            <span class="pay-desc">Pago seguro en línea</span>
+            <span class="pay-desc">Pago seguro en línea con Bold</span>
           </button>
           <button class="pay" type="button" data-pay="Transferencia bancaria" aria-pressed="false">
+            <span class="pay-top"><span class="pay-mark">WA</span><span class="pay-state">ATENCIÓN</span></span>
             <span class="pay-name">Finalizar pedido por WhatsApp</span>
-            <span class="pay-desc">Envíanos tu carrito y recibe atención personalizada</span>
+            <span class="pay-desc">Envíanos tu pedido y recibe atención personalizada</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      <div class="co-sum">
+      <section class="co-section co-sum" aria-labelledby="coSummaryTitle">
+        <div class="co-section-head"><span class="co-index">03</span><div><h3 id="coSummaryTitle">Resumen del pedido</h3><p>Revisa tu selección antes de continuar.</p></div></div>
         <ul class="co-items" id="coItems"></ul>
         <div class="co-total"><span>Total del pedido</span><strong id="coTotal"></strong></div>
         <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
         <button class="co-edit" type="button" data-edit-bag>Editar bolsa</button>
-      </div>
-      <button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
-      <p class="co-fine">No se cobra nada en línea hasta que confirmes tu medio de pago.</p>
+      </section>
+      <button class="btn btn-solid btn-block co-submit" type="submit" id="coSubmit" disabled>Elige cómo quieres pedir</button>
+      <p class="co-fine"><span>✓</span> No se cobra nada en línea hasta que confirmes tu medio de pago.</p>
     </form>
   </div>
 </dialog>
