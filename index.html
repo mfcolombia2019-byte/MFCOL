@@ -2643,7 +2643,7 @@ try {
       <p class="mfh-kicker">Nueva colección</p>
       <h1 id="mfhT">Plataforma negra</h1>
       <p id="mfhD">Suela alta y cuero suave. El negro de quien elige distinto.</p>
-      <a class="btn btn-solid collection-link" href="/colecciones/plataformas" data-collection="plataformas">Ver colección</a>
+      <a id="mfhCollectionLink" class="btn btn-solid collection-link" href="/colecciones/plataformas" data-collection="plataformas">Ver colección</a>
       <div class="mfh-dots" role="group" aria-label="Elegir color">
         <button type="button" style="--c:#111" aria-label="Negra" aria-pressed="true"></button>
         <button type="button" style="--c:#fff" aria-label="Blanca" aria-pressed="false"></button>
@@ -2655,10 +2655,10 @@ try {
   </div>
 </section>
 <script>
-(function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto."],["blanco","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir."],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida."],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene."]],
+(function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto.","plataformas"],["blanco","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir.","plataforma-blanca"],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida.","plataformas"],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene.","plataformas"]],
 sec=document.getElementById("inicio"),b=sec.querySelectorAll(".mfh-dots button"),i=0,t=null,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function go(n){i=(n+S.length)%S.length;var s=S[i];sec.style.backgroundColor=s[1];document.documentElement.style.setProperty("--mfbg",s[1]);
-document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
+document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var cl=document.getElementById("mfhCollectionLink");cl.href=s[4]==="plataforma-blanca"?"/colecciones/plataforma-blanca":"/colecciones/plataformas";cl.dataset.collection=s[4]||"plataformas";var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
 b.forEach(function(x,k){x.setAttribute("aria-pressed",k===i)})}
 function run(){clearInterval(t);if(!red)t=setInterval(function(){go(i+1)},6000)}
 b.forEach(function(x,k){x.addEventListener("click",function(){go(k);run()})});
