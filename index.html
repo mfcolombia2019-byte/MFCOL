@@ -2774,7 +2774,7 @@ try {
 (function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto.","plataformas"],["blanco","#dcdcda","Pure Form","Blanco puro, una silueta esencial.","plataformas"],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida.","plataformas"],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene.","plataformas"]],
 sec=document.getElementById("inicio"),b=sec.querySelectorAll(".mfh-dots button"),i=0,t=null,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function go(n){i=(n+S.length)%S.length;var s=S[i];sec.style.backgroundColor=s[1];document.documentElement.style.setProperty("--mfbg",s[1]);
-document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var cl=document.getElementById("mfhCollectionLink");cl.href="/colecciones/"+s[4];cl.dataset.collection=s[4];var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
+document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var cl=document.getElementById("mfhCollectionLink");cl.href="/colecciones/plataforma-blanca";cl.dataset.collection="plataforma-blanca";var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
 b.forEach(function(x,k){x.setAttribute("aria-pressed",k===i)})}
 function run(){clearInterval(t);if(!red)t=setInterval(function(){go(i+1)},6000)}
 b.forEach(function(x,k){x.addEventListener("click",function(){go(k);run()})});
