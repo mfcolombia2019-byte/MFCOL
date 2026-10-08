@@ -3356,13 +3356,13 @@ try {
         trackMetaInitiateCheckout(orderRef);
         if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
 
-        var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
+        var checkoutRes = await fetch("/.netlify/functions/crear-link-pago", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: orderRef })
         });
         var checkoutData = await checkoutRes.json().catch(function () { return {}; });
-        if (!checkoutRes.ok || !checkoutData.orderId || !checkoutData.integritySignature || !checkoutData.apiKey) {
+        if (!checkoutRes.ok || !checkoutData.url) {
           throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
 
@@ -3374,6 +3374,13 @@ try {
 
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
+
+        closeDlg($("#co"));
+        window.location.href = checkoutData.url;
+        return;
+      }
+
+      try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
         if (typeof window.BoldCheckout !== "function") {
           throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
