@@ -250,6 +250,8 @@ fieldset{border:0;min-width:0}
 .about-copy{max-width:700px}
 .about p.lead{font-family:var(--serif);font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 30px}
 .about-image{min-height:70svh}
+.about-video{display:block;width:100%;max-width:480px;aspect-ratio:9/16;object-fit:cover;background:#111;border-radius:2px;overflow:hidden}
+@media(min-width:820px){.about-video{max-width:420px}}
 @media(min-width:820px){.about-grid{grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}.about-copy{padding-top:40px}.about-image{min-height:80svh}}
 
 /* Support */
@@ -316,6 +318,64 @@ dialog[open]{animation:dialogIn .22s ease}
 .thumb img{width:100%;height:100%;object-fit:cover}
 @media(min-width:760px){.pd-grid{grid-template-columns:1.15fr .85fr}.pd-gal>.media{aspect-ratio:4/5;min-height:0}.pd-info{padding:55px 48px;justify-content:center}.thumbs{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:759px){.pd{height:100dvh}.pd-gal>.media{aspect-ratio:1/1.15}.thumb{height:68px}}
+
+/* Product actions — refined mobile treatment */
+.pd-btns{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:12px!important;
+  margin-top:24px!important;
+}
+.pd-btns .btn{
+  width:100%!important;
+  min-width:0!important;
+  min-height:58px!important;
+  height:58px!important;
+  margin:0!important;
+  padding:0 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.12!important;
+  border-radius:999px!important;
+  box-sizing:border-box!important;
+}
+.pd-btns .pd-primary{
+  font-size:13px!important;
+  letter-spacing:.02em!important;
+}
+.pd-btns .pd-buy-now{
+  font-size:13px!important;
+  letter-spacing:.01em!important;
+}
+.pd-heart{
+  grid-column:1 / -1!important;
+  justify-self:center!important;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:72px!important;
+  min-height:72px!important;
+  padding:0!important;
+  margin:2px auto 0!important;
+  border-radius:50%!important;
+  border:2px solid #111!important;
+  background:transparent!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:30px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+.pd-heart.is-saved{background:#111!important;color:#fff!important}
+@media(max-width:560px){
+  .pd-btns{gap:10px!important;margin-top:22px!important}
+  .pd-btns .btn{height:58px!important;min-height:58px!important;padding:0 14px!important}
+  .pd-heart{width:68px!important;min-width:68px!important;max-width:68px!important;height:68px!important;min-height:68px!important;font-size:28px!important;margin-top:4px!important}
+}
 
 /* Premium product view — clean editorial layout inspired by the supplied reference */
 .pd{
@@ -401,14 +461,14 @@ dialog[open]{animation:dialogIn .22s ease}
 .pd-info .chip span{min-width:48px;height:36px;padding:0 12px;border:1px solid #ddd;display:grid;place-items:center;background:#fff;font:600 11px var(--sans);text-transform:uppercase}
 .pd-info .chip input:checked+span{background:#111;color:#fff;border-color:#111}
 .pd-info .swatch{width:15px!important;height:15px!important;border-radius:50%!important;margin-right:7px}
-.pd-btns{display:grid!important;grid-template-columns:1fr 58px;gap:10px!important;margin-top:24px!important}
+.pd-btns{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px!important;margin-top:24px!important}
 .pd-primary{height:54px!important;font-size:11px!important;letter-spacing:.13em!important}
 .pd-primary.is-added{background:#d8ff3e!important;color:#090909!important;border-color:#d8ff3e!important;transform:translateY(-1px)}
 .pd-primary.bag-pulse{animation:mfBagButtonPulse .42s ease}
 #bagOpen.bag-pulse{animation:mfCartPulse .52s ease}
 @keyframes mfBagButtonPulse{0%{transform:scale(1)}45%{transform:scale(.97)}100%{transform:scale(1)}}
 @keyframes mfCartPulse{0%{transform:scale(1)}35%{transform:scale(1.12)}70%{transform:scale(.96)}100%{transform:scale(1)}}
-.pd-heart{height:54px;border:1px solid #111;background:#fff;font-size:27px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
+.pd-heart{grid-column:1/-1;height:48px;border:1px solid #111;background:#fff;font-size:25px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
 .pd-benefits{
   display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
   margin-top:25px;padding-top:22px;border-top:1px solid #ddd
@@ -443,7 +503,7 @@ dialog[open]{animation:dialogIn .22s ease}
 }
 @media(max-width:520px){
   .pd-benefits{grid-template-columns:1fr;gap:10px}
-  .pd-btns{grid-template-columns:1fr 52px}
+  .pd-btns{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .pd-related-grid{grid-template-columns:repeat(2,1fr)}
   .pd-related-head h3{font-size:20px}
 }
@@ -508,7 +568,7 @@ dialog[open]{animation:dialogIn .22s ease}
 .co-total span{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#777}
 .co-total strong{font-family:var(--serif);font-size:35px;font-weight:400}
 .co-edit{background:none;border:0;padding:5px 0;text-decoration:underline;color:#777;font-size:12px}
-.co-fine{text-align:center;color:#777;font-size:11px;margin-top:14px}
+.co-fine{text-align:center;color:#777;font-size:11px;margin-top:14px}.co-status{margin-top:14px;padding:14px 16px;border:1px solid rgba(17,17,17,.12);border-radius:16px;background:#fff;font-size:12px;line-height:1.5;color:#555}.co-status strong{display:block;color:#111;font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:4px}.co-status .co-wa{display:inline-block;margin-top:10px;padding:10px 14px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:10px;letter-spacing:.12em;text-transform:uppercase}.co-status[data-type="error"]{display:block}
 
 /* Floating WhatsApp */
 .wa-float{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:30;width:52px;height:52px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;border:0;box-shadow:0 8px 25px rgba(0,0,0,.15)}
@@ -1335,7 +1395,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 @media(max-width:819px){
   .hdr .brand-logo{width:128px!important;max-height:42px!important;}
   .grid .card-body{min-height:82px;padding-bottom:16px!important;}
-  .grid .card h3{font-size:20px!important;min-height:2.08em;}
+  .grid .card h3{font-size:18px!important;line-height:1.08!important;min-height:2.16em;max-width:100%;overflow-wrap:break-word;}
 }
 
 /* Scroll/render: evita trabajo de layout de tarjetas que están lejos del viewport. */
@@ -1521,7 +1581,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 }
 .grid .card:hover .card-media img{transform:scale(1.035)}
 .grid .card-body{padding:12px 0 22px}
-.grid .card h3{font-size:12px;letter-spacing:-.01em;font-weight:500;margin:0 0 6px}
+.grid .card h3{font-size:16px;line-height:1.08;letter-spacing:-.01em;font-weight:600;margin:0 0 7px;min-height:2.16em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .grid .card .price{font-size:11px;color:var(--muted)}
 .grid .card .cat,.grid .card .meta{
   font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
@@ -1787,7 +1847,7 @@ body{background:#fff;color:#111}
   font-family:var(--serif)!important;font-size:clamp(32px,4vw,58px)!important;
   letter-spacing:-.035em!important;
 }
-.cat-tile:after{content:""!important;display:block!important;position:absolute!important;inset:auto 22px 12px!important;height:1px!important;background:#111!important;z-index:3!important}
+.cat-tile:after{content:""!important;display:block!important;position:absolute!important;inset:0!important;height:auto!important;background:linear-gradient(180deg,transparent 48%,rgba(0,0,0,.30) 100%)!important;z-index:1!important}
 @media(max-width:520px){.cats{grid-template-columns:1fr!important}.cat-tile .r45{aspect-ratio:4/5!important}}
 
 /* Product collection — lighter, more runway/editorial */
@@ -2065,6 +2125,147 @@ main,header,.top,.hdr,.hdr-in,.wrap,
   .cart-toast-actions{flex-wrap:wrap}
   .cart-toast-actions button{flex:1}
 }
+<style id="mf-approved-cart-visual">
+/* Carrito: versión aprobada del documento */
+#drawer.drawer{
+  width:min(390px,calc(100vw - 24px))!important;
+  max-width:390px!important;
+  min-height:min(780px,calc(100dvh - 24px))!important;
+  max-height:calc(100dvh - 24px)!important;
+  margin:auto!important;
+  padding:24px 24px 32px!important;
+  border:0!important;
+  border-radius:32px!important;
+  background:#dcdcda!important;
+  color:#111!important;
+  overflow:auto!important;
+}
+#drawer .dr-head{
+  display:block!important;
+  padding:0!important;
+  border:0!important;
+  margin:0 0 8px!important;
+}
+#drawer .dr-head h2{
+  font-family:"Bricolage Grotesque","Figtree",sans-serif!important;
+  font-size:33.6px!important;
+  font-weight:800!important;
+  letter-spacing:-.03em!important;
+  line-height:.98!important;
+  margin:0!important;
+}
+#drawer .dr-head .dlg-close{
+  position:absolute!important;
+  top:16px!important;
+  right:16px!important;
+  width:34px!important;height:34px!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.48)!important;
+  border:0!important;
+}
+#drawer .dr-head + .dr-list:before{
+  content:"Revisa tu selección antes de pagar.";
+  display:block;
+  margin:0 0 18px;
+  line-height:1.45;
+  color:#333;
+}
+#drawer .dr-list{padding:0!important;overflow:visible!important}
+#drawer .dr-item{
+  display:flex!important;
+  gap:16px!important;
+  align-items:center!important;
+  background:rgba(255,255,255,.6)!important;
+  border-radius:24px!important;
+  padding:13px!important;
+  margin:18px 0 0!important;
+  border:0!important;
+}
+#drawer .dr-thumb{
+  width:88px!important;height:88px!important;
+  min-width:88px!important;
+  border-radius:16px!important;
+  overflow:hidden!important;
+  background:#f3dede!important;
+}
+#drawer .dr-thumb img{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;
+}
+#drawer .dr-item-main{min-width:0!important}
+#drawer .dr-item-main strong{
+  display:block!important;
+  font-family:"Figtree",sans-serif!important;
+  font-size:16px!important;
+  font-weight:700!important;
+}
+#drawer .dr-item-main .meta{
+  margin:4px 0 0!important;
+  color:#555!important;
+  font-size:14px!important;
+}
+#drawer .dr-item > div:last-child{
+  display:none!important;
+}
+#drawer .qty{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  margin-top:8px!important;
+}
+#drawer .qty button{
+  width:30px!important;height:30px!important;
+  border-radius:50%!important;
+  border:2px solid #111!important;
+  background:transparent!important;
+  color:#111!important;
+  font-size:16px!important;
+  padding:0!important;
+}
+#drawer .qty .rm{display:none!important}
+#drawer .dr-foot{
+  margin-top:auto!important;
+  padding-top:0!important;
+}
+#drawer .dr-sub{display:none!important}
+#drawer .dr-delivery{display:none!important}
+#drawer .dr-foot:before{
+  content:"Total";
+  display:block;
+  margin-top:24px;
+  font-weight:600;
+}
+#drawer .dr-foot:after{
+  content:"";
+  display:block;
+}#drawer .dr-total-value{
+  display:flex!important;
+  justify-content:flex-end!important;
+  margin-top:4px!important;
+  font-family:"Bricolage Grotesque","Figtree",sans-serif!important;
+  font-size:22px!important;
+  font-weight:800!important;
+}
+
+#drawer .dr-foot .btn{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  border:2px solid #111!important;
+  background:#111!important;
+  color:#fff!important;
+  font:600 16px "Figtree",sans-serif!important;
+  padding:16px!important;
+  border-radius:999px!important;
+  margin-top:16px!important;
+}
+#drawer .dr-foot .btn:before{content:"Pagar";font-size:0}
+#drawer .dr-foot .btn{font-size:0!important}
+#drawer .dr-foot .btn:after{content:"Pagar";font-size:16px!important}
+@media(max-width:560px){
+  #drawer.drawer{width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px)!important}
+}
+</style>
 </style>
 <style id="mf-performance-fix">
 /* Favoritos: el botón del detalle debe ser capturado por el manejador global. */
@@ -2247,12 +2448,127 @@ function trackMetaInitiateCheckout(reference) {
   });
 }
 </script>
+<style id="mf-rails">
+/* Elige tu silueta: dos tarjetas lado a lado, también en celular */
+.cats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+.cat-tile{border-radius:28px!important;overflow:hidden!important}
+.cat-tile .r45{aspect-ratio:4/5!important}
+@media(max-width:520px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.cat-tile .r45{aspect-ratio:3/4!important}.cat-name{left:14px!important;bottom:14px!important;font-size:clamp(20px,6.4vw,30px)!important}}
+.cat-tile:after{inset:auto 14px 8px!important}
+
+.cat-name{left:16px!important;right:auto!important;bottom:18px!important;text-align:left!important;text-transform:none!important;letter-spacing:-.035em!important;font-family:var(--serif)!important;font-weight:400!important;font-size:clamp(24px,6.4vw,34px)!important;line-height:1!important;white-space:nowrap;background:transparent!important;color:#fff!important;padding:0!important;border:0!important;box-shadow:none!important;text-shadow:0 1px 14px rgba(0,0,0,.32)!important}
+.cat-tile:after{inset:auto 14px 10px!important}
+/* Filas en carrusel */
+.rails{display:grid;gap:56px;margin-top:8px}
+.rail{max-width:860px;margin:0 auto;width:100%;min-width:0}
+.rail-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 14px}
+.rail-title{font-size:clamp(28px,7vw,40px)!important;margin:0}
+.rail-count{margin:6px 0 0;font:500 14px var(--sans);color:#555}
+.rail-ctl{display:flex;gap:10px;flex:none}
+.rail-arrow{width:44px;height:44px;border-radius:50%;border:2px solid #111;background:transparent;color:#111;display:grid;place-items:center;padding:0;cursor:pointer;transition:background-color .2s,color .2s,opacity .2s}
+.rail-arrow svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.rail-arrow:hover:not(:disabled){background:#111;color:#fff}
+.rail-arrow:disabled{opacity:.3;cursor:default}
+.rail-chips{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px 6px;scrollbar-width:none}
+.rail-chips::-webkit-scrollbar{display:none}
+.rail-chip{flex:none;width:52px;height:52px;border-radius:50%;border:2px solid #111;background:var(--cbg,#e1e1df);padding:0;overflow:hidden;position:relative;cursor:pointer;opacity:.7;transition:opacity .2s,transform .2s}
+.rail-chip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.35);mix-blend-mode:multiply}
+.rail-chip:hover,.rail-chip[aria-pressed="true"]{opacity:1}
+.rail-chip[aria-pressed="true"]{transform:scale(1.12);background:#fff}
+.rail-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border-radius:28px;outline-offset:4px}
+.rail-track::-webkit-scrollbar{display:none}
+.rail-page{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:start;padding:3px}
+.rail-page .card{background:var(--cbg,#e1e1df)!important;border-radius:26px!important;overflow:hidden!important;padding:0!important;display:flex!important;flex-direction:column;contain:none!important;transition:outline-color .2s;outline:3px solid transparent;outline-offset:2px;cursor:pointer}
+.rail-page .card:hover{transform:none!important}
+.rail-page .card.is-hl{outline-color:#111}
+.rail-page .card-media{display:block!important;width:100%;aspect-ratio:1/1;max-height:none!important;border:0;padding:0;border-radius:0!important;background:transparent!important;position:relative}
+.rail-page .card-media .media{display:block;position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto!important;background:transparent!important;border-radius:0!important}
+.rail-page .card-media img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;mix-blend-mode:multiply;border-radius:0!important}
+.rail-page .card-media .photo-dots{display:none!important}
+.rail-page .card-body{padding:2px 14px 16px!important;display:grid!important;gap:3px!important;text-align:left!important}
+.rail-page .card .cat,.rail-page .card .card-link{display:none!important}
+.rail-page .card h3{font-size:15px!important;line-height:1.12!important;margin:2px 0 0!important;letter-spacing:-.02em!important;min-height:2.24em}
+.rail-page .card .price{font-size:15px!important}
+.rail-page .card .tag{font-size:11px}
+.rails .rail-page .card .card-body{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-flow:row!important;background:transparent!important;justify-items:start!important;align-content:start!important;padding:2px 14px 16px!important;min-width:0;flex:1}
+.rails .rail-page .card .card-body h3,.rails .rail-page .card .card-body .price{width:100%;text-align:left!important;background:transparent!important}
+.rails .rail-page .card{background:var(--cbg,#e1e1df)!important}
+.rail-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
+.rail-dot{width:10px;height:10px;border-radius:999px;border:2px solid #111;background:transparent;padding:0;cursor:pointer;transition:width .25s,background-color .25s;position:relative}
+.rail-dot::before{content:"";position:absolute;inset:-14px -6px}
+.rail-dot[aria-current="true"]{width:28px;background:#111}
+.rail button:focus-visible,.rail-track:focus-visible{outline:3px solid #111;outline-offset:3px}
+@media(min-width:900px){.rail-page{gap:18px}.rail-page .card h3{font-size:18px!important}.rail-page .card .price{font-size:17px!important}.rail-chip{width:60px;height:60px}}
+@media(prefers-reduced-motion:reduce){.rail-track{scroll-behavior:auto}.rail-chip,.rail-dot{transition:none}}
+
+/* Carrito y pago: misma ficha suave */
+.dr-item,.co-items li{background:rgba(255,255,255,.6);border-radius:20px;padding:12px 14px!important;margin:10px 0;border-bottom:0!important}
+.dr-grand,.co-total{font-family:var(--serif);font-weight:800}
+.dr-foot .btn,.co .btn{width:100%}
+</style>
+<style id="mf-checkout-refinement">
+/* Checkout MF — cuadro compacto, cálido y editorial */
+.co{
+  width:min(560px,calc(100% - 20px))!important;
+  height:auto!important;
+  max-height:min(90dvh,780px)!important;
+  margin:auto!important;
+  overflow:auto!important;
+  background:#f7f4ee!important;
+  border:1px solid rgba(17,17,17,.10)!important;
+  border-radius:28px!important;
+  box-shadow:0 24px 70px rgba(17,17,17,.18)!important;
+}
+.co-in{padding:12px 26px calc(28px + env(safe-area-inset-bottom))!important}
+.co-head{min-height:58px!important}
+.co-head h2{font-size:36px!important;font-weight:500!important}
+.co-intro{margin:2px 0 20px;color:#777;font-size:13px;line-height:1.45}
+.co-section-label{margin-top:8px;padding-top:18px;border-top:1px solid rgba(17,17,17,.10);font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase}
+.co-pay{margin-top:24px!important}
+.co-pay-q{font-size:25px!important}
+.pays{gap:10px!important}
+.pay{
+  min-height:104px!important;
+  padding:18px!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.68)!important;
+}
+.pay[aria-pressed="true"]{background:#111!important;border-color:#111!important;color:#fff!important}
+.pay-name{font-size:20px!important}
+.pay-desc{font-size:12px!important;line-height:1.4}
+.co-sum{margin-top:24px!important;padding:18px 0 0!important;border-top:1px solid rgba(17,17,17,.10)!important}
+.co-summary-title{font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px}
+.co-items li{display:flex;justify-content:space-between;gap:16px;padding:10px 0!important;margin:0!important;background:transparent!important;border-radius:0!important;border-bottom:1px solid rgba(17,17,17,.08)!important;font-size:13px}
+.co-items small{display:block;margin-top:3px}
+.co-total{padding:16px 0 4px!important;border-top:0!important}
+.co-total strong{font-size:32px!important}
+.co-fine{font-size:10px!important}.co-status{margin-top:12px!important;border-radius:16px!important;background:#fff!important}.co-status .co-wa{border-radius:999px!important;text-decoration:none!important}
+.pd-buy-now{
+  width:100%!important;
+  margin-top:9px!important;
+  border:1px solid #111!important;
+  background:#fff!important;
+  color:#111!important;
+}
+.pd-buy-now:hover{background:#111!important;color:#fff!important}
+.co::backdrop{background:rgba(17,17,17,.38)!important;backdrop-filter:blur(3px)}
+@media(max-width:560px){
+  .co{width:calc(100% - 20px)!important;max-height:90dvh!important;border-radius:24px!important}
+  .co-in{padding-left:18px!important;padding-right:18px!important}
+  .co-head h2{font-size:31px!important}
+  .pay{min-height:96px!important}
+}
+</style>
+
 </head>
 <body>
 <script>
 try {
   if (new URL(location.href).searchParams.get("producto")) {
     document.documentElement.classList.add("mf-product-route-pending");
+    /* Red de seguridad: la página nunca queda oculta más de 5 s. */
+    setTimeout(function () { document.documentElement.classList.remove("mf-product-route-pending"); }, 5000);
   }
 } catch (e) {}
 </script>
@@ -2272,7 +2588,7 @@ try {
 
     <nav class="nav" aria-label="Principal">
       <ul>
-        <li><a href="#coleccion">Colección</a></li>
+        <li><a href="#productos" data-filter="todos">Colección</a></li>
         <li><a href="#productos" data-filter="tacones">Tacones</a></li>
         <li><a href="#productos" data-filter="plataformas">Plataformas</a></li>
         <li><a href="#nosotros">Nosotros</a></li>
@@ -2302,7 +2618,7 @@ try {
     </button>
   </div>
   <nav aria-label="Menú móvil">
-    <a href="#coleccion" data-menu-close>Colección</a>
+    <a href="#productos" data-filter="todos" data-menu-close>Colección</a>
     <a href="#productos" data-filter="tacones" data-menu-close>Tacones</a>
     <a href="#productos" data-filter="plataformas" data-menu-close>Plataformas</a>
     <a href="#productos" data-filter="mules" data-menu-close>Mules</a>
@@ -2338,7 +2654,7 @@ try {
   </div>
 </section>
 <script>
-(function(){var S=[["negra","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto."],["blanca","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir."],["rosada","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida."],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene."]],
+(function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto."],["blanco","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir."],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida."],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene."]],
 sec=document.getElementById("inicio"),b=sec.querySelectorAll(".mfh-dots button"),i=0,t=null,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function go(n){i=(n+S.length)%S.length;var s=S[i];sec.style.backgroundColor=s[1];document.documentElement.style.setProperty("--mfbg",s[1]);
 document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
@@ -2373,7 +2689,6 @@ go(0);run()})();
   </div>
 </section>
 
-<span id="coleccion" class="sr" aria-hidden="true"></span>
 <section class="section" id="productos" aria-labelledby="prod-title">
   <div class="wrap">
     <div class="collection-head reveal">
@@ -2383,15 +2698,10 @@ go(0);run()})();
         <p class="sub">Una selección de siluetas femeninas pensadas para destacar.</p>
       </div>
     </div>
-    <div class="tabs" role="group" aria-label="Filtrar por categoría">
-      <button type="button" data-filter="todos" aria-pressed="true">Todos</button>
-      <button type="button" data-filter="tacones" aria-pressed="false">Tacones</button>
-      <button type="button" data-filter="plataformas" aria-pressed="false">Plataformas</button>
-      <button type="button" data-filter="mules" aria-pressed="false">Mules</button>
-      <button type="button" data-filter="cuñas" aria-pressed="false">Cuñas</button>
+    <div id="productGrid" class="rails">
+      <div class="rail" id="fila-plataformas" data-rail="plataformas" role="region" aria-roledescription="carrusel" aria-label="Plataformas"></div>
+      <div class="rail" id="fila-tacones" data-rail="tacones" role="region" aria-roledescription="carrusel" aria-label="Tacones"></div>
     </div>
-    <p class="count" id="resultCount" role="status" aria-live="polite"></p>
-    <div class="grid" id="productGrid"></div>
   </div>
 </section>
 
@@ -2403,7 +2713,7 @@ go(0);run()})();
   <div class="wrap about-grid">
     <div class="about-copy reveal">
       <p class="hero-kicker">La marca</p>
-      <h2 class="h-sec" id="about-title">Hecho para dejar huella.</h2>
+      <div class="about-video-wrap"><video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="MF, colección en movimiento"><source src="assets/mf-about-video.mp4" type="video/mp4"></video></div>
       <p class="lead">MF nace alrededor de una idea sencilla: el calzado no completa el look. Lo transforma.</p>
       <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
     </div>
@@ -2508,7 +2818,7 @@ go(0);run()})();
         <p style="margin-top:18px;max-width:34ch;color:#aaa">Tacones, plataformas y piezas de alto impacto para mujeres que dejan huella.</p>
       </div>
       <nav class="foot-links" aria-label="Enlaces del pie de página">
-        <a href="#coleccion">Colección</a>
+        <a href="#productos" data-filter="todos">Colección</a>
         <a href="#productos" data-filter="tacones">Tacones</a>
         <a href="#productos" data-filter="plataformas">Plataformas</a>
         <a href="#nosotros">Nosotros</a>
@@ -2547,6 +2857,7 @@ go(0);run()})();
       <h2 id="coTitle">Finaliza tu pedido</h2>
       <button class="dlg-close" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     </div>
+    <p class="co-intro">Revisa tus datos y elige cómo quieres pagar. Todo queda dentro de MF.</p>
     <form id="coForm" name="pedidos" method="POST" data-netlify="true" netlify-honeypot="empresa" novalidate>
       <input type="hidden" name="form-name" value="pedidos">
       <p class="sr"><label>No llenar: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
@@ -2555,6 +2866,7 @@ go(0);run()})();
       <input type="hidden" name="medio_pago">
       <input type="hidden" name="link_pago">
       <input type="hidden" name="reference">
+      <div class="co-section-label">Datos de entrega</div>
       <label class="field"><span>Nombre completo</span><input name="name" type="text" autocomplete="name" placeholder="Daniela Restrepo Ocampo" aria-describedby="err-name" required></label>
       <p class="err" id="err-name" role="alert"></p>
       <label class="field"><span>Dirección de entrega</span><input name="address" type="text" autocomplete="street-address" placeholder="Carrera 43A # 18-95, apto 702" aria-describedby="err-address" required></label>
@@ -2565,26 +2877,27 @@ go(0);run()})();
       <p class="err" id="err-phone" role="alert"></p>
 
       <div class="co-pay">
-        <h3 class="co-pay-q" id="payTitle">¿Cómo quieres continuar?</h3>
+        <h3 class="co-pay-q" id="payTitle">Elige cómo pagar</h3>
         <div class="pays" role="group" aria-labelledby="payTitle">
           <button class="pay" type="button" data-pay="Link de pago (Bold)" aria-pressed="false">
-            <span class="pay-name">Finalizar compra</span>
-            <span class="pay-desc">Pago seguro en línea</span>
+            <span class="pay-name">Pagar en línea</span>
+            <span class="pay-desc">Pago seguro con Bold</span>
           </button>
           <button class="pay" type="button" data-pay="Transferencia bancaria" aria-pressed="false">
-            <span class="pay-name">Finalizar pedido por WhatsApp</span>
-            <span class="pay-desc">Envíanos tu carrito y recibe confirmación por WhatsApp</span>
+            <span class="pay-name">Comprar por WhatsApp</span>
+            <span class="pay-desc">Te ayudamos a finalizar tu pedido</span>
           </button>
         </div>
       </div>
 
       <div class="co-sum">
+        <div class="co-summary-title">Resumen de tu pedido</div>
         <ul class="co-items" id="coItems"></ul>
         <div class="co-total"><span>Total del pedido</span><strong id="coTotal"></strong></div>
         <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
         <button class="co-edit" type="button" data-edit-bag>Editar bolsa</button>
       </div>
-      <button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
+      <div class="co-status" id="coStatus" role="status" aria-live="polite" hidden></div><button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
       <p class="co-fine">No se cobra nada en línea hasta que confirmes tu medio de pago.</p>
     </form>
   </div>
@@ -2652,7 +2965,6 @@ go(0);run()})();
     {id:"sandalia-de-plataforma-con-correa-al-tobillo",name:"Sandalia de plataforma con correa al tobillo",cat:"Punta abierta · Tacón ancho · Plataforma alta · Sintético mate",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-005.jpg","Sandalia de plataforma blanca con tira al tobillo"],["assets/foto-006.jpg","Sandalia negra de plataforma con correa al tobillo"],["assets/foto-007.jpg","Sandalia negra de plataforma, vista lateral"],["assets/foto-008.jpg","Sandalias de plataforma en blanco y negro"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Tacón ancho","Plataforma alta","Sintético mate","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma en material sintético mate, con punta abierta, tira ancha en el empeine y correa ajustable al tobillo con hebilla. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-alto-con-tiras-finas",name:"Sandalia de tacón alto con tiras finas",cat:"Punta cuadrada · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-009.jpg","Sandalias de tacón alto en negro y nude"],["assets/foto-010.jpg","Detalle de sandalia de tacón alto color nude"],["assets/foto-011.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-012.jpg","Sandalia plateada de tacón alto puesta"],["assets/foto-013.jpg","Sandalia negra de tacón alto puesta"]],colors:["Negro","Nude","Plateado"],facts:["Negro","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta cuadrada, tira delantera fina y correa ajustable al tobillo con hebilla. Disponible en negro, nude y plateado."},
     {id:"mule-de-tacon-alto-con-tira-ancha",name:"Mule de tacón alto con tira ancha",cat:"Punta abierta · Tacón tipo aguja",group:"tacones",price:190000,isNew:false,imgs:[["assets/foto-014.jpg","Mule de tacón alto en color rojo"],["assets/foto-015.jpg","Mule de tacón alto en color negro"],["assets/foto-016.jpg","Mule de tacón alto en color plateado"],["assets/foto-017.jpg","Mule de tacón alto en color blanco"],["assets/foto-018.jpg","Mule de tacón alto en color dorado"]],colors:["Rojo","Negro","Plateado","Blanco","Dorado"],facts:["Rojo","Negro","Plateado","Blanco","Dorado","Punta abierta","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Mule abierto de tacón alto, con tira amplia en el empeine y tacón tipo aguja. Disponible en rojo, negro, plateado, blanco y dorado."},
-    {id:"sandalia-de-plataforma-con-tira-ancha",name:"Sandalia de plataforma con tira ancha",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:false,imgs:[["assets/foto-019.jpg","Sandalias negras de plataforma con tira ancha"],["assets/foto-020.jpg","Sandalias negras de plataforma, vista lateral en uso"],["assets/foto-021.jpg","Sandalias negras de plataforma, vista frontal en uso"],["assets/foto-022.jpg","Sandalias blancas de plataforma con tira ancha"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia slide de punta abierta, con una tira ancha sobre el empeine y suela de plataforma alta. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-con-tira-transparente",name:"Sandalia de tacón con tira transparente",cat:"Tacón tipo aguja · Diseño transparente",group:"tacones",price:179900,isNew:false,imgs:[["assets/foto-023.jpg","Sandalia de tacón alto con tira transparente en color blanco"],["assets/foto-024.jpg","Par de sandalias de tacón con tira transparente en color nude"],["assets/foto-025.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-026.jpg","Sandalia de tacón con detalles plateados"],["assets/foto-027.jpg","Sandalia transparente de tacón con detalles plateados"],["assets/foto-028.jpg","Sandalia de tacón con tira transparente y borde negro"],["assets/foto-029.jpg","Sandalia de tacón alto con detalles fucsia"]],colors:["Blanco","Nude","Plateado","Negro","Fucsia"],facts:["Blanco","Nude","Plateado","Negro","Fucsia","Tacón tipo aguja","Diseño transparente","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con diseño estilizado y tira transparente. Disponible en blanco, nude, plateado, negro y fucsia."},
     {id:"sandalia-de-tacon-alto-con-tiras-cruzadas",name:"Sandalia de tacón alto con tiras cruzadas",cat:"Punta fina · Tiras cruzadas · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-030.jpg","Sandalia de tacón alto con tiras cruzadas en dorado"],["assets/foto-031.jpg","Sandalia negra de tacón alto con tiras cruzadas"],["assets/foto-032.jpg","Sandalia nude de tacón alto con tiras cruzadas"],["assets/foto-033.jpg","Detalle lateral de sandalia negra de tacón alto"],["assets/foto-034.jpg","Sandalia roja de tacón alto con tiras cruzadas"]],colors:["Dorado","Negro","Nude","Rojo"],facts:["Dorado","Negro","Nude","Rojo","Punta fina","Tiras cruzadas","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta fina, tiras cruzadas sobre el empeine y correa ajustable al tobillo. Disponible en dorado, negro, nude y rojo."},
     {id:"mule-de-tacon-alto-con-tira-transparente",name:"Mule de tacón alto con tira transparente",cat:"Tacón de aguja · Banda transparente",group:"tacones",price:219000,isNew:false,imgs:[["assets/foto-035.jpg","Mule de tacón alto con detalles dorados y tira transparente"],["assets/foto-036.jpg","Mule negro de tacón alto con banda transparente"],["assets/foto-037.jpg","Mule nude de tacón alto con banda transparente"],["assets/foto-038.jpg","Mule nude transparente de tacón alto puesto"],["assets/foto-039.jpg","Par de mules nude de tacón alto con banda transparente"]],colors:["Negro","Nude","Dorado"],facts:["Negro","Nude","Dorado","Tacón de aguja","Banda transparente","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con banda transparente y tacón transparente. Disponible en negro, nude y dorado."},
@@ -2895,34 +3207,97 @@ go(0);run()})();
     return PRODUCTS.filter(function (x) { return collectionOf(x) === key; }).length;
   }
 
-  var gridBuilt = false;
-  function productMatchesGroup(p, group) {
-    if (group === "todos") return true;
-    if (group === "tacones" || group === "plataformas") return p.group === group;
-    return collectionOf(p) === group;
+  var RAIL_SIZE = 6, RAIL_LABELS = { plataformas: "Plataformas", tacones: "Tacones" };
+  var CHEV_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  var CHEV_R = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+  var reducedMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function railList(group) {
+    return PRODUCTS.filter(function (p) { return p.group === group && p.adminActive !== false; });
+  }
+  function railHTML(group) {
+    var list = railList(group), label = RAIL_LABELS[group], pages = Math.max(1, Math.ceil(list.length / RAIL_SIZE)), i, k, out = "";
+    out += '<div class="rail-head"><div><h3 class="rail-title">' + label + '</h3><p class="rail-count" role="status" aria-live="polite"></p></div>' +
+      '<div class="rail-ctl"><button class="rail-arrow" type="button" data-rail-prev aria-label="' + label + ': página anterior">' + CHEV_L + '</button>' +
+      '<button class="rail-arrow" type="button" data-rail-next aria-label="' + label + ': página siguiente">' + CHEV_R + '</button></div></div>';
+    if (group === "tacones") {
+      out += '<div class="rail-chips" role="group" aria-label="Ir a un modelo de tacón">' + list.map(function (p, n) {
+        var im = p.imgs && p.imgs[0];
+        return '<button class="rail-chip" type="button" data-rail-go="' + n + '" aria-pressed="false" aria-label="Ir a ' + esc(p.name) + '" title="' + esc(p.name) + '" style="--cbg:' + cardBg(p, PRODUCTS.indexOf(p)) + '">' +
+          (im ? '<img src="' + esc(im[0]) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : "") + "</button>";
+      }).join("") + "</div>";
+    }
+    out += '<div class="rail-track" tabindex="0">';
+    for (i = 0; i < pages; i++) {
+      out += '<div class="rail-page" role="group" aria-label="Página ' + (i + 1) + ' de ' + pages + '">';
+      for (k = i * RAIL_SIZE; k < Math.min(list.length, (i + 1) * RAIL_SIZE); k++) out += cardHTML(list[k], PRODUCTS.indexOf(list[k]));
+      out += "</div>";
+    }
+    out += '</div><div class="rail-dots">';
+    for (i = 0; i < pages; i++) out += '<button class="rail-dot" type="button" data-rail-page="' + i + '" aria-label="' + label + ': ir a la página ' + (i + 1) + '"' + (i === 0 ? ' aria-current="true"' : "") + "></button>";
+    return out + "</div>";
+  }
+  function railPage(rail) {
+    var t = $(".rail-track", rail);
+    return t && t.clientWidth ? Math.round(t.scrollLeft / t.clientWidth) : 0;
+  }
+  function railUpdate(rail) {
+    var t = $(".rail-track", rail); if (!t) return;
+    var pages = $$(".rail-page", rail).length, cur = Math.min(pages - 1, Math.max(0, railPage(rail))), total = railList(rail.dataset.rail).length;
+    $(".rail-count", rail).textContent = total + (total === 1 ? " modelo" : " modelos") + " · página " + (cur + 1) + " de " + pages;
+    $("[data-rail-prev]", rail).disabled = cur <= 0;
+    $("[data-rail-next]", rail).disabled = cur >= pages - 1;
+    $$(".rail-dot", rail).forEach(function (d, n) { if (n === cur) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); });
+  }
+  function railGo(rail, n) {
+    var t = $(".rail-track", rail), pages = $$(".rail-page", rail).length; if (!t) return;
+    n = Math.max(0, Math.min(pages - 1, n));
+    t.scrollTo({ left: n * t.clientWidth, behavior: reducedMotion ? "auto" : "smooth" });
+    if (reducedMotion) railUpdate(rail);
+  }
+  function railBind(rail) {
+    var t = $(".rail-track", rail), tick = 0; if (!t) return;
+    t.addEventListener("scroll", function () {
+      if (tick) return;
+      tick = requestAnimationFrame(function () { tick = 0; railUpdate(rail); });
+    }, { passive: true });
+    t.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); railGo(rail, railPage(rail) + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); railGo(rail, railPage(rail) - 1); }
+    });
+    railUpdate(rail);
   }
   function renderGrid(force) {
-    var group = state.group, grid = $("#productGrid");
-    if (!grid) return;
-
-    /* El catálogo se construye una sola vez. Los filtros solo alternan
-       visibilidad; así las imágenes y nodos ya cargados se reutilizan. */
-    if (force || !gridBuilt) {
-      grid.innerHTML = PRODUCTS.map(cardHTML).join("");
-      gridBuilt = true;
-    }
-
-    var visible = 0;
-    Array.prototype.forEach.call(grid.children, function (card) {
-      var p = byId(card.dataset.product);
-      var show = !!p && p.adminActive !== false && productMatchesGroup(p, group);
-      card.hidden = !show;
-      if (show) visible++;
+    $$(".rail").forEach(function (rail) {
+      if (rail.dataset.built && !force) return;
+      var keep = rail.dataset.built ? railPage(rail) : 0;
+      rail.innerHTML = railHTML(rail.dataset.rail);
+      rail.dataset.built = "1";
+      railBind(rail);
+      if (keep) { var t = $(".rail-track", rail); t.scrollLeft = keep * t.clientWidth; railUpdate(rail); }
     });
-
-    $("#resultCount").textContent = visible + (visible === 1 ? " modelo" : " modelos") + " · " + collectionLabel(group);
-    Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-filter]"), function (btn) { btn.setAttribute("aria-pressed", btn.dataset.filter === group ? "true" : "false"); });
   }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-rail-prev],[data-rail-next],[data-rail-page],[data-rail-go]");
+    if (!b) return;
+    var rail = b.closest(".rail"); if (!rail) return;
+    if (b.hasAttribute("data-rail-prev")) railGo(rail, railPage(rail) - 1);
+    else if (b.hasAttribute("data-rail-next")) railGo(rail, railPage(rail) + 1);
+    else if (b.hasAttribute("data-rail-page")) railGo(rail, +b.dataset.railPage);
+    else {
+      var n = +b.dataset.railGo, card = $$(".rail-page .card", rail)[n];
+      $$(".rail-chip", rail).forEach(function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+      railGo(rail, Math.floor(n / RAIL_SIZE));
+      $$(".rail-page .card.is-hl", rail).forEach(function (c) { c.classList.remove("is-hl"); });
+      if (card) {
+        setTimeout(function () { card.classList.add("is-hl"); }, reducedMotion ? 0 : 350);
+        setTimeout(function () { card.classList.remove("is-hl"); }, 2400);
+      }
+      var strip = b.parentElement;
+      if (strip && strip.scrollTo) strip.scrollTo({ left: b.offsetLeft - strip.clientWidth / 2 + b.offsetWidth / 2, behavior: reducedMotion ? "auto" : "smooth" });
+    }
+  });
+  window.addEventListener("resize", function () { $$(".rail").forEach(function (r) { var t = $(".rail-track", r); if (t) { t.scrollLeft = railPage(r) * t.clientWidth; railUpdate(r); } }); });
   function renderFeatured() {
     var grid = $("#featureGrid");
     if (!grid) return;
@@ -3011,11 +3386,8 @@ go(0);run()})();
     var shipping = shippingFeeForPackages(n), grandTotal = subtotal + shipping;
     var msg = "Hola, MF. Quiero comprar:\n" + lines.join("\n") + "\nSubtotal productos: " + fmt(subtotal) +
       "\nValor envío: " + fmt(shipping) + "\nTotal: " + fmt(grandTotal);
-    foot.innerHTML = '<div class="dr-sub"><span>Subtotal productos</span><strong>' + fmt(subtotal) + "</strong></div>" +
-      '<div class="dr-sub"><span>Valor envío</span><strong>' + fmt(shipping) + "</strong></div>" +
-      '<div class="dr-sub dr-grand"><span>Total</span><strong>' + fmt(grandTotal) + "</strong></div>" +
-      '<p class="dr-delivery">Entrega estimada: 3–5 días hábiles desde el despacho.</p>' +
-      '<button class="btn btn-solid btn-block" type="button" data-checkout>Ir a finalizar mi pedido</button>';
+    foot.innerHTML = '<div class="dr-total-value"><span></span><strong>' + fmt(grandTotal) + "</strong></div>" +
+      '<button class="btn btn-solid btn-block" type="button" data-checkout>Pagar</button>';
   }
 
   /* ---------- Diálogos ---------- */
@@ -3215,7 +3587,7 @@ go(0);run()})();
         '<p class="hint" role="status"></p>' +
         (pending ? "" : '<div class="pd-qty"><span class="pd-qty-label">Cantidad</span><div class="qty"><button type="button" data-qty-step="-1" aria-label="Quitar una unidad">−</button><span data-qty-val aria-live="polite">1</span><button type="button" data-qty-step="1" aria-label="Agregar una unidad">+</button></div></div>') +
         '<div class="pd-btns"><button class="btn btn-solid pd-primary" type="button" data-buy>' + (pending ? "Consultar por WhatsApp" : "Añadir al carrito") + '</button>' +
-        (pending ? "" : '<button class="pd-heart' + (isFavorite(p.id) ? " is-saved" : "") + '" type="button" aria-label="' + (isFavorite(p.id) ? "Quitar de favoritos" : "Guardar producto") + '" aria-pressed="' + (isFavorite(p.id) ? "true" : "false") + '">' + (isFavorite(p.id) ? "♥" : "♡") + '</button>') + '</div>' +
+        (pending ? "" : '<button class="btn pd-buy-now" type="button" data-buy-now>Proceder a la compra →</button><button class="pd-heart' + (isFavorite(p.id) ? " is-saved" : "") + '" type="button" aria-label="' + (isFavorite(p.id) ? "Quitar de favoritos" : "Guardar producto") + '" aria-pressed="' + (isFavorite(p.id) ? "true" : "false") + '">' + (isFavorite(p.id) ? "♥" : "♡") + '</button>') + '</div>' +
         '<div class="pd-benefits"><div><b>▱</b><span>Envíos seguros<br>a todo Colombia</span></div><div><b>✓</b><span>Pagos 100%<br>seguros</span></div><div><b>□</b><span>No cambios<br>ni devoluciones</span></div></div>' +
       '</div></div>' +
       '<section class="pd-related"><div class="pd-related-head"><h3>También te puede gustar</h3><span></span><div class="pd-arrows"><button type="button" aria-label="Anterior">←</button><button type="button" aria-label="Siguiente">→</button></div></div>' +
@@ -3236,6 +3608,61 @@ go(0);run()})();
   }
   /* ---------- Finalizar pedido ---------- */
   var pay = "";
+  var checkoutRouteActive = false;
+  var checkoutDirectRoute = false;
+  function enterCheckoutRoute() {
+    var path = window.location.pathname.replace(/\/+$/, "");
+    if (path === "/checkout" || path === "/bold/checkout") {
+      checkoutRouteActive = true;
+      checkoutDirectRoute = false;
+      return;
+    }
+    try {
+      history.pushState({ mfCheckoutRoute:true }, "", "/checkout");
+      checkoutRouteActive = true;
+    } catch (e) {}
+  }
+
+  function enterBoldCheckoutRoute(reference) {
+    var ref = encodeURIComponent(String(reference || ""));
+    try {
+      history.replaceState(
+        { mfBoldCheckoutRoute:true, reference:String(reference || "") },
+        "",
+        "/bold/checkout" + (ref ? "?ref=" + ref : "")
+      );
+    } catch (e) {}
+  }
+
+  function restoreOrderCheckoutRoute() {
+    try {
+      history.replaceState(
+        { mfCheckoutRoute:true },
+        "",
+        "/checkout"
+      );
+    } catch (e) {}
+  }
+  function leaveCheckoutRoute() {
+    if (!checkoutRouteActive) return false;
+    if (checkoutDirectRoute) {
+      checkoutRouteActive = false;
+      checkoutDirectRoute = false;
+      try {
+        history.replaceState(catalogHistoryState(), "", "/#productos");
+      } catch (e) {}
+      var directCo = $("#co");
+      if (directCo && directCo.open) closeDlg(directCo);
+      return true;
+    }
+    if (history.state && history.state.mfCheckoutRoute) {
+      checkoutRouteActive = false;
+      history.back();
+      return true;
+    }
+    checkoutRouteActive = false;
+    return false;
+  }
   // Texto del botón final: cambia según el método de pedido elegido, para que
   // el cliente siempre sepa qué va a pasar al pulsarlo (nunca un "Enviar" ambiguo).
   var PAY_LABELS = {
@@ -3248,9 +3675,14 @@ go(0);run()})();
     if (PAY_LABELS[pay]) { sub.disabled = false; sub.textContent = PAY_LABELS[pay]; }
     else { sub.disabled = true; sub.textContent = "Elige cómo quieres pedir"; }
   }
-  function openCheckout() {
-    if (!bag.length) return;
+  function openCheckout(fromRoute) {
+    if (!bag.length) {
+      renderBag();
+      openDlg($("#drawer"));
+      return;
+    }
     closeAllDlg();
+    if (!fromRoute) enterCheckoutRoute();
     var subtotal = 0, packages = bag.reduce(function (sum, i) { return sum + i.qty; }, 0);
     var itemsHTML = bag.map(function (i) {
       var p = byId(i.id), sub = p.price * i.qty; subtotal += sub;
@@ -3260,9 +3692,59 @@ go(0);run()})();
     $("#coItems").innerHTML = itemsHTML +
       '<li class="co-shipping"><span>Valor envío</span><span>' + fmt(shipping) + '</span></li>';
     $("#coTotal").textContent = fmt(subtotal + shipping);
+    var status = $("#coStatus"); if (status) { status.hidden = true; status.removeAttribute("data-type"); status.innerHTML = ""; }
     syncPayUI();
     openDlg($("#co"));
     $("#co").scrollTop = 0;
+  }
+
+  var boldLibraryPromise = null;
+  function ensureBoldCheckoutLibrary() {
+    if (typeof window.BoldCheckout === "function") return Promise.resolve();
+    if (boldLibraryPromise) return boldLibraryPromise;
+    boldLibraryPromise = new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src*="checkout.bold.co/library/boldPaymentButton.js"]');
+      if (!existing) {
+        existing = document.createElement("script");
+        existing.src = "https://checkout.bold.co/library/boldPaymentButton.js";
+        existing.async = true;
+        document.head.appendChild(existing);
+      }
+      var started = Date.now();
+      var timer = setInterval(function () {
+        if (typeof window.BoldCheckout === "function") {
+          clearInterval(timer);
+          resolve();
+        } else if (Date.now() - started > 10000) {
+          clearInterval(timer);
+          reject(new Error("No pudimos cargar el pago seguro de Bold."));
+        }
+      }, 50);
+      existing.addEventListener("error", function () {
+        clearInterval(timer);
+        reject(new Error("No pudimos cargar el pago seguro de Bold."));
+      }, { once:true });
+    }).catch(function (err) {
+      boldLibraryPromise = null;
+      throw err;
+    });
+    return boldLibraryPromise;
+  }
+
+  async function openEmbeddedBold(checkoutData) {
+    var cfg = checkoutData && checkoutData.embedded;
+    if (!cfg) {
+      throw new Error("No pudimos preparar el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
+    }
+    try {
+      await ensureBoldCheckoutLibrary();
+      var checkout = new window.BoldCheckout(cfg);
+      window.__mfBoldCheckout = checkout;
+      checkout.open();
+    } catch (err) {
+      console.error("Bold Embedded Checkout:", err);
+      throw new Error(err && err.message ? err.message : "No pudimos abrir el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
+    }
   }
   function encodeForm(data) {
     return Object.keys(data).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]); }).join("&");
@@ -3384,7 +3866,7 @@ go(0);run()})();
           body: JSON.stringify({ reference: orderRef })
         });
         var checkoutData = await checkoutRes.json().catch(function () { return {}; });
-        if (!checkoutRes.ok || !checkoutData.url) {
+        if (!checkoutRes.ok || !checkoutData.embedded) {
           throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
 
@@ -3397,8 +3879,18 @@ go(0);run()})();
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
+        // Mantiene la barra de direcciones bajo el dominio de MF mientras
+        // Bold abre su Embedded Checkout oficial dentro de un modal.
+        enterBoldCheckoutRoute(orderRef);
+        try {
+          await openEmbeddedBold(checkoutData);
+        } catch (boldError) {
+          restoreOrderCheckoutRoute();
+          throw boldError;
+        }
         closeDlg($("#co"));
-        window.location.href = checkoutData.url;        return;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
+        return;
       }
 
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
@@ -3410,7 +3902,19 @@ go(0);run()})();
       openWA(msg);
     } catch (error) {
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
-      alert(error && error.message ? error.message : "No pudimos guardar tu pedido. Intenta de nuevo.");
+      var status = $("#coStatus");
+      if (status) {
+        var message = error && error.message ? error.message : "No pudimos completar el pedido en este momento.";
+        var waText = "Hola, MF. Quiero finalizar mi pedido por WhatsApp:\n" + pedidoTxt +
+          "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address +
+          "\nCiudad: " + v.city + "\nTeléfono: " + v.phone;
+        status.hidden = false;
+        status.dataset.type = "error";
+        status.innerHTML = "<strong>Podemos ayudarte a terminarlo.</strong><span>" +
+          esc(message.replace("Puedes finalizar tu pedido por WhatsApp.", "")) +
+          "</span><br><a class=\"co-wa\" href=\"" + waURL(waText) + "\" target=\"_blank\" rel=\"noopener\">Finalizar por WhatsApp →</a>";
+        status.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
     }
   });
   $("#coForm").addEventListener("input", function (e) { if (e.target.getAttribute("aria-invalid") === "true") { e.target.setAttribute("aria-invalid", "false"); $("#err-" + e.target.name).textContent = ""; } });
@@ -3528,21 +4032,16 @@ go(0);run()})();
 
   /* ---------- Eventos globales ---------- */
   function setFilter(g) {
-    if (state.group === g && location.hash === "#productos") return;
-    state.group = g;
-    renderGrid();
-
-    /* La categoría seleccionada es una navegación real del catálogo.
-       Se registra una sola entrada y el producto se apila encima de ella. */
+    var rowId = g === "plataformas" || g === "cuñas" ? "fila-plataformas" : (g === "tacones" || g === "mules" || /^tacones-/.test(g) ? "fila-tacones" : "productos");
+    state.group = (g === "plataformas" || g === "tacones") ? g : "todos";
     try {
       var u = new URL(window.location.href);
       u.searchParams.delete(PRODUCT_PARAM);
       u.hash = "productos";
       history.pushState(catalogHistoryState({ mfCatalogUrl: u.pathname + u.search + u.hash }), "", u.pathname + u.search + u.hash);
     } catch (e) {}
-
-    var target = $("#productos");
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    var target = document.getElementById(rowId) || $("#productos");
+    if (target) target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
   var galleryTouch = { el:null, startX:0, startY:0, moved:false };
@@ -3601,7 +4100,7 @@ go(0);run()})();
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-buy-now],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) {
@@ -3658,6 +4157,17 @@ go(0);run()})();
         return;
       }
 
+      if (el.matches("[data-buy-now]")) {
+        var scopeNow = el.closest("[data-product]"), pNow = byId(scopeNow.dataset.product);
+        if (pNow.price == null) { openWA(msgConsult(pNow, checkedSize(scopeNow), checkedColor(scopeNow))); return; }
+        var vNow = pickVariant(scopeNow, pNow); if (!vNow) return;
+        var qtyNow = qtyOf(scopeNow);
+        addToBag(pNow.id, vNow.size, vNow.color, true, qtyNow);
+        trackMetaCommerceEvent("AddToCart", pNow, { quantity: qtyNow, content_name: pNow.name });
+        openCheckout();
+        return;
+      }
+
       if (el.matches("[data-buy]")) {
         var scope = el.closest("[data-product]"), p = byId(scope.dataset.product);
         if (p.price == null) { openWA(msgConsult(p, checkedSize(scope), checkedColor(scope))); return; }
@@ -3708,6 +4218,7 @@ go(0);run()})();
       if (el.matches("[data-close]")) {
         var dlg = el.closest("dialog");
         if (dlg && dlg.id === "pd" && leaveProductRoute()) return;
+        if (dlg && dlg.id === "co" && leaveCheckoutRoute()) return;
         if (dlg) closeDlg(dlg);
         if (el.dataset.goto) { var t = $(el.dataset.goto); if (t) t.scrollIntoView(); }
         return;
@@ -3716,6 +4227,7 @@ go(0);run()})();
     // clic en el fondo oscuro cierra el diálogo; el detalle también actualiza la ruta.
     if (e.target.tagName === "DIALOG") {
       if (e.target.id === "pd" && leaveProductRoute()) return;
+      if (e.target.id === "co" && leaveCheckoutRoute()) return;
       closeDlg(e.target);
     }
   });
@@ -3732,6 +4244,7 @@ go(0);run()})();
   /* Esc cierra el detalle regresando a la entrada anterior del catálogo. */
   document.addEventListener("cancel", function (e) {
     if (e.target && e.target.id === "pd" && leaveProductRoute()) e.preventDefault();
+    if (e.target && e.target.id === "co" && leaveCheckoutRoute()) e.preventDefault();
   });
 
   /* ---------- Enlaces de contacto ---------- */
@@ -3833,6 +4346,21 @@ go(0);run()})();
   renderBag();
   initLinks();
   initReveal();
+  var initialCheckoutPath = window.location.pathname.replace(/\/+$/, "");
+  if (initialCheckoutPath === "/checkout" || initialCheckoutPath === "/bold/checkout") {
+    checkoutDirectRoute = true;
+    setTimeout(function () {
+      if (bag.length) {
+        // /bold/checkout es una ruta interna de pago; la orden se prepara
+        // desde /checkout y luego Bold permanece visualmente debajo de este dominio.
+        if (initialCheckoutPath === "/bold/checkout") restoreOrderCheckoutRoute();
+        openCheckout(true);
+      } else {
+        history.replaceState(catalogHistoryState(), "", "/#productos");
+        window.scrollTo({top:0,left:0,behavior:"auto"});
+      }
+    }, 0);
+  }
 
   /* Si la entrada fue directa, convertimos la entrada actual en catálogo
      y añadimos encima el producto para que Atrás vuelva al catálogo. */
@@ -3849,7 +4377,12 @@ go(0);run()})();
     document.documentElement.classList.remove("mf-product-route-pending");
   }
 
-  loadStoreConfig().finally(initProductRoute);
+  /* Si store-config tarda, la ficha de un enlace directo no espera más de 2,5 s;
+     la configuración sigue aplicándose cuando llegue. */
+  var routeStarted = false;
+  function startRouteOnce() { if (routeStarted) return; routeStarted = true; initProductRoute(); }
+  loadStoreConfig().finally(startRouteOnce);
+  setTimeout(startRouteOnce, 2500);
 })();
 </script>
 

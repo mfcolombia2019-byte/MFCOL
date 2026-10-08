@@ -12,21 +12,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--ivory:#F3EFE7;--paper:#fff;--ink:#1A1613;--muted:#726A5E;--line:#DDD5C4;--champagne:#B08F63;--accent:#6E2A32;--accent-deep:#551F26;--serif:"Fraunces","Cormorant Garamond",Georgia,serif;--sans:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif}
+  :root{--bg:#dfe8d3;--paper:rgba(255,255,255,.6);--ink:#111;--muted:#555;--serif:"Bricolage Grotesque","Figtree",system-ui,sans-serif;--sans:"Figtree",system-ui,sans-serif}
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--ink);font-family:var(--sans);padding:32px 20px calc(32px + env(safe-area-inset-bottom));text-align:center;line-height:1.55}
-  .card{max-width:440px;width:100%}
-  .mark{width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--champagne);display:grid;place-items:center;margin:0 auto 24px;font-family:var(--serif);font-size:20px}
-  h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,7vw,38px);line-height:1.1;margin:0 0 14px}
-  p{color:var(--muted);font-size:15.5px;margin:0 0 8px}
-  .ref{display:inline-block;margin:14px 0 26px;padding:10px 18px;border:1px solid var(--line);background:var(--paper);font-size:13.5px;color:var(--ink)}
-  .ref b{font-weight:600;letter-spacing:.02em}
-  .summary{background:var(--paper);border:1px solid var(--line);padding:18px;text-align:left;font-size:13.5px;color:var(--ink);white-space:pre-line;margin:0 0 28px}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;width:100%;padding:0 24px;text-decoration:none;font-size:14px;font-weight:500;border:1px solid var(--line);color:var(--ink);transition:border-color .2s,background .2s,color .2s}
-  .btn:hover{border-color:var(--ink)}
-  .wa-note{color:var(--muted);font-size:13px;margin:10px 0 0}
-  .muted-link{display:inline-block;margin-top:22px;color:var(--muted);font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+  body{margin:0;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#1b1b1b;color:var(--ink);font-family:var(--sans);padding:24px 12px calc(24px + env(safe-area-inset-bottom));line-height:1.45}
+  .card{width:min(390px,calc(100vw - 24px));min-height:min(780px,calc(100dvh - 24px));padding:24px 24px 32px;border-radius:32px;background:var(--bg);display:flex;flex-direction:column;text-align:center}
+  .mark{width:52px;height:52px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;margin:24px auto 24px;font-size:24px;font-weight:700}
+  h1{font-family:var(--serif);font-weight:800;font-size:33.6px;letter-spacing:-.03em;line-height:.98;margin:0 0 14px}
+  p{color:#333;font-size:15px;margin:0 0 8px}
+  .ref{display:block;margin:24px 0 0;padding:16px;border-radius:24px;border:0;background:var(--paper);font-size:13.5px;color:var(--ink)}
+  .ref b{font-weight:700;letter-spacing:.02em}
+  .summary{display:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;width:100%;padding:0 24px;text-decoration:none;font-size:16px;font-weight:600;border:2px solid #111;border-radius:999px;background:#111;color:#fff;margin-top:auto}
+  .btn:hover{background:transparent;color:#111}
+  .wa-note{display:none}
+  .muted-link{display:inline-block;margin-top:16px;color:#555;font-size:13.5px;text-decoration:none}
   .noref{display:none}
+  .card:after{content:"MF";font-family:var(--serif);font-size:14px;color:#555;margin-top:18px}
 </style>
 </head>
 <body>
@@ -125,14 +126,14 @@
     }
 
     if (data.paymentStatus === "aprobado") {
-      title.textContent = "Pago confirmado";
-      intro.textContent = "El servidor confirmó que tu pago fue aprobado.";
+      title.textContent = "Pedido recibido";
+      intro.textContent = "Gracias por elegir MF. Hemos recibido tu pedido y te escribiremos por WhatsApp con los detalles del envío.";
     } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
       title.textContent = "Pago no confirmado";
-      intro.textContent = "El servidor no tiene un pago aprobado para este pedido.";
+      intro.textContent = "No pudimos confirmar el pago de este pedido.";
     } else {
-      title.textContent = "Pago pendiente de confirmación";
-      intro.textContent = "El servidor todavía no confirma un pago aprobado. Puedes esperar o consultar con nosotros si necesitas ayuda.";
+      title.textContent = "Pedido recibido";
+      intro.textContent = "Tu pedido fue recibido y estamos verificando el estado del pago.";
     }
 
     resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;

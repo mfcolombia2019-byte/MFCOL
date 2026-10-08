@@ -1,9 +1,10 @@
 // Creates a Bold payment link only for a server-persisted, pending order.
 // The browser cannot choose amount, description, reference, or callback URL.
 
+import crypto from "node:crypto";
 import { store, getJson, json } from "./_admin.mjs";
 
-const safeRef = /^[A-Za-z0-9_-]{1,80}$/;
+const safeRef = /^[A-Za-z0-9_-]{1,60}$/;
 
 function env(name) {
   return typeof Netlify !== "undefined" && Netlify.env
@@ -16,7 +17,7 @@ function canonicalOrigin() {
 
   const candidates = isProduction
     ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
-    : [env("DEPLOY_PRIME_URL"), env("URL")];
+    : [env("SITE_CANONICAL_ORIGIN"), env("DEPLOY_PRIME_URL"), env("URL")];
 
   for (const candidate of candidates) {
     const raw = String(candidate || "").trim().replace(/\/+$/, "");
@@ -78,8 +79,13 @@ export default async (req) => {
     return json({ error: "El importe del pedido no es válido" }, 409);
   }
 
-  if (order.boldPaymentLink && order.paymentLink) {
-    return json({ ok: true, url: order.paymentLink, payment_link: order.boldPaymentLink, reference, total });
+  // Embedded Checkout con monto definido siempre necesita la llave secreta.
+  // Validamos esto antes de reutilizar un Link existente para que nunca
+  // devolvamos una respuesta sin la configuración necesaria para abrir Bold.
+  const boldSecretKey = String(env("BOLD_SECRET_KEY") || "").trim();
+  if (!boldSecretKey) {
+    console.error("Bold Embedded Checkout: falta BOLD_SECRET_KEY en el entorno.");
+    return json({ error: "El pago en línea aún no está habilitado para esta tienda." }, 503);
   }
 
   const origin = canonicalOrigin();
@@ -91,10 +97,47 @@ export default async (req) => {
   if (!boldApiKey) {
     return json({ error: "Falta configurar BOLD_API_KEY en Netlify" }, 500);
   }
-
   const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
   const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
   const callbackUrl = origin + "/gracias.html?ref=" + encodeURIComponent(reference);
+
+  const buildEmbedded = (description, totalValue) => ({
+    orderId: reference,
+    currency: "COP",
+    amount: String(totalValue),
+    apiKey: boldApiKey,
+    integritySignature: crypto
+      .createHash("sha256")
+      .update(reference + String(totalValue) + "COP" + boldSecretKey)
+      .digest("hex"),
+    description,
+    originUrl: origin + "/checkout?bold=cancel&ref=" + encodeURIComponent(reference),
+    redirectionUrl: callbackUrl,
+    renderMode: "embedded",
+    customerData: JSON.stringify({
+      fullName: String(order.name || ""),
+      phone: String(order.phone || ""),
+      dialCode: "+57"
+    }),
+    billingAddress: JSON.stringify({
+      address: String(order.address || ""),
+      city: String(order.city || ""),
+      country: "CO"
+    })
+  });
+
+  if (order.boldPaymentLink && order.paymentLink) {
+    const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
+    const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
+    return json({
+      ok: true,
+      url: order.paymentLink,
+      payment_link: order.boldPaymentLink,
+      reference,
+      total,
+      embedded: buildEmbedded(description.length >= 2 ? description : "Pedido MF Colombia", total)
+    });
+  }
 
   const payload = {
     amount_type: "CLOSE",
@@ -131,11 +174,14 @@ export default async (req) => {
     createdAt: new Date().toISOString()
   });
 
+  const embedded = buildEmbedded(description, total);
+
   return json({
     ok: true,
     url: data.payload.url,
     payment_link: paymentLink,
     reference,
-    total: saved.total
+    total: saved.total,
+    embedded
   });
 };
