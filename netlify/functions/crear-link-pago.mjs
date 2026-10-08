@@ -5,38 +5,43 @@ import { store, getJson, json } from "./_admin.mjs";
 
 const safeRef = /^[A-Za-z0-9_-]{1,80}$/;
 
+function env(name) {
+  return typeof Netlify !== "undefined" && Netlify.env
+    ? Netlify.env.get(name)
+    : process.env[name];
+}
+
 function canonicalOrigin() {
-const isProduction = String(process.env.CONTEXT || "").toLowerCase() === "production";
+  const isProduction = String(env("CONTEXT") || "").toLowerCase() === "production";
 
-const candidates = isProduction
-? [process.env.SITE_CANONICAL_ORIGIN, process.env.URL]
-: [process.env.DEPLOY_PRIME_URL, process.env.URL];
+  const candidates = isProduction
+    ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
+    : [env("DEPLOY_PRIME_URL"), env("URL")];
 
-for (const candidate of candidates) {
-const raw = String(candidate || "").trim().replace(/\/+$/, "");
-if (!raw) continue;
-  
-try {
-  const u = new URL(raw);
-  if (u.protocol !== "https:") continue;
-  return u.origin;
-} catch {
-  continue;
+  for (const candidate of candidates) {
+    const raw = String(candidate || "").trim().replace(/\/+$/, "");
+    if (!raw) continue;
+
+    try {
+      const u = new URL(raw);
+      if (u.protocol !== "https:") continue;
+      return u.origin;
+    } catch {
+      continue;
+    }
+  }
+
+  return "";
 }
-
-}
-
-return "";
-}
-
 
 async function associateBoldLink(reference, paymentLink) {
   const key = "orders/" + reference;
   const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) throw new Error("Pedido no encontrado");
- if (current.data.boldPaymentLink && current.data.paymentLink) {
-return current.data;
-}
+  if (current.data.boldPaymentLink && current.data.paymentLink) {
+    return current.data;
+  }
+
   const next = {
     ...current.data,
     paymentLink: "https://checkout.bold.co/" + paymentLink,
@@ -82,7 +87,8 @@ export default async (req) => {
     return json({ error: "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos." }, 503);
   }
 
-  if (!process.env.BOLD_API_KEY) {
+  const boldApiKey = String(env("BOLD_API_KEY") || "").trim();
+  if (!boldApiKey) {
     return json({ error: "Falta configurar BOLD_API_KEY en Netlify" }, 500);
   }
 
@@ -103,7 +109,7 @@ export default async (req) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "x-api-key " + process.env.BOLD_API_KEY
+      "Authorization": "x-api-key " + boldApiKey
     },
     body: JSON.stringify(payload)
   });
