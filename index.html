@@ -317,6 +317,64 @@ dialog[open]{animation:dialogIn .22s ease}
 @media(min-width:760px){.pd-grid{grid-template-columns:1.15fr .85fr}.pd-gal>.media{aspect-ratio:4/5;min-height:0}.pd-info{padding:55px 48px;justify-content:center}.thumbs{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:759px){.pd{height:100dvh}.pd-gal>.media{aspect-ratio:1/1.15}.thumb{height:68px}}
 
+/* Product actions — refined mobile treatment */
+.pd-btns{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:12px!important;
+  margin-top:24px!important;
+}
+.pd-btns .btn{
+  width:100%!important;
+  min-width:0!important;
+  min-height:58px!important;
+  height:58px!important;
+  margin:0!important;
+  padding:0 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.12!important;
+  border-radius:999px!important;
+  box-sizing:border-box!important;
+}
+.pd-btns .pd-primary{
+  font-size:13px!important;
+  letter-spacing:.02em!important;
+}
+.pd-btns .pd-buy-now{
+  font-size:13px!important;
+  letter-spacing:.01em!important;
+}
+.pd-heart{
+  grid-column:1 / -1!important;
+  justify-self:center!important;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:72px!important;
+  min-height:72px!important;
+  padding:0!important;
+  margin:2px auto 0!important;
+  border-radius:50%!important;
+  border:2px solid #111!important;
+  background:transparent!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:30px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+.pd-heart.is-saved{background:#111!important;color:#fff!important}
+@media(max-width:560px){
+  .pd-btns{gap:10px!important;margin-top:22px!important}
+  .pd-btns .btn{height:58px!important;min-height:58px!important;padding:0 14px!important}
+  .pd-heart{width:68px!important;min-width:68px!important;max-width:68px!important;height:68px!important;min-height:68px!important;font-size:28px!important;margin-top:4px!important}
+}
+
 /* Premium product view — clean editorial layout inspired by the supplied reference */
 .pd{
   width:100%!important;
