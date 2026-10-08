@@ -401,14 +401,14 @@ dialog[open]{animation:dialogIn .22s ease}
 .pd-info .chip span{min-width:48px;height:36px;padding:0 12px;border:1px solid #ddd;display:grid;place-items:center;background:#fff;font:600 11px var(--sans);text-transform:uppercase}
 .pd-info .chip input:checked+span{background:#111;color:#fff;border-color:#111}
 .pd-info .swatch{width:15px!important;height:15px!important;border-radius:50%!important;margin-right:7px}
-.pd-btns{display:grid!important;grid-template-columns:1fr 58px;gap:10px!important;margin-top:24px!important}
+.pd-btns{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px!important;margin-top:24px!important}
 .pd-primary{height:54px!important;font-size:11px!important;letter-spacing:.13em!important}
 .pd-primary.is-added{background:#d8ff3e!important;color:#090909!important;border-color:#d8ff3e!important;transform:translateY(-1px)}
 .pd-primary.bag-pulse{animation:mfBagButtonPulse .42s ease}
 #bagOpen.bag-pulse{animation:mfCartPulse .52s ease}
 @keyframes mfBagButtonPulse{0%{transform:scale(1)}45%{transform:scale(.97)}100%{transform:scale(1)}}
 @keyframes mfCartPulse{0%{transform:scale(1)}35%{transform:scale(1.12)}70%{transform:scale(.96)}100%{transform:scale(1)}}
-.pd-heart{height:54px;border:1px solid #111;background:#fff;font-size:27px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
+.pd-heart{grid-column:1/-1;height:48px;border:1px solid #111;background:#fff;font-size:25px;cursor:pointer}.pd-heart.is-saved{background:#111;color:#fff}
 .pd-benefits{
   display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
   margin-top:25px;padding-top:22px;border-top:1px solid #ddd
@@ -443,7 +443,7 @@ dialog[open]{animation:dialogIn .22s ease}
 }
 @media(max-width:520px){
   .pd-benefits{grid-template-columns:1fr;gap:10px}
-  .pd-btns{grid-template-columns:1fr 52px}
+  .pd-btns{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .pd-related-grid{grid-template-columns:repeat(2,1fr)}
   .pd-related-head h3{font-size:20px}
 }
@@ -1335,7 +1335,7 @@ button,.btn,a{ -webkit-tap-highlight-color:transparent }
 @media(max-width:819px){
   .hdr .brand-logo{width:128px!important;max-height:42px!important;}
   .grid .card-body{min-height:82px;padding-bottom:16px!important;}
-  .grid .card h3{font-size:20px!important;min-height:2.08em;}
+  .grid .card h3{font-size:18px!important;line-height:1.08!important;min-height:2.16em;max-width:100%;overflow-wrap:break-word;}
 }
 
 /* Scroll/render: evita trabajo de layout de tarjetas que están lejos del viewport. */
@@ -1521,7 +1521,7 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 }
 .grid .card:hover .card-media img{transform:scale(1.035)}
 .grid .card-body{padding:12px 0 22px}
-.grid .card h3{font-size:12px;letter-spacing:-.01em;font-weight:500;margin:0 0 6px}
+.grid .card h3{font-size:16px;line-height:1.08;letter-spacing:-.01em;font-weight:600;margin:0 0 7px;min-height:2.16em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .grid .card .price{font-size:11px;color:var(--muted)}
 .grid .card .cat,.grid .card .meta{
   font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
@@ -2764,7 +2764,6 @@ go(0);run()})();
     {id:"sandalia-de-plataforma-con-correa-al-tobillo",name:"Sandalia de plataforma con correa al tobillo",cat:"Punta abierta · Tacón ancho · Plataforma alta · Sintético mate",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-005.jpg","Sandalia de plataforma blanca con tira al tobillo"],["assets/foto-006.jpg","Sandalia negra de plataforma con correa al tobillo"],["assets/foto-007.jpg","Sandalia negra de plataforma, vista lateral"],["assets/foto-008.jpg","Sandalias de plataforma en blanco y negro"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Tacón ancho","Plataforma alta","Sintético mate","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma en material sintético mate, con punta abierta, tira ancha en el empeine y correa ajustable al tobillo con hebilla. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-alto-con-tiras-finas",name:"Sandalia de tacón alto con tiras finas",cat:"Punta cuadrada · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-009.jpg","Sandalias de tacón alto en negro y nude"],["assets/foto-010.jpg","Detalle de sandalia de tacón alto color nude"],["assets/foto-011.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-012.jpg","Sandalia plateada de tacón alto puesta"],["assets/foto-013.jpg","Sandalia negra de tacón alto puesta"]],colors:["Negro","Nude","Plateado"],facts:["Negro","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta cuadrada, tira delantera fina y correa ajustable al tobillo con hebilla. Disponible en negro, nude y plateado."},
     {id:"mule-de-tacon-alto-con-tira-ancha",name:"Mule de tacón alto con tira ancha",cat:"Punta abierta · Tacón tipo aguja",group:"tacones",price:190000,isNew:false,imgs:[["assets/foto-014.jpg","Mule de tacón alto en color rojo"],["assets/foto-015.jpg","Mule de tacón alto en color negro"],["assets/foto-016.jpg","Mule de tacón alto en color plateado"],["assets/foto-017.jpg","Mule de tacón alto en color blanco"],["assets/foto-018.jpg","Mule de tacón alto en color dorado"]],colors:["Rojo","Negro","Plateado","Blanco","Dorado"],facts:["Rojo","Negro","Plateado","Blanco","Dorado","Punta abierta","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Mule abierto de tacón alto, con tira amplia en el empeine y tacón tipo aguja. Disponible en rojo, negro, plateado, blanco y dorado."},
-    {id:"sandalia-de-plataforma-con-tira-ancha",name:"Sandalia de plataforma con tira ancha",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:false,imgs:[["assets/foto-019.jpg","Sandalias negras de plataforma con tira ancha"],["assets/foto-020.jpg","Sandalias negras de plataforma, vista lateral en uso"],["assets/foto-021.jpg","Sandalias negras de plataforma, vista frontal en uso"],["assets/foto-022.jpg","Sandalias blancas de plataforma con tira ancha"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia slide de punta abierta, con una tira ancha sobre el empeine y suela de plataforma alta. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-con-tira-transparente",name:"Sandalia de tacón con tira transparente",cat:"Tacón tipo aguja · Diseño transparente",group:"tacones",price:179900,isNew:false,imgs:[["assets/foto-023.jpg","Sandalia de tacón alto con tira transparente en color blanco"],["assets/foto-024.jpg","Par de sandalias de tacón con tira transparente en color nude"],["assets/foto-025.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-026.jpg","Sandalia de tacón con detalles plateados"],["assets/foto-027.jpg","Sandalia transparente de tacón con detalles plateados"],["assets/foto-028.jpg","Sandalia de tacón con tira transparente y borde negro"],["assets/foto-029.jpg","Sandalia de tacón alto con detalles fucsia"]],colors:["Blanco","Nude","Plateado","Negro","Fucsia"],facts:["Blanco","Nude","Plateado","Negro","Fucsia","Tacón tipo aguja","Diseño transparente","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con diseño estilizado y tira transparente. Disponible en blanco, nude, plateado, negro y fucsia."},
     {id:"sandalia-de-tacon-alto-con-tiras-cruzadas",name:"Sandalia de tacón alto con tiras cruzadas",cat:"Punta fina · Tiras cruzadas · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-030.jpg","Sandalia de tacón alto con tiras cruzadas en dorado"],["assets/foto-031.jpg","Sandalia negra de tacón alto con tiras cruzadas"],["assets/foto-032.jpg","Sandalia nude de tacón alto con tiras cruzadas"],["assets/foto-033.jpg","Detalle lateral de sandalia negra de tacón alto"],["assets/foto-034.jpg","Sandalia roja de tacón alto con tiras cruzadas"]],colors:["Dorado","Negro","Nude","Rojo"],facts:["Dorado","Negro","Nude","Rojo","Punta fina","Tiras cruzadas","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta fina, tiras cruzadas sobre el empeine y correa ajustable al tobillo. Disponible en dorado, negro, nude y rojo."},
     {id:"mule-de-tacon-alto-con-tira-transparente",name:"Mule de tacón alto con tira transparente",cat:"Tacón de aguja · Banda transparente",group:"tacones",price:219000,isNew:false,imgs:[["assets/foto-035.jpg","Mule de tacón alto con detalles dorados y tira transparente"],["assets/foto-036.jpg","Mule negro de tacón alto con banda transparente"],["assets/foto-037.jpg","Mule nude de tacón alto con banda transparente"],["assets/foto-038.jpg","Mule nude transparente de tacón alto puesto"],["assets/foto-039.jpg","Par de mules nude de tacón alto con banda transparente"]],colors:["Negro","Nude","Dorado"],facts:["Negro","Nude","Dorado","Tacón de aguja","Banda transparente","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con banda transparente y tacón transparente. Disponible en negro, nude y dorado."},
@@ -3826,7 +3825,7 @@ go(0);run()})();
   });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
+    var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-buy-now],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
       if (el.dataset.filter) {
