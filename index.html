@@ -3246,6 +3246,7 @@ try {
       // Server-confirmed total is used for all customer-facing legacy data too.
       f.elements["total"].value = fmt(serverTotal);
       if (pay === "Link de pago (Bold)") {
+        trackMetaInitiateCheckout(orderRef);
         if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
 
         var checkoutRes = await fetch("/.netlify/functions/crear-link-pago", {
