@@ -17,7 +17,7 @@ function canonicalOrigin() {
 
   const candidates = isProduction
     ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
-    : [env("DEPLOY_PRIME_URL"), env("URL")];
+    : [env("SITE_CANONICAL_ORIGIN"), env("DEPLOY_PRIME_URL"), env("URL")];
 
   for (const candidate of candidates) {
     const raw = String(candidate || "").trim().replace(/\/+$/, "");
