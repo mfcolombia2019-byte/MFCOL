@@ -59,7 +59,7 @@ document.getElementById("n").textContent=list.length+(list.length===1?" modelo":
 document.getElementById("g").innerHTML=list.length?list.map(function(p,i){
   var im=p.imgs&&p.imgs[0];
   return'<a class="card" style="animation-delay:'+Math.min(i*50,500)+'ms;--cbg:'+(p.cardBg||"#f1f1ef")+'" href="/?producto='+encodeURIComponent(p.id)+'">'+
-  '<div class="ph">'+(im?'<img src="'+esc(im[0])+'" alt="'+esc(im[1])+'" loading="lazy">':"")+'</div>'+
+  '<div class="ph">'+(im?'<img src="/'+String(im[0]).replace(/^\/+/,"")+'" alt="'+esc(im[1])+'" loading="lazy">':"")+'</div>'+
   '<div class="in"><strong>'+esc(p.name)+'</strong><span>'+(p.price!=null?fmt(p.price):"Por confirmar")+'</span></div></a>'}).join(""):
   '<p class="empty">Aún no hay modelos en esta colección.</p>';
 document.addEventListener("click",function(e){var a=e.target.closest("a[href]");
