@@ -252,7 +252,14 @@ fieldset{border:0;min-width:0}
 .about p.lead{font-family:var(--serif);font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 30px}
 .about-image{min-height:70svh}
 .about-video{display:block;width:100%;max-width:480px;aspect-ratio:9/16;object-fit:cover;background:#111;border-radius:2px;overflow:hidden}
-.video-brand-copy{position:absolute;inset:auto 0 28px;text-align:center;color:#fff;font-size:clamp(13px,2vw,18px);font-weight:400;letter-spacing:.08em;line-height:1.35;text-shadow:0 2px 14px rgba(0,0,0,.45);padding:0 22px;pointer-events:none}
+.video-brand-copy{display:block;text-align:center;max-width:620px;margin:0 auto 34px;padding:0 24px;color:#111;font-family:var(--serif);font-size:clamp(28px,4.5vw,52px);font-weight:400;letter-spacing:-.025em;line-height:1.02}
+.video-brand-copy::after{content:"";display:block;width:42px;height:1px;background:#111;margin:22px auto 0;opacity:.35}
+.video-brand-wrap{position:relative;width:100%;max-width:560px;margin:0 auto}
+.video-brand-wrap::before,.video-brand-wrap::after{content:"";position:absolute;z-index:0;pointer-events:none}
+.video-brand-wrap::before{width:120px;height:120px;border:1px solid rgba(17,17,17,.10);border-radius:50%;left:-74px;top:12%;box-shadow:0 0 0 24px rgba(17,17,17,.025)}
+.video-brand-wrap::after{width:90px;height:1px;background:rgba(17,17,17,.16);right:-58px;bottom:15%}
+.video-brand-wrap .about-video{position:relative;z-index:1;margin:0 auto}
+.video-brand-eyebrow{margin:0 0 13px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#777}
 @media(min-width:820px){.about-video{max-width:420px}}
 @media(min-width:820px){.about-grid{grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}.about-copy{padding-top:40px}.about-image{min-height:80svh}}
 
@@ -2712,12 +2719,13 @@ go(0);run()})();
 </section>
 
 <section class="section" id="video-marca" aria-label="Marlon Footwear en movimiento">
-  <div class="wrap" style="display:flex;justify-content:center">
-    <div style="position:relative;width:100%;max-width:480px">
+  <div class="wrap">
+    <div class="video-brand-eyebrow">MARLON FOOTWEAR</div>
+    <div class="video-brand-copy">Los que buscas. Solo en Marlon Footwear.</div>
+    <div class="video-brand-wrap">
       <video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="Marlon Footwear, colección en movimiento">
         <source src="assets/video.mp4" type="video/mp4">
       </video>
-      <div class="video-brand-copy">Los que buscas. Solo en Marlon Footwear.</div>
     </div>
   </div>
 </section>
