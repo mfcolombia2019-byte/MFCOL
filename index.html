@@ -20,6 +20,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+<script>
+(function () {
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (!isIOS) return;
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (viewport) viewport.setAttribute(
+    "content",
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  );
+})();
+</script>
 
 
 <style>
@@ -2669,6 +2681,11 @@ function trackMetaInitiateCheckout(reference) {
   color:#111!important;
 }
 .pd-buy-now:hover{background:#111!important;color:#fff!important}
+.co input,.co select,.co textarea{
+  font-size:16px!important;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
 .co::backdrop{background:rgba(17,17,17,.38)!important;backdrop-filter:blur(3px)}
 @media(max-width:560px){
   .co{width:calc(100% - 20px)!important;max-height:90dvh!important;border-radius:24px!important}
