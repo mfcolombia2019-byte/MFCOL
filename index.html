@@ -4031,17 +4031,29 @@ go(0);run()})();
   });
 
   /* ---------- Eventos globales ---------- */
-  function setFilter(g) {
-    var rowId = g === "plataformas" || g === "cuñas" ? "fila-plataformas" : (g === "tacones" || g === "mules" || /^tacones-/.test(g) ? "fila-tacones" : "productos");
-    state.group = (g === "plataformas" || g === "tacones") ? g : "todos";
+  function navigateToSection(hash, filter) {
+    var id = String(hash || "").replace(/^#/, "");
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    if (filter) {
+      var rowId = filter === "plataformas" || filter === "cuñas" ? "fila-plataformas" : (filter === "tacones" || filter === "mules" || /^tacones-/.test(filter) ? "fila-tacones" : "productos");
+      state.group = (filter === "plataformas" || filter === "tacones") ? filter : "todos";
+      target = document.getElementById(rowId) || document.getElementById("productos");
+    }
     try {
       var u = new URL(window.location.href);
       u.searchParams.delete(PRODUCT_PARAM);
-      u.hash = "productos";
+      u.hash = id;
       history.pushState(catalogHistoryState({ mfCatalogUrl: u.pathname + u.search + u.hash }), "", u.pathname + u.search + u.hash);
     } catch (e) {}
-    var target = document.getElementById(rowId) || $("#productos");
-    if (target) target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    requestAnimationFrame(function () {
+      target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    });
+  }
+
+  function setFilter(g) {
+    navigateToSection("productos", g);
   }
 
   var galleryTouch = { el:null, startX:0, startY:0, moved:false };
@@ -4100,6 +4112,19 @@ go(0);run()})();
   });
 
   document.addEventListener("click", function (e) {
+    var sectionLink = e.target.closest('a[href^="#"]:not([data-view]):not([data-buy]):not([data-consult]):not([data-bag]):not([data-close]):not([data-checkout]):not([data-edit-bag]):not([data-product-home])');
+    if (sectionLink && sectionLink.getAttribute("href") !== "#") {
+      var sectionHash = sectionLink.getAttribute("href");
+      var sectionFilter = sectionLink.getAttribute("data-filter");
+      e.preventDefault();
+      navigateToSection(sectionHash, sectionFilter);
+      if (sectionLink.hasAttribute("data-menu-close") && menu.classList.contains("open")) {
+        menu.classList.remove("open");
+        document.body.classList.remove("lock");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+      return;
+    }
     var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-buy-now],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }
