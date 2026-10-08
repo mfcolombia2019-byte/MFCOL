@@ -256,7 +256,7 @@ const PRODUCTS = [
   {
     "id": "sandalia-de-cuna-trenzada-en-negro-y-rosado",
     "name": "Sandalia de cuña trenzada en negro y rosado",
-    "price": null,
+    "price": 210000,
     "colors": [
       "Negro",
       "Rosado"

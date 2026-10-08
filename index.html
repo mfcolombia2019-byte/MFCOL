@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111'/%3E%3Ctext x='32' y='40' font-family='Helvetica,Arial,sans-serif' font-weight='800' font-size='24' fill='%23EDE8DF' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,380;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
 
 
@@ -2131,6 +2131,72 @@ main,header,.top,.hdr,.hdr-in,.wrap,
 }
 
 </style>
+<style id="mf-marlon-language">
+:root{--serif:"Bricolage Grotesque","Figtree",system-ui,sans-serif;--sans:"Figtree",system-ui,sans-serif;--black:#111;--text:#111;--line:rgba(17,17,17,.12);--mfbg:#ececec}
+body{background:#ececec!important;font-family:var(--sans)!important;color:#111}
+h1,h2,h3,.h-sec,.card h3,.pd-info h2,.brand-logo-text{font-family:var(--serif)!important;font-weight:800!important;letter-spacing:-.03em!important;line-height:.98!important}
+.h-sec{font-size:clamp(2.2rem,6vw,4rem)!important}
+.mf-logo{display:block;height:34px;width:auto;margin:auto;color:#111}.mf-logo.brand-logo-white{color:#fff}.footer .mf-logo{height:44px}
+.top{background:#111!important;letter-spacing:0!important;text-transform:none!important}
+.hdr{background:color-mix(in srgb,var(--mfbg) 85%,transparent)!important;border-bottom:0!important;transition:background-color .6s}
+.nav a{font-weight:500!important;letter-spacing:0!important;text-transform:none!important;font-size:15px!important}
+.btn,.pd-primary,.btn-solid{border-radius:999px!important;background:#111!important;color:#fff!important;border:2px solid #111!important;letter-spacing:0!important;text-transform:none!important;font-size:15px!important;font-weight:600!important;min-height:54px!important;transition:background-color .2s,color .2s!important}
+.btn:hover,.pd-primary:hover{background:transparent!important;color:#111!important;transform:none!important}
+.btn:disabled{opacity:.45}
+.tabs button,#productos .tabs button{border-radius:999px!important;border:2px solid #111!important;background:transparent!important;color:#111!important;font:600 14px var(--sans)!important;letter-spacing:0!important;text-transform:none!important;padding:9px 18px!important}
+.tabs button[aria-pressed="true"],#productos .tabs button[aria-pressed="true"]{background:#111!important;color:#fff!important}
+.card-media{border-radius:28px!important;overflow:hidden!important;background:#fff!important}
+.card .cat{text-transform:none!important;letter-spacing:0!important;font-size:13px!important;color:#555!important}
+.card h3{font-size:clamp(20px,2.4vw,28px)!important}
+.card .price,.price{font-family:var(--serif)!important;font-weight:800!important}
+.chip span{border-radius:999px!important;border:2px solid #111!important;background:transparent!important;font-weight:600!important}
+.chip input:checked+span{background:#111!important;color:#fff!important}
+.pd,.drawer,.co,.sd,.menu{background:#ececec!important}
+.pd::backdrop{background:#ececec!important}
+.pd-gal{background:transparent!important}.pd-gal img,.pd-main-media{border-radius:28px}
+.pd-top{background:transparent!important;border-bottom:0!important}.pd-top .mf-logo{height:30px}
+.pd-info h2{font-size:clamp(2.1rem,5vw,3.6rem)!important}
+.pd-eyebrow{text-transform:none!important;letter-spacing:0!important;font-size:14px!important;color:#555!important}
+.pd-heart{border-radius:50%!important;border:2px solid #111!important;background:transparent!important}.pd-heart.is-saved{background:#111!important}
+.pd-benefits{background:rgba(255,255,255,.6)!important;border-radius:24px!important;border:0!important}
+input,select,textarea{border-radius:16px!important}
+.menu a{font-family:var(--serif)!important;font-weight:800!important}.menu{background:#111!important}
+.h-sec,.card h3,.hero-kicker,.count,.pd-info legend,.sizes legend,.card-link,.facts li{text-transform:none!important;letter-spacing:-.01em!important}
+.h-sec{letter-spacing:-.03em!important}
+.hero-kicker,.count,.sizes legend,.pd-info legend{font-size:14px!important;color:#555!important;font-weight:600!important}
+.card{background:transparent!important;box-shadow:none!important}.card-body{text-align:left!important;padding:14px 4px 0!important}
+.card-link{font-weight:600!important;font-size:14px!important;text-decoration:underline;text-underline-offset:4px}
+.pd-top-close{border-radius:50%!important;border:2px solid #111!important;background:transparent!important}
+.grid .card,.grid .card-body{background:transparent!important;text-align:left!important}.grid .card-body{justify-items:start!important;align-items:start!important}.grid .card-body h3,.grid .card-body .cat,.grid .card-body .price{text-align:left!important}
+.grid .card-media,.grid .card-media>*{border-radius:28px!important}
+/* Productos en fila, rodeados de su color */
+#productGrid.grid,.grid{grid-template-columns:1fr!important;gap:20px!important}
+@media(min-width:900px){#productGrid.grid,.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important}}
+.grid .card{background:var(--cbg,#e1e1df)!important;border-radius:36px!important;overflow:hidden!important;padding:0!important;transition:transform .3s}
+.grid .card:hover{transform:translateY(-4px)}
+.grid .card-media{border-radius:0!important;background:transparent!important;aspect-ratio:1/1;max-height:520px}
+.grid .card-media,.grid .card-media>*{border-radius:0!important}
+.grid .card-media img{mix-blend-mode:multiply;width:100%!important;height:100%!important;object-fit:cover}
+.grid .card-body{padding:6px 28px 30px!important;display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
+.grid .card-media .media{background:transparent!important}
+.grid .card-body h3{font-size:clamp(26px,7vw,40px)!important;margin-top:4px}
+.grid .card-body .price{font-size:18px!important}
+.grid .card-link,.grid .card-body .card-link{margin-top:6px}
+/* Portada */
+.mfh{background:#ececec;transition:background-color .6s ease;min-height:calc(100svh - 110px)}
+.mfh-in{max-width:1200px;margin:0 auto;padding:2rem var(--gutter) 3rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;min-height:calc(100svh - 110px)}
+.mfh-txt{flex:1 1 20rem}.mfh-ph{flex:1 1 26rem;position:relative;height:min(32rem,78vw);overflow:hidden}
+.mfh-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.3);mix-blend-mode:multiply}
+.mfh-kicker{font-weight:600;font-size:14px;margin:0 0 .8rem}
+.mfh h1{font-size:clamp(2.8rem,9vw,5.5rem)!important;margin:0}
+.mfh-txt>p:not(.mfh-kicker){margin:1rem 0 0;font-size:1.1rem;max-width:26rem;color:#333}
+.mfh .btn{margin-top:1.8rem}
+.mfh-dots{display:flex;gap:.7rem;margin-top:1.8rem}
+.mfh-dots button{width:28px;height:28px;border-radius:50%;border:2px solid #111;background:var(--c);opacity:.55;padding:0;transition:.2s}
+.mfh-dots button[aria-pressed="true"]{opacity:1;transform:scale(1.2)}
+@media(prefers-reduced-motion:reduce){.mfh,.hdr{transition:none}}
+</style>
+
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -2201,7 +2267,7 @@ try {
     </button>
 
     <a class="logo" href="#inicio" aria-label="MF, ir al inicio">
-      <span class="brand-logo-text brand-logo-black" aria-hidden="true">MF</span>
+      <svg class="mf-logo brand-logo-black" viewBox="240 254 581 508" fill="currentColor" role="img" aria-label="MF"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg>
     </a>
 
     <nav class="nav" aria-label="Principal">
@@ -2229,7 +2295,7 @@ try {
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú">
   <div class="menu-top">
     <a class="logo" href="#inicio" data-menu-close aria-label="MF, ir al inicio">
-      <span class="brand-logo-text brand-logo-white" aria-hidden="true">MF</span>
+      <svg class="mf-logo brand-logo-white" viewBox="240 254 581 508" fill="currentColor" role="img" aria-label="MF"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg>
     </a>
     <button class="icon-btn" id="menuClose" type="button" aria-label="Cerrar menú">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
@@ -2254,16 +2320,35 @@ try {
 
 
 
-<section class="mf-hero-new" id="inicio" aria-label="MF">
-  <div class="mf-hero-photo">
-    <img src="assets/026-ff2341dac0.jpg" alt="Essential Bold Platform — Negro">
-  </div>
-  <div class="mf-hero-overlay"></div>
-  <div class="mf-hero-content">
-    <div class="mf-neon-brand" aria-label="MF COL">MF COL</div>
-    <p class="mf-hero-message">Tacones y plataformas con presencia.</p>
+<section class="mfh" id="inicio" aria-label="Portada" aria-roledescription="carrusel">
+  <div class="mfh-in">
+    <div class="mfh-txt">
+      <p class="mfh-kicker">Nueva colección</p>
+      <h1 id="mfhT">Plataforma negra</h1>
+      <p id="mfhD">Suela alta y cuero suave. El negro de quien elige distinto.</p>
+      <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
+      <div class="mfh-dots" role="group" aria-label="Elegir color">
+        <button type="button" style="--c:#111" aria-label="Negra" aria-pressed="true"></button>
+        <button type="button" style="--c:#fff" aria-label="Blanca" aria-pressed="false"></button>
+        <button type="button" style="--c:#e6a9a9" aria-label="Rosada" aria-pressed="false"></button>
+        <button type="button" style="--c:#a5b98a" aria-label="Verde" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="mfh-ph"><img id="mfhI" src="assets/mf-portada-negra.jpg" alt="Sandalia plataforma negra" width="1400" height="1168"></div>
   </div>
 </section>
+<script>
+(function(){var S=[["negra","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto."],["blanca","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir."],["rosada","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida."],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene."]],
+sec=document.getElementById("inicio"),b=sec.querySelectorAll(".mfh-dots button"),i=0,t=null,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function go(n){i=(n+S.length)%S.length;var s=S[i];sec.style.backgroundColor=s[1];document.documentElement.style.setProperty("--mfbg",s[1]);
+document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var im=document.getElementById("mfhI");im.src="assets/mf-portada-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
+b.forEach(function(x,k){x.setAttribute("aria-pressed",k===i)})}
+function run(){clearInterval(t);if(!red)t=setInterval(function(){go(i+1)},6000)}
+b.forEach(function(x,k){x.addEventListener("click",function(){go(k);run()})});
+sec.addEventListener("mouseenter",function(){clearInterval(t)});sec.addEventListener("mouseleave",run);
+document.addEventListener("visibilitychange",function(){document.hidden?clearInterval(t):run()});
+go(0);run()})();
+</script>
 
 
 
@@ -2288,6 +2373,7 @@ try {
   </div>
 </section>
 
+<span id="coleccion" class="sr" aria-hidden="true"></span>
 <section class="section" id="productos" aria-labelledby="prod-title">
   <div class="wrap">
     <div class="collection-head reveal">
@@ -2417,7 +2503,7 @@ try {
     <div class="foot-grid">
       <div>
         <a class="logo" href="#inicio" aria-label="MF, ir al inicio">
-          <span class="brand-logo-text brand-logo-white" aria-hidden="true">MF</span>
+          <svg class="mf-logo brand-logo-white" viewBox="240 254 581 508" fill="currentColor" role="img" aria-label="MF"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg>
         </a>
         <p style="margin-top:18px;max-width:34ch;color:#aaa">Tacones, plataformas y piezas de alto impacto para mujeres que dejan huella.</p>
       </div>
@@ -2487,7 +2573,7 @@ try {
           </button>
           <button class="pay" type="button" data-pay="Transferencia bancaria" aria-pressed="false">
             <span class="pay-name">Finalizar pedido por WhatsApp</span>
-            <span class="pay-desc">Envíanos tu carrito y recibe atención personalizada</span>
+            <span class="pay-desc">Envíanos tu carrito y recibe confirmación por WhatsApp</span>
           </button>
         </div>
       </div>
@@ -2561,6 +2647,7 @@ try {
      facts: datos breves que se muestran en la ficha del producto
      ======================================================================== */
   var PRODUCTS = [
+    {id:"sandalia-slide-de-plataforma-alta-en-cuatro-colores",name:"Sandalia slide de plataforma alta",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:true,cardBg:"#f3dede",imgs:[["assets/plataforma-slide-negro.jpg","Sandalia slide de plataforma alta en color negro"],["assets/plataforma-slide-blanco.jpg","Sandalia slide de plataforma alta en color blanco"],["assets/plataforma-slide-rosa.jpg","Sandalia slide de plataforma alta en color rosa"],["assets/plataforma-slide-verde.jpg","Sandalia slide de plataforma alta en color verde"]],colors:["Negro","Blanco","Rosa","Verde"],facts:["Negro","Blanco","Rosa","Verde","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con una tira ancha sobre el empeine y plataforma alta de perfil redondeado. Disponible en negro, blanco, rosa y verde."},
     {id:"mule-de-tacon-alto-con-tres-tiras",name:"Mule de tacón alto con tres tiras",cat:"Punta cuadrada · Tacón tipo aguja",group:"tacones",price:189900,isNew:false,imgs:[["assets/foto-001.jpg","Sandalia mule de tacón alto en color negro"],["assets/foto-002.jpg","Sandalia mule de tacón alto en color blanco"],["assets/foto-003.jpg","Sandalia mule de tacón alto en color nude"],["assets/foto-004.jpg","Sandalia mule de tacón alto en color plateado"]],colors:["Negro","Blanco","Nude","Plateado"],facts:["Negro","Blanco","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Sandalia mule de tacón alto con punta cuadrada, tres tiras y diseño abierto en el talón. Disponible en cuatro colores."},
     {id:"sandalia-de-plataforma-con-correa-al-tobillo",name:"Sandalia de plataforma con correa al tobillo",cat:"Punta abierta · Tacón ancho · Plataforma alta · Sintético mate",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-005.jpg","Sandalia de plataforma blanca con tira al tobillo"],["assets/foto-006.jpg","Sandalia negra de plataforma con correa al tobillo"],["assets/foto-007.jpg","Sandalia negra de plataforma, vista lateral"],["assets/foto-008.jpg","Sandalias de plataforma en blanco y negro"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Tacón ancho","Plataforma alta","Sintético mate","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma en material sintético mate, con punta abierta, tira ancha en el empeine y correa ajustable al tobillo con hebilla. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-alto-con-tiras-finas",name:"Sandalia de tacón alto con tiras finas",cat:"Punta cuadrada · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-009.jpg","Sandalias de tacón alto en negro y nude"],["assets/foto-010.jpg","Detalle de sandalia de tacón alto color nude"],["assets/foto-011.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-012.jpg","Sandalia plateada de tacón alto puesta"],["assets/foto-013.jpg","Sandalia negra de tacón alto puesta"]],colors:["Negro","Nude","Plateado"],facts:["Negro","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta cuadrada, tira delantera fina y correa ajustable al tobillo con hebilla. Disponible en negro, nude y plateado."},
@@ -2723,7 +2810,7 @@ try {
   var COLOR_SWATCH = {
     "blanco": "#F7F5F0", "negro": "#161412", "nude": "#D9B99B", "marfil": "#F1EBDD",
     "rosa": "#E3A9B0", "plateado": "#C8CACD", "beige": "#D9C7A6", "rojo": "#A93226",
-    "dorado": "#C9A227", "champagne": "#E7D2A6", "amarillo": "#E3C23A"
+    "dorado": "#C9A227", "verde": "#A5B98A", "champagne": "#E7D2A6", "amarillo": "#E3C23A"
   };
   function swatchColor(name) { return COLOR_SWATCH[name.trim().toLowerCase()] || "#CFC8BC"; }
   function colorsHTML(prefix, p) {
@@ -2751,9 +2838,16 @@ try {
   }
   var BAG_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11l-1-12z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>';
 
+  var CARD_BG = {negro:"#e1e1df",blanco:"#d9d9d7",nude:"#efe1d6",camel:"#ecdcc8",rosa:"#f3dede",rosado:"#f3dede",rojo:"#f3d6d3",verde:"#dfe8d3",dorado:"#efe5cc",plateado:"#e3e6e9",azul:"#dce6f1",morado:"#e6ddf0",naranja:"#f5e0cf",amarillo:"#f3eccb"};
+  var CARD_CYCLE = ["#f3dede","#dfe8d3","#efe1d6","#dce6f1","#e1e1df"];
+  function cardBg(p, i) {
+    if (p.cardBg) return p.cardBg;
+    var c = ((p.colors && p.colors[0]) || "").toLowerCase().replace(/[^a-záéíóúñ]/g, "");
+    return CARD_BG[c] || CARD_CYCLE[(i || 0) % CARD_CYCLE.length];
+  }
   function cardHTML(p, i) {
     var pending = p.price == null;
-    return '<article class="card" data-product="' + p.id + '" data-view="' + p.id + '" tabindex="0" role="button" aria-label="Ver producto: ' + esc(p.name) + '">' +
+    return '<article class="card" style="--cbg:' + cardBg(p, i) + '" data-product="' + p.id + '" data-view="' + p.id + '" tabindex="0" role="button" aria-label="Ver producto: ' + esc(p.name) + '">' +
       '<button class="card-media" type="button" data-view="' + p.id + '" aria-label="Ver producto: ' + esc(p.name) + '">' +
         (p.isNew ? '<span class="tag">Novedad</span>' : "") + mediaHover(p.name + ", " + p.cat, "r45", p) +
       "</button>" +
@@ -3107,7 +3201,7 @@ try {
     var related = PRODUCTS.filter(function(x){ return x.id !== p.id; }).slice(0,4);
     pd.innerHTML =
       '<div class="pd-top">' +
-        '<a class="pd-top-logo" href="#inicio" aria-label="Volver al inicio"><span class="brand-logo-text brand-logo-black" aria-hidden="true">MF</span></a>' +
+        '<a class="pd-top-logo" href="#inicio" aria-label="Volver al inicio"><svg class="mf-logo brand-logo-black" viewBox="240 254 581 508" fill="currentColor" role="img" aria-label="MF"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg></a>' +
         '<div class="pd-top-nav"><a href="#inicio" data-product-home>Inicio</a><span>Colección</span><span>Tacones</span><span>Plataformas</span></div>' +
         '<button class="pd-top-close" type="button" data-close aria-label="Cerrar producto">×</button>' +
       '</div>' +
@@ -3257,7 +3351,21 @@ try {
       });
       var orderData = await orderRes.json().catch(function () { return {}; });
       if (!orderRes.ok || !orderData.reference) {
-        throw new Error(orderData.error || "No pudimos validar tu pedido en el servidor.");
+        if (pay === "Transferencia bancaria") {
+          try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
+          var fallbackMsg = "Hola, MF. Quiero finalizar mi pedido por WhatsApp:\n" + pedidoTxt +
+            "\nTotal estimado: " + fmt(bag.reduce(function (sum, item) {
+              var product = byId(item.id);
+              return sum + (product && Number.isFinite(Number(product.price)) ? Number(product.price) * item.qty : 0);
+            }, 0)) +
+            "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address +
+            "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
+            "\nMedio de pago: Transferencia bancaria";
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
+          openWA(fallbackMsg);
+          return;
+        }
+        throw new Error(orderData.error || "El pago en línea no está disponible en este momento. Puedes finalizar por WhatsApp.");
       }
 
       var orderRef = orderData.reference;
