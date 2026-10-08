@@ -1,6 +1,7 @@
 // Creates a Bold payment link only for a server-persisted, pending order.
 // The browser cannot choose amount, description, reference, or callback URL.
 
+import crypto from "node:crypto";
 import { store, getJson, json } from "./_admin.mjs";
 
 const safeRef = /^[A-Za-z0-9_-]{1,80}$/;
@@ -91,6 +92,10 @@ export default async (req) => {
   if (!boldApiKey) {
     return json({ error: "Falta configurar BOLD_API_KEY en Netlify" }, 500);
   }
+  // La llave secreta nunca sale del servidor. Si está configurada, generamos
+  // la firma requerida por Bold Embedded Checkout y devolvemos únicamente los
+  // datos públicos necesarios para que el navegador abra el modal oficial.
+  const boldSecretKey = String(env("BOLD_SECRET_KEY") || "").trim();
 
   const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
   const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
@@ -131,11 +136,29 @@ export default async (req) => {
     createdAt: new Date().toISOString()
   });
 
+  const embedded = boldSecretKey
+    ? {
+        orderId: reference,
+        currency: "COP",
+        amount: String(total),
+        apiKey: boldApiKey,
+        integritySignature: crypto
+          .createHash("sha256")
+          .update(reference + String(total) + "COP" + boldSecretKey)
+          .digest("hex"),
+        description,
+        originUrl: origin + "/checkout?bold=cancel&ref=" + encodeURIComponent(reference),
+        redirectionUrl: callbackUrl,
+        renderMode: "embedded"
+      }
+    : null;
+
   return json({
     ok: true,
     url: data.payload.url,
     payment_link: paymentLink,
     reference,
-    total: saved.total
+    total: saved.total,
+    embedded
   });
 };
