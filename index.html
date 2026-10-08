@@ -3413,7 +3413,8 @@ go(0);run()})();
   var checkoutRouteActive = false;
   var checkoutDirectRoute = false;
   function enterCheckoutRoute() {
-    if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
+    var path = window.location.pathname.replace(/\/+$/, "");
+    if (path === "/checkout" || path === "/bold/checkout") {
       checkoutRouteActive = true;
       checkoutDirectRoute = false;
       return;
@@ -3421,6 +3422,27 @@ go(0);run()})();
     try {
       history.pushState({ mfCheckoutRoute:true }, "", "/checkout");
       checkoutRouteActive = true;
+    } catch (e) {}
+  }
+
+  function enterBoldCheckoutRoute(reference) {
+    var ref = encodeURIComponent(String(reference || ""));
+    try {
+      history.replaceState(
+        { mfBoldCheckoutRoute:true, reference:String(reference || "") },
+        "",
+        "/bold/checkout" + (ref ? "?ref=" + ref : "")
+      );
+    } catch (e) {}
+  }
+
+  function restoreOrderCheckoutRoute() {
+    try {
+      history.replaceState(
+        { mfCheckoutRoute:true },
+        "",
+        "/checkout"
+      );
     } catch (e) {}
   }
   function leaveCheckoutRoute() {
@@ -3625,7 +3647,15 @@ go(0);run()})();
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
-        await openEmbeddedBold(checkoutData);
+        // Mantiene la barra de direcciones bajo el dominio de MF mientras
+        // Bold abre su Embedded Checkout oficial dentro de un modal.
+        enterBoldCheckoutRoute(orderRef);
+        try {
+          await openEmbeddedBold(checkoutData);
+        } catch (boldError) {
+          restoreOrderCheckoutRoute();
+          throw boldError;
+        }
         closeDlg($("#co"));
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
         return;
@@ -4084,11 +4114,16 @@ go(0);run()})();
   renderBag();
   initLinks();
   initReveal();
-  if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
+  var initialCheckoutPath = window.location.pathname.replace(/\/+$/, "");
+  if (initialCheckoutPath === "/checkout" || initialCheckoutPath === "/bold/checkout") {
     checkoutDirectRoute = true;
     setTimeout(function () {
-      if (bag.length) openCheckout(true);
-      else {
+      if (bag.length) {
+        // /bold/checkout es una ruta interna de pago; la orden se prepara
+        // desde /checkout y luego Bold permanece visualmente debajo de este dominio.
+        if (initialCheckoutPath === "/bold/checkout") restoreOrderCheckoutRoute();
+        openCheckout(true);
+      } else {
         history.replaceState(catalogHistoryState(), "", "/#productos");
         window.scrollTo({top:0,left:0,behavior:"auto"});
       }
