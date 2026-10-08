@@ -2448,6 +2448,13 @@ input,select,textarea{border-radius:16px!important}
 .grid .card-body h3{font-size:clamp(26px,7vw,40px)!important;margin-top:4px}
 .grid .card-body .price{font-size:18px!important}
 .grid .card-link,.grid .card-body .card-link{margin-top:6px}
+/* Ajuste de producto: la foto queda completa dentro de la tarjeta */
+.grid .card-media img{
+  object-fit:contain!important;
+  object-position:center center!important;
+  padding:clamp(10px,2.4vw,28px)!important;
+}
+
 /* Portada */
 .mfh{background:#ececec;transition:background-color .6s ease;min-height:calc(100svh - 110px)}
 .mfh-in{max-width:1200px;margin:0 auto;padding:2rem var(--gutter) 3rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;min-height:calc(100svh - 110px)}
