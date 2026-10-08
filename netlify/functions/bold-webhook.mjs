@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { store } from "./_admin.mjs";
 import { processBoldWebhook, safeEventId, webhookInboxKey, ensureInbox } from "./_bold-webhook.mjs";
 import { processOutboxKey } from "./_meta-outbox.mjs";
+import { sendWhatsAppConfirmationForReference } from "./_whatsapp.mjs";
 
 function encodeForm(data) {
   return Object.keys(data).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")).join("&");
@@ -68,6 +69,14 @@ export default async (req, context) => {
           await processOutboxKey(result.outboxKey);
         } catch (error) {
           console.error("No se pudo enviar Purchase a Meta:", error);
+        }
+      }
+
+      if (event.type === "SALE_APPROVED" && result?.reference) {
+        try {
+          await sendWhatsAppConfirmationForReference(result.reference);
+        } catch (error) {
+          console.error("No se pudo enviar confirmación por WhatsApp:", error);
         }
       }
 
