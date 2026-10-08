@@ -230,6 +230,23 @@ fieldset{border:0;min-width:0}
 .spot{display:grid;grid-template-columns:1fr;background:#111;color:#fff}
 .spot-media{min-height:72svh;position:relative}
 .spot-media .media{position:absolute;inset:0;height:100%;aspect-ratio:auto}
+.spot-gallery{position:absolute;inset:0;display:flex;flex-direction:column;background:#111}
+.spot-gallery .spot-thumbs{display:flex;gap:8px;padding:12px 14px;overflow-x:auto;scrollbar-width:none;order:2;z-index:3}
+.spot-gallery .spot-thumbs::-webkit-scrollbar{display:none}
+.spot-gallery .spot-thumb{flex:0 0 58px;width:58px;height:58px;padding:0;border:1px solid rgba(255,255,255,.28);background:#222;opacity:.55;overflow:hidden}
+.spot-gallery .spot-thumb[aria-pressed="true"]{opacity:1;border-color:#fff}
+.spot-gallery .spot-thumb img{width:100%;height:100%;object-fit:cover}
+.spot-gallery .spot-main{position:relative;flex:1;min-height:0;order:1;overflow:hidden;touch-action:pan-y}
+.spot-gallery .spot-main>.media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto}
+.spot-gallery .spot-main>.media img{width:100%;height:100%;object-fit:cover}
+.spot-gallery .spot-dots{position:absolute;left:50%;bottom:18px;z-index:4;display:flex;gap:6px;transform:translateX(-50%);pointer-events:none}
+.spot-gallery .spot-dots i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.45)}
+.spot-gallery .spot-dots i.is-active{background:#fff}
+@media(min-width:820px){
+ .spot-gallery .spot-thumbs{position:absolute;left:24px;bottom:22px;padding:0}
+ .spot-gallery .spot-thumb{flex-basis:62px;width:62px;height:62px}
+ .spot-gallery .spot-dots{display:none}
+}
 .spot-info{padding:48px var(--gutter) 62px}
 .spot .cat{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#aaa}
 .spot h2{font-family:var(--serif);font-size:clamp(40px,6vw,78px);line-height:.92;font-weight:400;margin:14px 0}
@@ -3386,7 +3403,13 @@ go(0);run()})();
   function renderSpot() {
     var p = byId(CONFIG.spotlightId) || PRODUCTS[0]; if (!p) return;
     var el = $("#spot"); el.setAttribute("data-product", p.id);
-    el.innerHTML = '<div class="spot-media">' + media(p.name + ", " + p.cat, "r45", p, 0) + '</div>' +
+    var n = p.imgs ? p.imgs.length : 0;
+    var thumbs = n > 1 ? '<div class="spot-thumbs" role="group" aria-label="Fotos de ' + esc(p.name) + '">' + p.imgs.map(function(im, i) {
+      return '<button class="spot-thumb thumb" type="button" data-thumb="' + i + '" aria-pressed="' + (i === 0 ? "true" : "false") + '" aria-label="Ver foto ' + (i + 1) + " de " + n + '"><img src="' + esc(im[0]) + '" alt="" loading="lazy"></button>';
+    }).join("") + "</div>" : "";
+    var dots = n > 1 ? '<div class="spot-dots pd-gallery-dots" aria-hidden="true">' + p.imgs.map(function(_, i){ return '<i class="' + (i === 0 ? "is-active" : "") + '"></i>'; }).join("") + "</div>" : "";
+    el.innerHTML = '<div class="spot-media"><div class="spot-gallery" data-gal="' + p.id + '">' + thumbs +
+      '<div class="spot-main pd-main-media" data-gallery-index="0">' + media(p.name + ", " + p.cat, "r45", p, 0, true) + dots + '</div></div></div>' +
       '<div class="spot-info"><p class="cat">' + esc(p.cat) + "</p><h2>" + esc(p.name) + "</h2>" +
       '<p class="desc">' + esc(p.desc) + "</p>" + priceHTML(p) + colorsHTML("f", p) + sizesHTML("f", p.id) + '<p class="hint" role="status"></p>' +
       '<div class="spot-btns"><button class="btn btn-solid-light" type="button" data-buy>' + (p.price == null ? "Consultar precio por WhatsApp" : "Ir a pagar con esta selección") + "</button>" +
@@ -4138,7 +4161,7 @@ go(0);run()})();
 
   var galleryTouch = { el:null, startX:0, startY:0, moved:false };
   document.addEventListener("touchstart", function(e){
-    var main = e.target.closest && e.target.closest(".pd-main-media");
+    var main = e.target.closest && e.target.closest(".pd-main-media,.spot-main");
     if (!main) return;
     galleryTouch.el = main;
     galleryTouch.startX = e.touches[0].clientX;
