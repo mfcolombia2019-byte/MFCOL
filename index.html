@@ -4112,7 +4112,7 @@ go(0);run()})();
   });
 
   document.addEventListener("click", function (e) {
-    var sectionLink = e.target.closest('a[href^="#"]:not([data-view]):not([data-buy]):not([data-consult]):not([data-bag]):not([data-close]):not([data-checkout]):not([data-edit-bag]):not([data-product-home])');
+    var sectionLink = e.target.closest('a[href^="#"][data-filter],a[href="#inicio"]:not([data-product-home]),a[href="#nosotros"],a[href="#envios"],a[href="#contacto"]:not([data-wa])');
     if (sectionLink && sectionLink.getAttribute("href") !== "#") {
       var sectionHash = sectionLink.getAttribute("href");
       var sectionFilter = sectionLink.getAttribute("data-filter");
