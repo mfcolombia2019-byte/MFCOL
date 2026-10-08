@@ -3412,9 +3412,11 @@ go(0);run()})();
   /* ---------- Finalizar pedido ---------- */
   var pay = "";
   var checkoutRouteActive = false;
+  var checkoutDirectRoute = false;
   function enterCheckoutRoute() {
     if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
       checkoutRouteActive = true;
+      checkoutDirectRoute = false;
       return;
     }
     try {
@@ -3424,6 +3426,16 @@ go(0);run()})();
   }
   function leaveCheckoutRoute() {
     if (!checkoutRouteActive) return false;
+    if (checkoutDirectRoute) {
+      checkoutRouteActive = false;
+      checkoutDirectRoute = false;
+      try {
+        history.replaceState(catalogHistoryState(), "", "/#productos");
+      } catch (e) {}
+      var directCo = $("#co");
+      if (directCo && directCo.open) closeDlg(directCo);
+      return true;
+    }
     if (history.state && history.state.mfCheckoutRoute) {
       checkoutRouteActive = false;
       history.back();
@@ -4061,6 +4073,7 @@ go(0);run()})();
   initLinks();
   initReveal();
   if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
+    checkoutDirectRoute = true;
     setTimeout(function () {
       if (bag.length) openCheckout(true);
       else {
