@@ -3668,7 +3668,7 @@ go(0);run()})();
           body: JSON.stringify({ reference: orderRef })
         });
         var checkoutData = await checkoutRes.json().catch(function () { return {}; });
-        if (!checkoutRes.ok || !checkoutData.url) {
+        if (!checkoutRes.ok || !checkoutData.embedded) {
           throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
 
