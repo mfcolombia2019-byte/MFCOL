@@ -508,7 +508,7 @@ dialog[open]{animation:dialogIn .22s ease}
 .co-total span{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#777}
 .co-total strong{font-family:var(--serif);font-size:35px;font-weight:400}
 .co-edit{background:none;border:0;padding:5px 0;text-decoration:underline;color:#777;font-size:12px}
-.co-fine{text-align:center;color:#777;font-size:11px;margin-top:14px}
+.co-fine{text-align:center;color:#777;font-size:11px;margin-top:14px}.co-status{margin-top:14px;padding:14px 16px;border:1px solid rgba(17,17,17,.12);border-radius:16px;background:#fff;font-size:12px;line-height:1.5;color:#555}.co-status strong{display:block;color:#111;font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:4px}.co-status .co-wa{display:inline-block;margin-top:10px;padding:10px 14px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:10px;letter-spacing:.12em;text-transform:uppercase}.co-status[data-type="error"]{display:block}
 
 /* Floating WhatsApp */
 .wa-float{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:30;width:52px;height:52px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;border:0;box-shadow:0 8px 25px rgba(0,0,0,.15)}
@@ -2342,7 +2342,7 @@ function trackMetaInitiateCheckout(reference) {
 .co-items small{display:block;margin-top:3px}
 .co-total{padding:16px 0 4px!important;border-top:0!important}
 .co-total strong{font-size:32px!important}
-.co-fine{font-size:10px!important}
+.co-fine{font-size:10px!important}.co-status{margin-top:12px!important;border-radius:16px!important;background:#fff!important}.co-status .co-wa{border-radius:999px!important;text-decoration:none!important}
 .pd-buy-now{
   width:100%!important;
   margin-top:9px!important;
@@ -2696,7 +2696,7 @@ go(0);run()})();
         <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
         <button class="co-edit" type="button" data-edit-bag>Editar bolsa</button>
       </div>
-      <button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
+      <div class="co-status" id="coStatus" role="status" aria-live="polite" hidden></div><button class="btn btn-solid btn-block" type="submit" id="coSubmit" style="margin-top:12px" disabled>Elige cómo quieres pedir</button>
       <p class="co-fine">No se cobra nada en línea hasta que confirmes tu medio de pago.</p>
     </form>
   </div>
@@ -3472,6 +3472,7 @@ go(0);run()})();
     $("#coItems").innerHTML = itemsHTML +
       '<li class="co-shipping"><span>Valor envío</span><span>' + fmt(shipping) + '</span></li>';
     $("#coTotal").textContent = fmt(subtotal + shipping);
+    var status = $("#coStatus"); if (status) { status.hidden = true; status.removeAttribute("data-type"); status.innerHTML = ""; }
     syncPayUI();
     openDlg($("#co"));
     $("#co").scrollTop = 0;
@@ -3480,7 +3481,7 @@ go(0);run()})();
   async function openEmbeddedBold(checkoutData) {
     var cfg = checkoutData && checkoutData.embedded;
     if (!cfg || typeof window.BoldCheckout !== "function") {
-      throw new Error("El pago embebido de Bold no está habilitado todavía para esta tienda.");
+      throw new Error("El pago en línea aún no está disponible. Puedes finalizar tu pedido por WhatsApp.");
     }
     try {
       var checkout = new window.BoldCheckout(cfg);
@@ -3488,7 +3489,7 @@ go(0);run()})();
       checkout.open();
     } catch (err) {
       console.error("Bold Embedded Checkout:", err);
-      throw new Error("No pudimos abrir el pago seguro de Bold.");
+      throw new Error("No pudimos abrir el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
     }
   }
   function encodeForm(data) {
@@ -3624,8 +3625,8 @@ go(0);run()})();
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
-        closeDlg($("#co"));
         await openEmbeddedBold(checkoutData);
+        closeDlg($("#co"));
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
         return;
       }
@@ -3639,7 +3640,19 @@ go(0);run()})();
       openWA(msg);
     } catch (error) {
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
-      alert(error && error.message ? error.message : "No pudimos guardar tu pedido. Intenta de nuevo.");
+      var status = $("#coStatus");
+      if (status) {
+        var message = error && error.message ? error.message : "No pudimos completar el pedido en este momento.";
+        var waText = "Hola, MF. Quiero finalizar mi pedido por WhatsApp:\n" + pedidoTxt +
+          "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address +
+          "\nCiudad: " + v.city + "\nTeléfono: " + v.phone;
+        status.hidden = false;
+        status.dataset.type = "error";
+        status.innerHTML = "<strong>Podemos ayudarte a terminarlo.</strong><span>" +
+          esc(message.replace("Puedes finalizar tu pedido por WhatsApp.", "")) +
+          "</span><br><a class="co-wa" href="" + waURL(waText) + "" target="_blank" rel="noopener">Finalizar por WhatsApp →</a>";
+        status.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
     }
   });
   $("#coForm").addEventListener("input", function (e) { if (e.target.getAttribute("aria-invalid") === "true") { e.target.setAttribute("aria-invalid", "false"); $("#err-" + e.target.name).textContent = ""; } });
