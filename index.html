@@ -2159,6 +2159,27 @@ function trackMetaCommerceEvent(eventName, product, extra) {
   }, extra || {});
   window.fbq("track", eventName, data);
 }
+function trackMetaInitiateCheckout(reference) {
+  if (typeof window.fbq !== "function") return;
+  var items = Array.isArray(window.__mfBag) ? window.__mfBag : [];
+  var ids = [];
+  var total = 0;
+  items.forEach(function (item) {
+    if (!item || !item.id) return;
+    ids.push(String(item.id));
+    var product = typeof byId === "function" ? byId(item.id) : null;
+    if (product) total += (Number(product.price) || 0) * (Number(item.qty) || 1);
+  });
+  if (!ids.length) return;
+  window.fbq("track", "InitiateCheckout", {
+    content_ids: ids,
+    content_type: "product",
+    value: total,
+    currency: "COP",
+    num_items: items.reduce(function (sum, item) { return sum + (Number(item.qty) || 1); }, 0),
+    order_reference: String(reference || "")
+  });
+}
 </script>
 </head>
 <body>
