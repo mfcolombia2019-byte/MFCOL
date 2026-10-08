@@ -3650,7 +3650,7 @@ go(0);run()})();
         status.dataset.type = "error";
         status.innerHTML = "<strong>Podemos ayudarte a terminarlo.</strong><span>" +
           esc(message.replace("Puedes finalizar tu pedido por WhatsApp.", "")) +
-          "</span><br><a class="co-wa" href="" + waURL(waText) + "" target="_blank" rel="noopener">Finalizar por WhatsApp →</a>";
+          "</span><br><a class=\"co-wa\" href=\"" + waURL(waText) + "\" target=\"_blank\" rel=\"noopener\">Finalizar por WhatsApp →</a>";
         status.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
