@@ -2858,6 +2858,7 @@ try {
   /* ---------- Bolsa ---------- */
   var bag = [];
   try { bag = JSON.parse(localStorage.getItem("mf-bag") || "[]").filter(function (i) { return byId(i.id); }); } catch (e) { bag = []; }
+  window.__mfBag = bag;
   function saveBag() { try { localStorage.setItem("mf-bag", JSON.stringify(bag)); } catch (e) {} }
   function addToBag(id, size, color, quiet, qty) {
     qty = qty || 1;
@@ -3247,13 +3248,13 @@ try {
       if (pay === "Link de pago (Bold)") {
         if (submitBtn) submitBtn.textContent = "Preparando pago seguro…";
 
-        var checkoutRes = await fetch("/.netlify/functions/preparar-checkout-bold", {
+        var checkoutRes = await fetch("/.netlify/functions/crear-link-pago", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: orderRef })
         });
         var checkoutData = await checkoutRes.json().catch(function () { return {}; });
-        if (!checkoutRes.ok || !checkoutData.orderId || !checkoutData.integritySignature || !checkoutData.apiKey) {
+        if (!checkoutRes.ok || !checkoutData.url) {
           throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
 
@@ -3266,27 +3267,8 @@ try {
         guardarPedidoLegacy(orderRef, "");
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
-        if (typeof window.BoldCheckout !== "function") {
-          throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
-        }
-
-        var checkout = new window.BoldCheckout({
-          orderId: checkoutData.orderId,
-          currency: checkoutData.currency,
-          amount: checkoutData.amount,
-          apiKey: checkoutData.apiKey,
-          integritySignature: checkoutData.integritySignature,
-          description: checkoutData.description,
-          redirectionUrl: checkoutData.redirectionUrl,
-          originUrl: checkoutData.originUrl,
-          renderMode: "embedded",
-          customerData: checkoutData.customerData,
-          billingAddress: checkoutData.billingAddress
-        });
-
         closeDlg($("#co"));
-        checkout.open();
-        return;
+        window.location.href = checkoutData.url;        return;
       }
 
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
