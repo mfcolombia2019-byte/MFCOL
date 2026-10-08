@@ -68,6 +68,7 @@ fieldset{border:0;min-width:0}
 .btn-light:hover{background:#fff;color:#111}
 .btn-solid-light{background:#fff;color:#111;border-color:#fff}
 .btn-solid-light:hover{background:#111;color:#fff;border-color:#111}
+ .collection-link.is-leaving{opacity:0;transform:none!important;pointer-events:none}
 .btn-block{width:100%}
 .btn:disabled{opacity:.45;cursor:default;pointer-events:none;transform:none}
 .icon-btn{display:grid;place-items:center;width:44px;height:44px;border:0;background:transparent;position:relative}
@@ -3023,6 +3024,17 @@ go(0);run()})();
       button.setAttribute("aria-label", "Añadir al carrito");
     }, 1500);
   }
+
+
+  /* ---------- Navegación de colecciones ---------- */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("a.collection-link");
+    if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    e.preventDefault();
+    a.classList.add("is-leaving");
+    setTimeout(function () { window.location.href = a.href; }, 300);
+  });
 
   /* ---------- Fotos ---------- */
   function mediaPlaceholder(label) {
