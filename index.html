@@ -3359,29 +3359,6 @@ try {
 
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
-        if (typeof window.BoldCheckout !== "function") {
-          throw new Error("No pudimos cargar el sistema de pago. Intenta de nuevo.");
-        }
-
-        var checkout = new window.BoldCheckout({
-          orderId: checkoutData.orderId,
-          currency: checkoutData.currency,
-          amount: checkoutData.amount,
-          apiKey: checkoutData.apiKey,
-          integritySignature: checkoutData.integritySignature,
-          description: checkoutData.description,
-          redirectionUrl: checkoutData.redirectionUrl,
-          originUrl: checkoutData.originUrl,
-          renderMode: "embedded",
-          customerData: checkoutData.customerData,
-          billingAddress: checkoutData.billingAddress
-        });
-
-        closeDlg($("#co"));
-        checkout.open();
-        return;
-      }
-
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
       var msg = "Hola, MF. Quiero finalizar mi pedido:\n" + pedidoTxt + "\nTotal: " + fmt(serverTotal) +
         "\n\nDatos de entrega\nNombre: " + v.name + "\nDirección: " + v.address + "\nCiudad: " + v.city + "\nTeléfono: " + v.phone +
