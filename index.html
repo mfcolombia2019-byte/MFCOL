@@ -2207,7 +2207,8 @@ function trackMetaCommerceEvent(eventName, product, extra) {
 }
 
 function trackMetaInitiateCheckout(orderRef) {
-  if (typeof window.fbq !== "function" || !bag.length) return;
+  var currentBag = window.__mfBag || [];
+  if (typeof window.fbq !== "function" || !currentBag.length) return;
 
   var storageKey = "mf_initiate_checkout_" + String(orderRef || "");
   try {
@@ -2220,7 +2221,7 @@ function trackMetaInitiateCheckout(orderRef) {
   var contentIds = [];
   var contents = [];
 
-  bag.forEach(function (item) {
+  currentBag.forEach(function (item) {
     var product = byId(item.id);
     if (!product) return;
 
