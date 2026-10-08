@@ -7,3 +7,5 @@ Production `main` remains unchanged.
 Netlify trigger: secrets-scan-paths configuration ready for Deploy Preview verification.
 
 Environment verification: BOLD_API_KEY configured in the new Netlify project for Deploy Preview testing.
+
+Second verification trigger: waiting for Netlify Deploy Preview after environment configuration.
