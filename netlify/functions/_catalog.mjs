@@ -3,6 +3,17 @@
 // from values supplied by the browser. Update this file together with catalog price/variant changes.
 const PRODUCTS = [
   {
+    "id": "sandalia-slide-de-plataforma-alta-en-cuatro-colores",
+    "name": "Sandalia slide de plataforma alta",
+    "price": 190000,
+    "colors": ["Negro", "Blanco", "Rosa", "Verde"],
+    "facts": [
+      "Negro", "Blanco", "Rosa", "Verde",
+      "Punta abierta", "Plataforma alta", "Estilo slide",
+      "34", "35", "36", "37", "38", "39", "40"
+    ]
+  },
+  {
     "id": "mule-de-tacon-alto-con-tres-tiras",
     "name": "Mule de tacón alto con tres tiras",
     "price": 189900,
