@@ -24,12 +24,22 @@
 (function () {
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (!isIOS) return;
   var viewport = document.querySelector('meta[name="viewport"]');
-  if (viewport) viewport.setAttribute(
-    "content",
-    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
-  );
+  if (!isIOS || !viewport) return;
+  var originalViewport = viewport.getAttribute("content") || "width=device-width, initial-scale=1, viewport-fit=cover";
+
+  /* El bloqueo de zoom solo se activa mientras el checkout está abierto.
+     Fuera del checkout Safari conserva su zoom y accesibilidad normales. */
+  window.__mfCheckoutZoomLock = function (locked) {
+    if (locked) {
+      viewport.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+      );
+    } else {
+      viewport.setAttribute("content", originalViewport);
+    }
+  };
 })();
 </script>
 
@@ -3765,6 +3775,7 @@ go(0);run()})();
   }
   function leaveCheckoutRoute() {
     if (!checkoutRouteActive) return false;
+    if (window.__mfCheckoutZoomLock) window.__mfCheckoutZoomLock(false);
     if (checkoutDirectRoute) {
       checkoutRouteActive = false;
       checkoutDirectRoute = false;
@@ -3802,6 +3813,7 @@ go(0);run()})();
       return;
     }
     closeAllDlg();
+    if (window.__mfCheckoutZoomLock) window.__mfCheckoutZoomLock(true);
     if (!fromRoute) enterCheckoutRoute();
     var subtotal = 0, packages = bag.reduce(function (sum, i) { return sum + i.qty; }, 0);
     var itemsHTML = bag.map(function (i) {
