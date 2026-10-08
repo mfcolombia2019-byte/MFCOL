@@ -57,8 +57,7 @@ export function whatsappConfig() {
       env("WHATSAPP_API_TOKEN"),
     phoneNumberId:
       env("WHATSAPP_PHONE_NUMBER_ID") ||
-      env("META_WHATSAPP_PHONE_NUMBER_ID") ||
-      "1439222772604466",
+      env("META_WHATSAPP_PHONE_NUMBER_ID"),
     graphVersion: env("META_GRAPH_API_VERSION") || "v25.0",
     templateName: env("WHATSAPP_CONFIRMATION_TEMPLATE") || "confirmacion_compra_marlon",
     templateLanguage: env("WHATSAPP_TEMPLATE_LANGUAGE") || "es_CO"
