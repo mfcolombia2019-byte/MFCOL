@@ -250,6 +250,8 @@ fieldset{border:0;min-width:0}
 .about-copy{max-width:700px}
 .about p.lead{font-family:var(--serif);font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 30px}
 .about-image{min-height:70svh}
+.about-video{display:block;width:100%;max-width:480px;aspect-ratio:9/16;object-fit:cover;background:#111;border-radius:2px;overflow:hidden}
+@media(min-width:820px){.about-video{max-width:420px}}
 @media(min-width:820px){.about-grid{grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}.about-copy{padding-top:40px}.about-image{min-height:80svh}}
 
 /* Support */
@@ -2570,7 +2572,7 @@ go(0);run()})();
   <div class="wrap about-grid">
     <div class="about-copy reveal">
       <p class="hero-kicker">La marca</p>
-      <h2 class="h-sec" id="about-title">Hecho para dejar huella.</h2>
+      <div class="about-video-wrap"><video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="MF, colección en movimiento"><source src="assets/mf-about-video.mp4" type="video/mp4"></video></div>
       <p class="lead">MF nace alrededor de una idea sencilla: el calzado no completa el look. Lo transforma.</p>
       <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
     </div>
