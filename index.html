@@ -252,6 +252,7 @@ fieldset{border:0;min-width:0}
 .about p.lead{font-family:var(--serif);font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 30px}
 .about-image{min-height:70svh}
 .about-video{display:block;width:100%;max-width:480px;aspect-ratio:9/16;object-fit:cover;background:#111;border-radius:2px;overflow:hidden}
+.video-brand-copy{position:absolute;inset:auto 0 28px;text-align:center;color:#fff;font-size:clamp(13px,2vw,18px);font-weight:400;letter-spacing:.08em;line-height:1.35;text-shadow:0 2px 14px rgba(0,0,0,.45);padding:0 22px;pointer-events:none}
 @media(min-width:820px){.about-video{max-width:420px}}
 @media(min-width:820px){.about-grid{grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}.about-copy{padding-top:40px}.about-image{min-height:80svh}}
 
@@ -2710,11 +2711,14 @@ go(0);run()})();
   <div class="spot-inner" id="spot"></div>
 </section>
 
-<section class="section" id="video-marca" aria-label="MF en movimiento">
+<section class="section" id="video-marca" aria-label="Marlon Footwear en movimiento">
   <div class="wrap" style="display:flex;justify-content:center">
-    <video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="MF, colección en movimiento">
-      <source src="assets/video.mp4" type="video/mp4">
-    </video>
+    <div style="position:relative;width:100%;max-width:480px">
+      <video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="Marlon Footwear, colección en movimiento">
+        <source src="assets/video.mp4" type="video/mp4">
+      </video>
+      <div class="video-brand-copy">Los que buscas. Solo en Marlon Footwear.</div>
+    </div>
   </div>
 </section>
 
