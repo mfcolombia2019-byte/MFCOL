@@ -3500,18 +3500,52 @@ go(0);run()})();
     $("#co").scrollTop = 0;
   }
 
+  var boldLibraryPromise = null;
+  function ensureBoldCheckoutLibrary() {
+    if (typeof window.BoldCheckout === "function") return Promise.resolve();
+    if (boldLibraryPromise) return boldLibraryPromise;
+    boldLibraryPromise = new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src*="checkout.bold.co/library/boldPaymentButton.js"]');
+      if (!existing) {
+        existing = document.createElement("script");
+        existing.src = "https://checkout.bold.co/library/boldPaymentButton.js";
+        existing.async = true;
+        document.head.appendChild(existing);
+      }
+      var started = Date.now();
+      var timer = setInterval(function () {
+        if (typeof window.BoldCheckout === "function") {
+          clearInterval(timer);
+          resolve();
+        } else if (Date.now() - started > 10000) {
+          clearInterval(timer);
+          reject(new Error("No pudimos cargar el pago seguro de Bold."));
+        }
+      }, 50);
+      existing.addEventListener("error", function () {
+        clearInterval(timer);
+        reject(new Error("No pudimos cargar el pago seguro de Bold."));
+      }, { once:true });
+    }).catch(function (err) {
+      boldLibraryPromise = null;
+      throw err;
+    });
+    return boldLibraryPromise;
+  }
+
   async function openEmbeddedBold(checkoutData) {
     var cfg = checkoutData && checkoutData.embedded;
-    if (!cfg || typeof window.BoldCheckout !== "function") {
-      throw new Error("El pago en línea aún no está disponible. Puedes finalizar tu pedido por WhatsApp.");
+    if (!cfg) {
+      throw new Error("No pudimos preparar el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
     }
     try {
+      await ensureBoldCheckoutLibrary();
       var checkout = new window.BoldCheckout(cfg);
       window.__mfBoldCheckout = checkout;
       checkout.open();
     } catch (err) {
       console.error("Bold Embedded Checkout:", err);
-      throw new Error("No pudimos abrir el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
+      throw new Error(err && err.message ? err.message : "No pudimos abrir el pago seguro. Puedes finalizar tu pedido por WhatsApp.");
     }
   }
   function encodeForm(data) {
