@@ -2305,6 +2305,61 @@ function trackMetaInitiateCheckout(reference) {
 .dr-grand,.co-total{font-family:var(--serif);font-weight:800}
 .dr-foot .btn,.co .btn{width:100%}
 </style>
+<style id="mf-checkout-refinement">
+/* Checkout MF — cuadro compacto, cálido y editorial */
+.co{
+  width:min(560px,calc(100% - 20px))!important;
+  height:auto!important;
+  max-height:min(90dvh,780px)!important;
+  margin:auto!important;
+  overflow:auto!important;
+  background:#f7f4ee!important;
+  border:1px solid rgba(17,17,17,.10)!important;
+  border-radius:28px!important;
+  box-shadow:0 24px 70px rgba(17,17,17,.18)!important;
+}
+.co-in{padding:12px 26px calc(28px + env(safe-area-inset-bottom))!important}
+.co-head{min-height:58px!important}
+.co-head h2{font-size:36px!important;font-weight:500!important}
+.co-intro{margin:2px 0 20px;color:#777;font-size:13px;line-height:1.45}
+.co-section-label{margin-top:8px;padding-top:18px;border-top:1px solid rgba(17,17,17,.10);font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase}
+.co-pay{margin-top:24px!important}
+.co-pay-q{font-size:25px!important}
+.pays{gap:10px!important}
+.pay{
+  min-height:104px!important;
+  padding:18px!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.68)!important;
+}
+.pay[aria-pressed="true"]{background:#111!important;border-color:#111!important;color:#fff!important}
+.pay-name{font-size:20px!important}
+.pay-desc{font-size:12px!important;line-height:1.4}
+.co-sum{margin-top:24px!important;padding:18px 0 0!important;border-top:1px solid rgba(17,17,17,.10)!important}
+.co-summary-title{font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px}
+.co-items li{display:flex;justify-content:space-between;gap:16px;padding:10px 0!important;margin:0!important;background:transparent!important;border-radius:0!important;border-bottom:1px solid rgba(17,17,17,.08)!important;font-size:13px}
+.co-items small{display:block;margin-top:3px}
+.co-total{padding:16px 0 4px!important;border-top:0!important}
+.co-total strong{font-size:32px!important}
+.co-fine{font-size:10px!important}
+.pd-buy-now{
+  width:100%!important;
+  margin-top:9px!important;
+  border:1px solid #111!important;
+  background:#fff!important;
+  color:#111!important;
+}
+.pd-buy-now:hover{background:#111!important;color:#fff!important}
+.co::backdrop{background:rgba(17,17,17,.38)!important;backdrop-filter:blur(3px)}
+@media(max-width:560px){
+  .co{width:calc(100% - 20px)!important;max-height:90dvh!important;border-radius:24px!important}
+  .co-in{padding-left:18px!important;padding-right:18px!important}
+  .co-head h2{font-size:31px!important}
+  .pay{min-height:96px!important}
+}
+</style>
+
 </head>
 <body>
 <script>
@@ -2601,6 +2656,7 @@ go(0);run()})();
       <h2 id="coTitle">Finaliza tu pedido</h2>
       <button class="dlg-close" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     </div>
+    <p class="co-intro">Revisa tus datos y elige cómo quieres pagar. Todo queda dentro de MF.</p>
     <form id="coForm" name="pedidos" method="POST" data-netlify="true" netlify-honeypot="empresa" novalidate>
       <input type="hidden" name="form-name" value="pedidos">
       <p class="sr"><label>No llenar: <input name="empresa" tabindex="-1" autocomplete="off"></label></p>
@@ -2609,6 +2665,7 @@ go(0);run()})();
       <input type="hidden" name="medio_pago">
       <input type="hidden" name="link_pago">
       <input type="hidden" name="reference">
+      <div class="co-section-label">Datos de entrega</div>
       <label class="field"><span>Nombre completo</span><input name="name" type="text" autocomplete="name" placeholder="Daniela Restrepo Ocampo" aria-describedby="err-name" required></label>
       <p class="err" id="err-name" role="alert"></p>
       <label class="field"><span>Dirección de entrega</span><input name="address" type="text" autocomplete="street-address" placeholder="Carrera 43A # 18-95, apto 702" aria-describedby="err-address" required></label>
@@ -2619,20 +2676,21 @@ go(0);run()})();
       <p class="err" id="err-phone" role="alert"></p>
 
       <div class="co-pay">
-        <h3 class="co-pay-q" id="payTitle">¿Cómo quieres continuar?</h3>
+        <h3 class="co-pay-q" id="payTitle">Elige cómo pagar</h3>
         <div class="pays" role="group" aria-labelledby="payTitle">
           <button class="pay" type="button" data-pay="Link de pago (Bold)" aria-pressed="false">
-            <span class="pay-name">Finalizar compra</span>
-            <span class="pay-desc">Pago seguro en línea</span>
+            <span class="pay-name">Pagar en línea</span>
+            <span class="pay-desc">Pago seguro con Bold</span>
           </button>
           <button class="pay" type="button" data-pay="Transferencia bancaria" aria-pressed="false">
-            <span class="pay-name">Finalizar pedido por WhatsApp</span>
-            <span class="pay-desc">Envíanos tu carrito y recibe confirmación por WhatsApp</span>
+            <span class="pay-name">Comprar por WhatsApp</span>
+            <span class="pay-desc">Te ayudamos a finalizar tu pedido</span>
           </button>
         </div>
       </div>
 
       <div class="co-sum">
+        <div class="co-summary-title">Resumen de tu pedido</div>
         <ul class="co-items" id="coItems"></ul>
         <div class="co-total"><span>Total del pedido</span><strong id="coTotal"></strong></div>
         <p class="co-delivery" id="coDeliveryEstimate">Entrega estimada: 3–5 días hábiles desde el despacho.</p>
@@ -3332,7 +3390,7 @@ go(0);run()})();
         '<p class="hint" role="status"></p>' +
         (pending ? "" : '<div class="pd-qty"><span class="pd-qty-label">Cantidad</span><div class="qty"><button type="button" data-qty-step="-1" aria-label="Quitar una unidad">−</button><span data-qty-val aria-live="polite">1</span><button type="button" data-qty-step="1" aria-label="Agregar una unidad">+</button></div></div>') +
         '<div class="pd-btns"><button class="btn btn-solid pd-primary" type="button" data-buy>' + (pending ? "Consultar por WhatsApp" : "Añadir al carrito") + '</button>' +
-        (pending ? "" : '<button class="pd-heart' + (isFavorite(p.id) ? " is-saved" : "") + '" type="button" aria-label="' + (isFavorite(p.id) ? "Quitar de favoritos" : "Guardar producto") + '" aria-pressed="' + (isFavorite(p.id) ? "true" : "false") + '">' + (isFavorite(p.id) ? "♥" : "♡") + '</button>') + '</div>' +
+        (pending ? "" : '<button class="btn pd-buy-now" type="button" data-buy-now>Proceder a la compra →</button><button class="pd-heart' + (isFavorite(p.id) ? " is-saved" : "") + '" type="button" aria-label="' + (isFavorite(p.id) ? "Quitar de favoritos" : "Guardar producto") + '" aria-pressed="' + (isFavorite(p.id) ? "true" : "false") + '">' + (isFavorite(p.id) ? "♥" : "♡") + '</button>') + '</div>' +
         '<div class="pd-benefits"><div><b>▱</b><span>Envíos seguros<br>a todo Colombia</span></div><div><b>✓</b><span>Pagos 100%<br>seguros</span></div><div><b>□</b><span>No cambios<br>ni devoluciones</span></div></div>' +
       '</div></div>' +
       '<section class="pd-related"><div class="pd-related-head"><h3>También te puede gustar</h3><span></span><div class="pd-arrows"><button type="button" aria-label="Anterior">←</button><button type="button" aria-label="Siguiente">→</button></div></div>' +
@@ -3353,6 +3411,27 @@ go(0);run()})();
   }
   /* ---------- Finalizar pedido ---------- */
   var pay = "";
+  var checkoutRouteActive = false;
+  function enterCheckoutRoute() {
+    if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
+      checkoutRouteActive = true;
+      return;
+    }
+    try {
+      history.pushState({ mfCheckoutRoute:true }, "", "/checkout");
+      checkoutRouteActive = true;
+    } catch (e) {}
+  }
+  function leaveCheckoutRoute() {
+    if (!checkoutRouteActive) return false;
+    if (history.state && history.state.mfCheckoutRoute) {
+      checkoutRouteActive = false;
+      history.back();
+      return true;
+    }
+    checkoutRouteActive = false;
+    return false;
+  }
   // Texto del botón final: cambia según el método de pedido elegido, para que
   // el cliente siempre sepa qué va a pasar al pulsarlo (nunca un "Enviar" ambiguo).
   var PAY_LABELS = {
@@ -3365,9 +3444,14 @@ go(0);run()})();
     if (PAY_LABELS[pay]) { sub.disabled = false; sub.textContent = PAY_LABELS[pay]; }
     else { sub.disabled = true; sub.textContent = "Elige cómo quieres pedir"; }
   }
-  function openCheckout() {
-    if (!bag.length) return;
+  function openCheckout(fromRoute) {
+    if (!bag.length) {
+      renderBag();
+      openDlg($("#drawer"));
+      return;
+    }
     closeAllDlg();
+    if (!fromRoute) enterCheckoutRoute();
     var subtotal = 0, packages = bag.reduce(function (sum, i) { return sum + i.qty; }, 0);
     var itemsHTML = bag.map(function (i) {
       var p = byId(i.id), sub = p.price * i.qty; subtotal += sub;
@@ -3380,6 +3464,21 @@ go(0);run()})();
     syncPayUI();
     openDlg($("#co"));
     $("#co").scrollTop = 0;
+  }
+
+  async function openEmbeddedBold(checkoutData) {
+    var cfg = checkoutData && checkoutData.embedded;
+    if (!cfg || typeof window.BoldCheckout !== "function") {
+      throw new Error("El pago embebido de Bold no está habilitado todavía para esta tienda.");
+    }
+    try {
+      var checkout = new window.BoldCheckout(cfg);
+      window.__mfBoldCheckout = checkout;
+      checkout.open();
+    } catch (err) {
+      console.error("Bold Embedded Checkout:", err);
+      throw new Error("No pudimos abrir el pago seguro de Bold.");
+    }
   }
   function encodeForm(data) {
     return Object.keys(data).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]); }).join("&");
@@ -3515,7 +3614,9 @@ go(0);run()})();
         try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
 
         closeDlg($("#co"));
-        window.location.href = checkoutData.url;        return;
+        await openEmbeddedBold(checkoutData);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = PAY_LABELS[pay]; }
+        return;
       }
 
       try { sessionStorage.removeItem("mf_checkout_idem"); } catch (e) {}
@@ -3770,6 +3871,17 @@ go(0);run()})();
         return;
       }
 
+      if (el.matches("[data-buy-now]")) {
+        var scopeNow = el.closest("[data-product]"), pNow = byId(scopeNow.dataset.product);
+        if (pNow.price == null) { openWA(msgConsult(pNow, checkedSize(scopeNow), checkedColor(scopeNow))); return; }
+        var vNow = pickVariant(scopeNow, pNow); if (!vNow) return;
+        var qtyNow = qtyOf(scopeNow);
+        addToBag(pNow.id, vNow.size, vNow.color, true, qtyNow);
+        trackMetaCommerceEvent("AddToCart", pNow, { quantity: qtyNow, content_name: pNow.name });
+        openCheckout();
+        return;
+      }
+
       if (el.matches("[data-buy]")) {
         var scope = el.closest("[data-product]"), p = byId(scope.dataset.product);
         if (p.price == null) { openWA(msgConsult(p, checkedSize(scope), checkedColor(scope))); return; }
@@ -3820,6 +3932,7 @@ go(0);run()})();
       if (el.matches("[data-close]")) {
         var dlg = el.closest("dialog");
         if (dlg && dlg.id === "pd" && leaveProductRoute()) return;
+        if (dlg && dlg.id === "co" && leaveCheckoutRoute()) return;
         if (dlg) closeDlg(dlg);
         if (el.dataset.goto) { var t = $(el.dataset.goto); if (t) t.scrollIntoView(); }
         return;
@@ -3828,6 +3941,7 @@ go(0);run()})();
     // clic en el fondo oscuro cierra el diálogo; el detalle también actualiza la ruta.
     if (e.target.tagName === "DIALOG") {
       if (e.target.id === "pd" && leaveProductRoute()) return;
+      if (e.target.id === "co" && leaveCheckoutRoute()) return;
       closeDlg(e.target);
     }
   });
@@ -3844,6 +3958,7 @@ go(0);run()})();
   /* Esc cierra el detalle regresando a la entrada anterior del catálogo. */
   document.addEventListener("cancel", function (e) {
     if (e.target && e.target.id === "pd" && leaveProductRoute()) e.preventDefault();
+    if (e.target && e.target.id === "co" && leaveCheckoutRoute()) e.preventDefault();
   });
 
   /* ---------- Enlaces de contacto ---------- */
@@ -3945,6 +4060,15 @@ go(0);run()})();
   renderBag();
   initLinks();
   initReveal();
+  if (window.location.pathname.replace(/\/+$/, "") === "/checkout") {
+    setTimeout(function () {
+      if (bag.length) openCheckout(true);
+      else {
+        history.replaceState(catalogHistoryState(), "", "/#productos");
+        window.scrollTo({top:0,left:0,behavior:"auto"});
+      }
+    }, 0);
+  }
 
   /* Si la entrada fue directa, convertimos la entrada actual en catálogo
      y añadimos encima el producto para que Atrás vuelva al catálogo. */
