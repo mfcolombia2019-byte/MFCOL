@@ -18,3 +18,8 @@
   from = "/bold/checkout"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/colecciones/*"
+  to = "/coleccion.html"
+  status = 200

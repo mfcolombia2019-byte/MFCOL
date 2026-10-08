@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Colección — MF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ececec;--ink:#111}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Helvetica,Arial,sans-serif;transition:background .4s;animation:in .5s ease both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+body.out{opacity:0;transform:scale(.985);transition:opacity .3s,transform .3s}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px}
+.logo{font:800 26px Bricolage Grotesque,sans-serif;text-decoration:none;color:inherit;letter-spacing:-.03em}
+.back{width:42px;height:42px;border:1px solid var(--ink);border-radius:50%;display:grid;place-items:center;text-decoration:none;color:inherit;font-size:20px}
+.head{padding:18px 20px 8px;max-width:1200px;margin:auto}
+.kick{font-size:13px;margin:0 0 8px}
+h1{font:800 clamp(38px,8vw,72px)/.95 Bricolage Grotesque,sans-serif;letter-spacing:-.03em;margin:0}
+.txt{max-width:46ch;margin:12px 0 0;color:#444}
+.cnt{font-size:13px;color:#555;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px 20px 60px;max-width:1200px;margin:auto}
+@media(min-width:760px){.grid{grid-template-columns:repeat(4,1fr);gap:18px}}
+.card{background:#fff;border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;opacity:0;animation:in .5s ease forwards}
+.card .ph{aspect-ratio:1/1.1;background:var(--cbg,#f1f1ef)}
+.card img{width:100%;height:100%;object-fit:cover}
+.card .tag{position:absolute;margin:10px;background:#fff;font-size:10px;padding:4px 8px;letter-spacing:.06em}
+.card .in{padding:12px 12px 16px}
+.card strong{display:block;font:800 15px/1.15 Bricolage Grotesque,sans-serif}
+.card span{display:block;margin-top:6px;font-weight:600}
+.empty{padding:40px 20px;text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1}}
+</style>
+</head>
+<body>
+<header><a class="back" href="/" aria-label="Volver al inicio" data-back>←</a><a class="logo" href="index.html">MF</a><span style="width:42px"></span></header>
+<div class="head"><p class="kick">Colección</p><h1 id="t">Colección</h1><p class="txt" id="d"></p><p class="cnt" id="n"></p></div>
+<main class="grid" id="g"></main>
+<script src="/productos.js"></script>
+<script src="/colecciones.js"></script>
+<script>
+(function(){
+var path=location.pathname.replace(/\/+$/,"");
+var q=(path.match(/^\/colecciones\/([^/]+)$/)||[])[1]||"todos";
+var C=COLECCIONES[q]||COLECCIONES.todos;
+var norm=function(s){return String(s).toLowerCase()};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var fmt=function(n){return"$"+String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".")};
+var list=C.ids&&C.ids.length?C.ids.map(function(id){return PRODUCTS.filter(function(p){return p.id===id})[0]}).filter(Boolean)
+  :PRODUCTS.filter(function(p){return p.adminActive!==false&&(!C.grupo||p.group===C.grupo)&&(!C.color||(p.colors||[]).some(function(x){return norm(x).indexOf(C.color)>-1}))});
+document.title=C.titulo+" — MF";
+document.documentElement.style.setProperty("--bg",C.fondo||"#ececec");
+document.getElementById("t").textContent=C.titulo;
+document.getElementById("d").textContent=C.texto||"";
+document.getElementById("n").textContent=list.length+(list.length===1?" modelo":" modelos");
+document.getElementById("g").innerHTML=list.length?list.map(function(p,i){
+  var im=p.imgs&&p.imgs[0];
+  return'<a class="card" style="animation-delay:'+Math.min(i*50,500)+'ms;--cbg:'+(p.cardBg||"#f1f1ef")+'" href="/?producto='+encodeURIComponent(p.id)+'">'+
+  '<div class="ph">'+(im?'<img src="/'+String(im[0]).replace(/^\/+/,"")+'" alt="'+esc(im[1])+'" loading="lazy">':"")+'</div>'+
+  '<div class="in"><strong>'+esc(p.name)+'</strong><span>'+(p.price!=null?fmt(p.price):"Por confirmar")+'</span></div></a>'}).join(""):
+  '<p class="empty">Aún no hay modelos en esta colección.</p>';
+document.addEventListener("click",function(e){var a=e.target.closest("a[href]");
+  if(!a||a.target||e.metaKey||e.ctrlKey)return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  e.preventDefault();document.body.classList.add("out");setTimeout(function(){location.href=a.href},280)});
+addEventListener("pageshow",function(){document.body.classList.remove("out")});
+})();
+</script>
+</body>
+</html>

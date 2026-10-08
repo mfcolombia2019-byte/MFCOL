@@ -20,6 +20,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+<script>
+(function () {
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (!isIOS || !viewport) return;
+  var originalViewport = viewport.getAttribute("content") || "width=device-width, initial-scale=1, viewport-fit=cover";
+
+  /* El bloqueo de zoom solo se activa mientras el checkout está abierto.
+     Fuera del checkout Safari conserva su zoom y accesibilidad normales. */
+  window.__mfCheckoutZoomLock = function (locked) {
+    if (locked) {
+      viewport.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+      );
+    } else {
+      viewport.setAttribute("content", originalViewport);
+    }
+  };
+})();
+</script>
 
 
 <style>
@@ -68,6 +90,7 @@ fieldset{border:0;min-width:0}
 .btn-light:hover{background:#fff;color:#111}
 .btn-solid-light{background:#fff;color:#111;border-color:#fff}
 .btn-solid-light:hover{background:#111;color:#fff;border-color:#111}
+ .collection-link.is-leaving{opacity:0;transform:none!important;pointer-events:none}
 .btn-block{width:100%}
 .btn:disabled{opacity:.45;cursor:default;pointer-events:none;transform:none}
 .icon-btn{display:grid;place-items:center;width:44px;height:44px;border:0;background:transparent;position:relative}
@@ -129,7 +152,7 @@ fieldset{border:0;min-width:0}
 
 /* Hero: split editorial composition, not a conventional overlay hero */
 .hero{display:grid;grid-template-columns:1fr;min-height:calc(100svh - 78px);background:#fff}
-.hero-media{order:1;position:relative;min-height:62svh;overflow:hidden}
+.hero-media{order:1;position:relative;min-height:54svh;overflow:hidden}
 .hero-media img{object-position:center center}
 .hero-copy{order:2;padding:34px var(--gutter) 48px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
 .hero-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:22px}
@@ -229,6 +252,23 @@ fieldset{border:0;min-width:0}
 .spot{display:grid;grid-template-columns:1fr;background:#111;color:#fff}
 .spot-media{min-height:72svh;position:relative}
 .spot-media .media{position:absolute;inset:0;height:100%;aspect-ratio:auto}
+.spot-gallery{position:absolute;inset:0;display:flex;flex-direction:column;background:#f4f4f2}
+.spot-gallery .spot-thumbs{display:flex;gap:8px;padding:12px 14px;overflow-x:auto;scrollbar-width:none;order:2;z-index:3;background:#f4f4f2}
+.spot-gallery .spot-thumbs::-webkit-scrollbar{display:none}
+.spot-gallery .spot-thumb{flex:0 0 58px;width:58px;height:58px;padding:0;border:1px solid rgba(17,17,17,.18);background:#fff;opacity:.62;overflow:hidden}
+.spot-gallery .spot-thumb[aria-pressed="true"]{opacity:1;border-color:#111}
+.spot-gallery .spot-thumb img{width:100%;height:100%;object-fit:cover;mix-blend-mode:normal}
+.spot-gallery .spot-main{position:relative;flex:1;min-height:0;order:1;overflow:hidden;touch-action:pan-y}
+.spot-gallery .spot-main>.media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto}
+.spot-gallery .spot-main>.media img{width:100%;height:100%;object-fit:cover}
+.spot-gallery .spot-dots{position:absolute;left:50%;bottom:18px;z-index:4;display:flex;gap:6px;transform:translateX(-50%);pointer-events:none}
+.spot-gallery .spot-dots i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.45)}
+.spot-gallery .spot-dots i.is-active{background:#fff}
+@media(min-width:820px){
+ .spot-gallery .spot-thumbs{position:absolute;left:24px;bottom:22px;padding:0}
+ .spot-gallery .spot-thumb{flex-basis:62px;width:62px;height:62px}
+ .spot-gallery .spot-dots{display:none}
+}
 .spot-info{padding:48px var(--gutter) 62px}
 .spot .cat{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#aaa}
 .spot h2{font-family:var(--serif);font-size:clamp(40px,6vw,78px);line-height:.92;font-weight:400;margin:14px 0}
@@ -251,6 +291,14 @@ fieldset{border:0;min-width:0}
 .about p.lead{font-family:var(--serif);font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 30px}
 .about-image{min-height:70svh}
 .about-video{display:block;width:100%;max-width:480px;aspect-ratio:9/16;object-fit:cover;background:#111;border-radius:2px;overflow:hidden}
+.video-brand-copy{display:block;text-align:center;max-width:620px;margin:0 auto 34px;padding:0 24px;color:#111;font-family:var(--serif);font-size:clamp(28px,4.5vw,52px);font-weight:400;letter-spacing:-.025em;line-height:1.02}
+.video-brand-copy::after{content:"";display:block;width:42px;height:1px;background:#111;margin:22px auto 0;opacity:.35}
+.video-brand-wrap{position:relative;width:100%;max-width:560px;margin:0 auto}
+.video-brand-wrap::before,.video-brand-wrap::after{content:"";position:absolute;z-index:0;pointer-events:none}
+.video-brand-wrap::before{width:120px;height:120px;border:1px solid rgba(17,17,17,.10);border-radius:50%;left:-74px;top:12%;box-shadow:0 0 0 24px rgba(17,17,17,.025)}
+.video-brand-wrap::after{width:90px;height:1px;background:rgba(17,17,17,.16);right:-58px;bottom:15%}
+.video-brand-wrap .about-video{position:relative;z-index:1;margin:0 auto}
+.video-brand-eyebrow{margin:0 0 13px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#777}
 @media(min-width:820px){.about-video{max-width:420px}}
 @media(min-width:820px){.about-grid{grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}.about-copy{padding-top:40px}.about-image{min-height:80svh}}
 
@@ -506,6 +554,62 @@ dialog[open]{animation:dialogIn .22s ease}
   .pd-btns{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .pd-related-grid{grid-template-columns:repeat(2,1fr)}
   .pd-related-head h3{font-size:20px}
+}
+
+/* Product selectors — compact icon-like controls */
+.pd-info .sizes{margin-top:24px!important}
+.pd-info .sizes legend{margin-bottom:11px!important}
+.pd-info .chips{display:flex;flex-wrap:wrap;gap:9px!important}
+.pd-info .chip span{
+  min-width:46px!important;
+  width:46px!important;
+  height:46px!important;
+  padding:0!important;
+  border:1px solid #dedede!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  display:grid!important;
+  place-items:center!important;
+  font:600 11px/1 var(--sans)!important;
+  letter-spacing:.02em!important;
+  transition:border-color .2s,background .2s,color .2s,transform .2s!important;
+}
+.pd-info .chip:hover span{border-color:#111!important;transform:translateY(-1px)}
+.pd-info .chip input:checked+span{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.pd-info [data-field="color"] .chip span{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  border-radius:13px!important;
+  padding:6px!important;
+  gap:4px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  font-size:9px!important;
+  line-height:1!important;
+  text-transform:uppercase!important;
+}
+.pd-info [data-field="color"] .swatch{
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  margin:0!important;
+  border-radius:7px!important;
+  border:1px solid rgba(0,0,0,.16)!important;
+}
+.pd-info [data-field="color"] .chip input:checked+span{
+  box-shadow:0 0 0 2px #fff,0 0 0 3px #111!important;
+}
+@media(max-width:520px){
+  .pd-info .chips{gap:8px!important}
+  .pd-info [data-field="color"] .chip span{width:54px!important;height:54px!important;min-width:54px!important}
+  .pd-info [data-field="color"] .swatch{width:20px!important;height:20px!important}
 }
 
 /* Bag */
@@ -1700,7 +1804,35 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden}
 @media(max-width:900px){
   .pd-gallery-inner{display:block!important}
   .pd-gallery-inner .thumbs{
-    display:none!important;
+    display:flex!important;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:8px;
+    padding:10px 14px!important;
+    background:#fff;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .pd-gallery-inner .thumbs::-webkit-scrollbar{display:none}
+  .pd-gallery-inner .thumb{
+    flex:0 0 72px;
+    width:72px!important;
+    height:72px!important;
+    border-radius:8px;
+    overflow:hidden;
+    background:#f2f1ef;
+    opacity:.55;
+    border:1px solid transparent;
+  }
+  .pd-gallery-inner .thumb[aria-pressed="true"]{
+    opacity:1;
+    outline:1px solid #111;
+    outline-offset:0;
+  }
+  .pd-gallery-inner .thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
   }
   .pd-main-media{
     width:100%;
@@ -1927,9 +2059,9 @@ body{background:#fff;color:#111}
     display:flex!important;flex-direction:column!important;
     height:auto!important;min-height:0!important;
   }
-  .mf-hero-photo{height:64svh!important;min-height:430px!important;order:1}
+  .mf-hero-photo{height:32svh!important;min-height:210px!important;order:1}
   .mf-hero-content{
-    min-height:390px!important;padding:76px 22px 45px!important;
+    min-height:260px!important;padding:28px 22px 22px!important;
     border-left:0!important;border-top:1px solid #111!important;order:2!important;
   }
   .mf-hero-content:before{top:25px;left:22px}
@@ -2383,6 +2515,13 @@ input,select,textarea{border-radius:16px!important}
 .grid .card-body h3{font-size:clamp(26px,7vw,40px)!important;margin-top:4px}
 .grid .card-body .price{font-size:18px!important}
 .grid .card-link,.grid .card-body .card-link{margin-top:6px}
+/* Ajuste de producto: la foto queda completa dentro de la tarjeta */
+.grid .card-media img{
+  object-fit:contain!important;
+  object-position:center center!important;
+  padding:clamp(10px,2.4vw,28px)!important;
+}
+
 /* Portada */
 .mfh{background:#ececec;transition:background-color .6s ease;min-height:calc(100svh - 110px)}
 .mfh-in{max-width:1200px;margin:0 auto;padding:2rem var(--gutter) 3rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;min-height:calc(100svh - 110px)}
@@ -2552,6 +2691,11 @@ function trackMetaInitiateCheckout(reference) {
   color:#111!important;
 }
 .pd-buy-now:hover{background:#111!important;color:#fff!important}
+.co input,.co select,.co textarea{
+  font-size:16px!important;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
 .co::backdrop{background:rgba(17,17,17,.38)!important;backdrop-filter:blur(3px)}
 @media(max-width:560px){
   .co{width:calc(100% - 20px)!important;max-height:90dvh!important;border-radius:24px!important}
@@ -2642,7 +2786,7 @@ try {
       <p class="mfh-kicker">Nueva colección</p>
       <h1 id="mfhT">Plataforma negra</h1>
       <p id="mfhD">Suela alta y cuero suave. El negro de quien elige distinto.</p>
-      <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
+      <a id="mfhCollectionLink" class="btn btn-solid collection-link" href="/colecciones/plataformas" data-collection="plataformas">Ver colección</a>
       <div class="mfh-dots" role="group" aria-label="Elegir color">
         <button type="button" style="--c:#111" aria-label="Negra" aria-pressed="true"></button>
         <button type="button" style="--c:#fff" aria-label="Blanca" aria-pressed="false"></button>
@@ -2654,10 +2798,10 @@ try {
   </div>
 </section>
 <script>
-(function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto."],["blanco","#dcdcda","Plataforma blanca","Blanco puro, pocas piezas. Para quien sabe elegir."],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida."],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene."]],
+(function(){var S=[["negro","#ececec","Plataforma negra","Suela alta y cuero suave. El negro de quien elige distinto.","plataformas"],["blanco","#dcdcda","Pure Form","Blanco puro, una silueta esencial.","plataformas"],["rosa","#f3dede","Plataforma rosada","Rosa suave. Para quien no pasa desapercibida.","plataformas"],["verde","#dfe8d3","Plataforma verde","Verde salvia, un tono que casi nadie tiene.","plataformas"]],
 sec=document.getElementById("inicio"),b=sec.querySelectorAll(".mfh-dots button"),i=0,t=null,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function go(n){i=(n+S.length)%S.length;var s=S[i];sec.style.backgroundColor=s[1];document.documentElement.style.setProperty("--mfbg",s[1]);
-document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
+document.getElementById("mfhT").textContent=s[2];document.getElementById("mfhD").textContent=s[3];var cl=document.getElementById("mfhCollectionLink");cl.href="/colecciones/plataforma-blanca";cl.dataset.collection="plataforma-blanca";var im=document.getElementById("mfhI");im.src="assets/plataforma-slide-"+s[0]+".jpg";im.alt="Sandalia "+s[2].toLowerCase();
 b.forEach(function(x,k){x.setAttribute("aria-pressed",k===i)})}
 function run(){clearInterval(t);if(!red)t=setInterval(function(){go(i+1)},6000)}
 b.forEach(function(x,k){x.addEventListener("click",function(){go(k);run()})});
@@ -2709,17 +2853,19 @@ go(0);run()})();
   <div class="spot-inner" id="spot"></div>
 </section>
 
-<section class="section about" id="nosotros" aria-labelledby="about-title">
-  <div class="wrap about-grid">
-    <div class="about-copy reveal">
-      <p class="hero-kicker">La marca</p>
-      <div class="about-video-wrap"><video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="MF, colección en movimiento"><source src="assets/mf-about-video.mp4" type="video/mp4"></video></div>
-      <p class="lead">MF nace alrededor de una idea sencilla: el calzado no completa el look. Lo transforma.</p>
-      <a class="btn btn-solid" href="#productos" data-filter="todos">Ver colección</a>
+<section class="section" id="video-marca" aria-label="Marlon Footwear en movimiento">
+  <div class="wrap">
+    <div class="video-brand-eyebrow">MARLON FOOTWEAR</div>
+    <div class="video-brand-copy">Los que buscas. Solo en Marlon Footwear.</div>
+    <div class="video-brand-wrap">
+      <video class="about-video" autoplay muted loop playsinline preload="metadata" aria-label="Marlon Footwear, colección en movimiento">
+        <source src="assets/video.mp4" type="video/mp4">
+      </video>
     </div>
-    <div class="about-image r45 reveal" data-slot="nosotros" data-alt="MF, filosofía de marca"></div>
   </div>
 </section>
+
+
 
 <section class="section cm-home" id="comunidad" aria-labelledby="cm-title" hidden>
   <div class="wrap">
@@ -2913,6 +3059,8 @@ go(0);run()})();
   <ul id="sdList"></ul>
 </dialog>
 
+<script src="productos.js"></script>
+<script src="colecciones.js"></script>
 <script>
 (function () {
   "use strict";
@@ -2959,42 +3107,7 @@ go(0);run()})();
      imgs: fotos del modelo como [ruta, texto alternativo]; la primera es la principal
      facts: datos breves que se muestran en la ficha del producto
      ======================================================================== */
-  var PRODUCTS = [
-    {id:"sandalia-slide-de-plataforma-alta-en-cuatro-colores",name:"Sandalia slide de plataforma alta",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:true,cardBg:"#f3dede",imgs:[["assets/plataforma-slide-negro.jpg","Sandalia slide de plataforma alta en color negro"],["assets/plataforma-slide-blanco.jpg","Sandalia slide de plataforma alta en color blanco"],["assets/plataforma-slide-rosa.jpg","Sandalia slide de plataforma alta en color rosa"],["assets/plataforma-slide-verde.jpg","Sandalia slide de plataforma alta en color verde"]],colors:["Negro","Blanco","Rosa","Verde"],facts:["Negro","Blanco","Rosa","Verde","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con una tira ancha sobre el empeine y plataforma alta de perfil redondeado. Disponible en negro, blanco, rosa y verde."},
-    {id:"mule-de-tacon-alto-con-tres-tiras",name:"Mule de tacón alto con tres tiras",cat:"Punta cuadrada · Tacón tipo aguja",group:"tacones",price:189900,isNew:false,imgs:[["assets/foto-001.jpg","Sandalia mule de tacón alto en color negro"],["assets/foto-002.jpg","Sandalia mule de tacón alto en color blanco"],["assets/foto-003.jpg","Sandalia mule de tacón alto en color nude"],["assets/foto-004.jpg","Sandalia mule de tacón alto en color plateado"]],colors:["Negro","Blanco","Nude","Plateado"],facts:["Negro","Blanco","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Sandalia mule de tacón alto con punta cuadrada, tres tiras y diseño abierto en el talón. Disponible en cuatro colores."},
-    {id:"sandalia-de-plataforma-con-correa-al-tobillo",name:"Sandalia de plataforma con correa al tobillo",cat:"Punta abierta · Tacón ancho · Plataforma alta · Sintético mate",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-005.jpg","Sandalia de plataforma blanca con tira al tobillo"],["assets/foto-006.jpg","Sandalia negra de plataforma con correa al tobillo"],["assets/foto-007.jpg","Sandalia negra de plataforma, vista lateral"],["assets/foto-008.jpg","Sandalias de plataforma en blanco y negro"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Tacón ancho","Plataforma alta","Sintético mate","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma en material sintético mate, con punta abierta, tira ancha en el empeine y correa ajustable al tobillo con hebilla. Disponible en negro y blanco."},
-    {id:"sandalia-de-tacon-alto-con-tiras-finas",name:"Sandalia de tacón alto con tiras finas",cat:"Punta cuadrada · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-009.jpg","Sandalias de tacón alto en negro y nude"],["assets/foto-010.jpg","Detalle de sandalia de tacón alto color nude"],["assets/foto-011.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-012.jpg","Sandalia plateada de tacón alto puesta"],["assets/foto-013.jpg","Sandalia negra de tacón alto puesta"]],colors:["Negro","Nude","Plateado"],facts:["Negro","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta cuadrada, tira delantera fina y correa ajustable al tobillo con hebilla. Disponible en negro, nude y plateado."},
-    {id:"mule-de-tacon-alto-con-tira-ancha",name:"Mule de tacón alto con tira ancha",cat:"Punta abierta · Tacón tipo aguja",group:"tacones",price:190000,isNew:false,imgs:[["assets/foto-014.jpg","Mule de tacón alto en color rojo"],["assets/foto-015.jpg","Mule de tacón alto en color negro"],["assets/foto-016.jpg","Mule de tacón alto en color plateado"],["assets/foto-017.jpg","Mule de tacón alto en color blanco"],["assets/foto-018.jpg","Mule de tacón alto en color dorado"]],colors:["Rojo","Negro","Plateado","Blanco","Dorado"],facts:["Rojo","Negro","Plateado","Blanco","Dorado","Punta abierta","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Mule abierto de tacón alto, con tira amplia en el empeine y tacón tipo aguja. Disponible en rojo, negro, plateado, blanco y dorado."},
-    {id:"sandalia-de-tacon-con-tira-transparente",name:"Sandalia de tacón con tira transparente",cat:"Tacón tipo aguja · Diseño transparente",group:"tacones",price:179900,isNew:false,imgs:[["assets/foto-023.jpg","Sandalia de tacón alto con tira transparente en color blanco"],["assets/foto-024.jpg","Par de sandalias de tacón con tira transparente en color nude"],["assets/foto-025.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-026.jpg","Sandalia de tacón con detalles plateados"],["assets/foto-027.jpg","Sandalia transparente de tacón con detalles plateados"],["assets/foto-028.jpg","Sandalia de tacón con tira transparente y borde negro"],["assets/foto-029.jpg","Sandalia de tacón alto con detalles fucsia"]],colors:["Blanco","Nude","Plateado","Negro","Fucsia"],facts:["Blanco","Nude","Plateado","Negro","Fucsia","Tacón tipo aguja","Diseño transparente","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con diseño estilizado y tira transparente. Disponible en blanco, nude, plateado, negro y fucsia."},
-    {id:"sandalia-de-tacon-alto-con-tiras-cruzadas",name:"Sandalia de tacón alto con tiras cruzadas",cat:"Punta fina · Tiras cruzadas · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-030.jpg","Sandalia de tacón alto con tiras cruzadas en dorado"],["assets/foto-031.jpg","Sandalia negra de tacón alto con tiras cruzadas"],["assets/foto-032.jpg","Sandalia nude de tacón alto con tiras cruzadas"],["assets/foto-033.jpg","Detalle lateral de sandalia negra de tacón alto"],["assets/foto-034.jpg","Sandalia roja de tacón alto con tiras cruzadas"]],colors:["Dorado","Negro","Nude","Rojo"],facts:["Dorado","Negro","Nude","Rojo","Punta fina","Tiras cruzadas","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta fina, tiras cruzadas sobre el empeine y correa ajustable al tobillo. Disponible en dorado, negro, nude y rojo."},
-    {id:"mule-de-tacon-alto-con-tira-transparente",name:"Mule de tacón alto con tira transparente",cat:"Tacón de aguja · Banda transparente",group:"tacones",price:219000,isNew:false,imgs:[["assets/foto-035.jpg","Mule de tacón alto con detalles dorados y tira transparente"],["assets/foto-036.jpg","Mule negro de tacón alto con banda transparente"],["assets/foto-037.jpg","Mule nude de tacón alto con banda transparente"],["assets/foto-038.jpg","Mule nude transparente de tacón alto puesto"],["assets/foto-039.jpg","Par de mules nude de tacón alto con banda transparente"]],colors:["Negro","Nude","Dorado"],facts:["Negro","Nude","Dorado","Tacón de aguja","Banda transparente","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con banda transparente y tacón transparente. Disponible en negro, nude y dorado."},
-    {id:"sandalia-de-tacon-con-tira-transparente-2",name:"Sandalia de tacón con tira transparente",cat:"Punta abierta · Tacón aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-040.jpg","Sandalia negra de tacón alto con tira transparente y correa al tobillo"],["assets/foto-041.jpg","Sandalia nude de tacón alto con tira transparente"],["assets/foto-042.jpg","Detalle frontal de sandalia nude con tira transparente"],["assets/foto-043.jpg","Sandalia blanca de tacón alto con correa al tobillo"]],colors:["Negro","Nude","Blanco"],facts:["Negro","Nude","Blanco","Punta abierta","Tacón aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con banda transparente en la parte delantera y correa ajustable al tobillo. Disponible en negro, nude y blanco."},
-    {id:"sandalia-nude-de-cuna-con-correa-transparente",name:"Sandalia nude de cuña con correa transparente",cat:"Cuña alta · Plataforma trenzada · Correa al tobillo",group:"plataformas",price:209900,isNew:false,imgs:[["assets/foto-044.jpg","Sandalia nude de cuña trenzada con correa transparente, vista lateral"],["assets/foto-045.jpg","Detalle de sandalia nude con cuña trenzada y correa al tobillo"]],colors:["Nude"],facts:["Nude","Cuña alta","Plataforma trenzada","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia nude de cuña alta con plataforma trenzada y correa transparente al tobillo."},
-    {id:"sandalia-de-cuna-trenzada-en-negro-y-rosado",name:"Sandalia de cuña trenzada en negro y rosado",cat:"Cuña alta · Detalle trenzado",group:"plataformas",price:210000,isNew:false,imgs:[["assets/foto-046.jpg","Sandalia de cuña trenzada en negro"],["assets/foto-047.png","Sandalia de cuña trenzada en rosado"]],colors:["Negro","Rosado"],facts:["Negro","Rosado","Cuña alta","Detalle trenzado","34","35","36","37","38","39","40"],desc:"Sandalia de cuña con detalle trenzado, disponible en negro y rosado."},
-    {id:"sandalia-de-cuna-con-pedreria-y-tiras-transparentes",name:"Sandalia de cuña con pedrería y tiras transparentes",cat:"Punta abierta · Cuña alta · Correa al tobillo",group:"plataformas",price:249900,isNew:false,imgs:[["assets/foto-048.png","Sandalia nude de cuña brillante puesta"],["assets/foto-049.jpg","Sandalia de plataforma nude con cuña brillante y correa transparente"]],colors:["Nude con pedrería"],facts:["Nude con pedrería","Punta abierta","Cuña alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma con cuña cubierta de pedrería brillante, plantilla nude, tira transparente y correa al tobillo con hebilla. Disponible en nude con pedrería."},
-    {id:"mule-de-tacon-alto-con-textura-croco",name:"Mule de tacón alto con textura croco",cat:"Punta estilizada · Tacón tipo aguja",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-050.jpg","Mule nude de tacón alto con textura croco"],["assets/foto-051.jpg","Mule negro con textura croco, detalle en mano"],["assets/foto-052.png","Mule dorado de tacón alto con textura croco"],["assets/foto-053.png","Mule dorado de tacón alto puesto"],["assets/foto-054.jpg","Mule plateado de tacón alto, vista lateral"],["assets/foto-055.jpg","Mule negro de tacón alto con textura croco"],["assets/foto-056.jpg","Mules blancos de tacón alto con textura croco"]],colors:["Nude","Negro","Dorado","Plateado","Blanco"],facts:["Nude","Negro","Dorado","Plateado","Blanco","Punta estilizada","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Mule de tacón alto con tira amplia al frente y acabado con textura tipo croco. Disponible en nude, negro, dorado, plateado y blanco."},
-    {id:"sandalia-nude-de-tacon-fino-transparente",name:"Sandalia nude de tacón fino transparente",cat:"Punta abierta · Tiras transparentes · Tacón tipo aguja",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-057.jpg","Sandalia nude con tiras transparentes y tacón fino transparente, vista lateral"],["assets/foto-058.jpg","Sandalia nude con tira transparente y tacón fino, vista frontal"]],colors:["Nude"],facts:["Nude","Punta abierta","Tiras transparentes","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con tira transparente al frente, correa ajustable al tobillo y tacón fino transparente tipo aguja."},
-    {id:"sandalia-nude-con-tacon-transparente",name:"Sandalia nude con tacón transparente",cat:"Tiras transparentes · Tacón bloque",group:"tacones",price:219000,isNew:false,imgs:[["assets/foto-059.jpg","Sandalia nude de tacón transparente vista de perfil"],["assets/foto-060.jpg","Sandalia nude con tiras transparentes y tacón bloque puesta"],["assets/foto-061.jpg","Sandalia nude con tiras transparentes y tacón bloque"],["assets/foto-062.jpg","Sandalia con tiras transparentes y tacón bloque, detalle del acabado plateado"],["assets/foto-063.jpg","Sandalia nude con tacón transparente puesta, vista lateral"],["assets/foto-064.jpg","Sandalia nude con tiras transparentes y tacón transparente puesta"],["assets/foto-065.jpg","Detalle de sandalia nude con punta y borde dorados"],["assets/foto-066.jpg","Sandalia nude con tacón transparente y detalles dorados puesta"],["assets/foto-067.jpg","Sandalia negra con tiras transparentes y tacón transparente puesta"]],colors:["Nude"],facts:["Nude","Tiras transparentes","Tacón bloque","34","35","36","37","38","39","40"],desc:"Sandalia nude de tacón alto, con tiras transparentes en el empeine y el tobillo, y tacón bloque transparente."},
-    {id:"sandalia-nude-con-tacon-grueso-efecto-cristal",name:"Sandalia nude con tacón grueso efecto cristal",cat:"Punta abierta · Banda transparente · Tacón escultural",group:"tacones",price:249900,isNew:false,imgs:[["assets/foto-068.jpg","Sandalia nude con banda transparente y tacón grueso escultural tipo cristal"],["assets/foto-069.jpg","Sandalia nude con tacón grueso escultural transparente, vista lateral"]],colors:["Nude"],facts:["Nude","Punta abierta","Banda transparente","Tacón escultural","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con banda transparente en el empeine y tacón grueso translúcido de diseño escultural."},
-    {id:"mule-nude-con-doble-tira-transparente",name:"Mule nude con doble tira transparente",cat:"Punta abierta · Tacón bloque transparente",group:"tacones",price:219900,isNew:false,imgs:[["assets/foto-070.jpg","Mule nude con tiras transparentes y tacón bloque puesto"],["assets/foto-071.jpg","Mule nude de doble tira transparente, vista superior"],["assets/foto-072.jpg","Mule nude con doble tira transparente y tacón bloque transparente"]],colors:["Nude y transparente"],facts:["Nude y transparente","Punta abierta","Tacón bloque transparente","34","35","36","37","38","39","40"],desc:"Mule abierto de tacón alto, con doble tira transparente sobre el empeine, base nude y tacón bloque transparente."},
-    {id:"sandalia-de-plataforma-con-tacon-bloque",name:"Sandalia de plataforma con tacón bloque",cat:"Punta abierta · Correa al tobillo · Tacón alto",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-073.jpg","Sandalia blanca de plataforma con tacón bloque y correa al tobillo"],["assets/foto-074.jpg","Sandalia dorada de plataforma y tacón bloque, detalle"],["assets/foto-075.jpg","Sandalia dorada de plataforma con correa al tobillo"],["assets/foto-076.jpg","Sandalia plateada de plataforma y tacón bloque"],["assets/foto-077.jpg","Sandalia negra de plataforma con correa al tobillo"]],colors:["Blanco","Dorado","Plateado","Negro"],facts:["Blanco","Dorado","Plateado","Negro","Punta abierta","Correa al tobillo","Tacón alto","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con plataforma delantera, tira ancha en la punta y correa al tobillo con hebilla. Tiene tacón grueso tipo bloque. Disponible en blanco, dorado, plateado y negro."},
-    {id:"sandalia-negra-de-tacon-con-tiras-brillantes",name:"Sandalia negra de tacón con tiras brillantes",cat:"Punta abierta · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:215000,isNew:false,imgs:[["assets/foto-078.png","Sandalia negra de tacón alto con tiras de detalle brillante"],["assets/foto-079.png","Sandalia negra de tacón alto, vista superior"]],colors:["Negro"],facts:["Negro","Punta abierta","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia negra de tacón alto con tiras delgadas y detalle brillante, punta abierta y correa ajustable al tobillo con hebilla."},
-    {id:"sandalia-de-plataforma-en-charol-con-tacon-bloque",name:"Sandalia de plataforma en charol con tacón bloque",cat:"Punta abierta · Correa al tobillo · Tacón alto",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-080.jpg","Sandalia blanca de plataforma en charol con tacón bloque"],["assets/foto-081.jpg","Detalle de sandalia blanca de plataforma en charol"],["assets/foto-082.jpg","Sandalia negra de plataforma en charol, puesta"],["assets/foto-083.jpg","Sandalia negra de plataforma en charol, vista de producto"],["assets/foto-084.jpg","Sandalia negra de plataforma en charol puesta"],["assets/foto-085.jpg","Sandalia nude de plataforma en charol"],["assets/foto-086.jpg","Sandalia nude de plataforma en charol, vista superior"]],colors:["Blanco","Negro","Nude"],facts:["Blanco","Negro","Nude","Punta abierta","Correa al tobillo","Tacón alto","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma con acabado charol, tira ancha en la punta, correa ajustable al tobillo con hebilla y tacón grueso tipo bloque. Disponible en blanco, negro y nude."},
-    {id:"mule-de-plataforma-con-tacon-bloque",name:"Mule de plataforma con tacón bloque",cat:"Punta abierta · Plataforma alta · Tacón ancho",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-087.jpg","Mule blanco de plataforma con tacón bloque"],["assets/foto-088.jpg","Mule blanco de plataforma y tacón bloque, vista de perfil"],["assets/foto-089.jpg","Mule negro de plataforma con tacón bloque"],["assets/foto-090.jpg","Mule negro de plataforma puesto"],["assets/foto-091.jpg","Mules de plataforma en negro, blanco y nude"],["assets/foto-092.jpg","Mule nude de plataforma y tacón bloque, vista lateral"],["assets/foto-093.jpg","Mule nude de plataforma, vista frontal"],["assets/foto-094.jpg","Mules blancos de plataforma con tacón bloque"]],colors:["Blanco","Negro","Nude"],facts:["Blanco","Negro","Nude","Punta abierta","Plataforma alta","Tacón ancho","34","35","36","37","38","39","40"],desc:"Mule de punta abierta con una tira amplia sobre el empeine, plataforma alta y tacón ancho tipo bloque. Disponible en blanco, negro y nude."},
-    {id:"sandalia-de-plataforma-con-tiras-cruzadas",name:"Sandalia de plataforma con tiras cruzadas",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:199900,isNew:false,imgs:[["assets/foto-095.jpg","Sandalia blanca de plataforma con tiras cruzadas"],["assets/foto-096.jpg","Sandalia negra de plataforma con tiras cruzadas"]],colors:["Blanco","Negro"],facts:["Blanco","Negro","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con tiras anchas cruzadas sobre el empeine y plataforma alta. Disponible en blanco y negro."},
-    {id:"sandalia-de-plataforma-con-tiras-cruzadas-2",name:"Sandalia de plataforma con tiras cruzadas",cat:"Punta abierta · Correa al tobillo · Tacón bloque",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-097.jpg","Sandalia negra de plataforma alta con tiras cruzadas y correa al tobillo"],["assets/foto-098.jpg","Sandalia nude de plataforma alta con tiras cruzadas puesta"]],colors:["Negro","Nude"],facts:["Negro","Nude","Punta abierta","Correa al tobillo","Tacón bloque","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma alta con tiras cruzadas sobre el empeine, correa ajustable al tobillo con hebilla y tacón ancho tipo bloque. Disponible en negro y nude."},
-    {id:"mule-negro-con-tacon-geometrico",name:"Mule negro con tacón geométrico",cat:"Punta cuadrada abierta · Tacón bloque",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-099.jpg","Mule negro de tacón geométrico, detalle del zapato"],["assets/foto-100.jpg","Mule negro de punta abierta y tacón geométrico puesto"]],colors:["Negro"],facts:["Negro","Punta cuadrada abierta","Tacón bloque","34","35","36","37","38","39","40"],desc:"Mule negro de tacón alto, con tira ancha de acabado brillante, punta cuadrada abierta y tacón bloque de diseño geométrico."},
-    {id:"sandalia-de-tacon-con-aplique-de-pedreria",name:"Sandalia de tacón con aplique de pedrería",cat:"Punta cuadrada abierta · Tacón transparente tipo aguja · Correa al tobillo",group:"tacones",price:249900,isNew:false,imgs:[["assets/foto-101.jpg","Sandalia nude con aplique brillante y tacón transparente"],["assets/foto-102.jpg","Sandalia nude con moño de pedrería, vista frontal"],["assets/foto-103.jpg","Sandalia negra con detalle brillante y tacón transparente"]],colors:["Nude","Negro"],facts:["Nude","Negro","Punta cuadrada abierta","Tacón transparente tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con aplique frontal de pedrería, tiras decoradas y correa ajustable al tobillo. Tiene tacón transparente. Disponible en nude y negro."},
-    {id:"sandalia-de-tacon-aguja-con-punta-metalica",name:"Sandalia de tacón aguja con punta metálica",cat:"Punta estilizada · Tiras metálicas · Correa al tobillo",group:"tacones",price:189900,isNew:false,imgs:[["assets/foto-104.jpg","Sandalia dorada de tacón aguja con punta estilizada y tiras metálicas"],["assets/foto-105.jpg","Sandalia plateada de tacón aguja con punta estilizada y tiras metálicas"]],colors:["Dorado","Plateado"],facts:["Dorado","Plateado","Punta estilizada","Tiras metálicas","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto tipo aguja, con punta estilizada, tiras de acabado metálico y correa al tobillo. Disponible en dorado y plateado."},
-    {id:"sandalia-slide-de-plataforma-gruesa-con-tira-ancha",name:"Sandalia slide de plataforma gruesa con tira ancha",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:false,imgs:[["assets/foto-106.jpg","Sandalia nude tipo slide con plataforma gruesa, puesta"],["assets/foto-107.jpg","Sandalia camel tipo slide con plataforma gruesa, en uso"],["assets/foto-108.jpg","Sandalia negra tipo slide con plataforma gruesa, puesta"],["assets/foto-109.jpg","Sandalia negra de plataforma gruesa, vista frontal"],["assets/foto-110.jpg","Sandalia negra de plataforma gruesa, vista lateral"]],colors:["Nude","Camel","Negro"],facts:["Nude","Camel","Negro","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con una tira ancha sobre el empeine y plataforma gruesa de perfil redondeado. Disponible en nude, camel y negro."},
-    {id:"sandalia-de-cuna-con-plataforma-tipo-corcho",name:"Sandalia de cuña con plataforma tipo corcho",cat:"Punta abierta · Cuña alta · Banda transparente",group:"plataformas",price:190000,isNew:false,imgs:[["assets/foto-111.jpg","Sandalia nude con banda transparente y plataforma de cuña tipo corcho, en uso"],["assets/foto-112.jpg","Detalle de sandalia nude con cuña tipo corcho y banda transparente"]],colors:["Nude"],facts:["Nude","Punta abierta","Cuña alta","Banda transparente","34","35","36","37","38","39","40"],desc:"Sandalia abierta con banda transparente en el empeine y cuña alta con plataforma de acabado tipo corcho."},
-    {id:"sandalia-negra-de-tacon-fino-con-tiras-transparentes",name:"Sandalia negra de tacón fino con tiras transparentes",cat:"Punta estilizada · Tacón tipo aguja · Correa transparente al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-113.jpg","Sandalia negra de tacón fino con correa transparente al tobillo, vista en uso"],["assets/foto-114.jpg","Sandalia negra de punta estilizada con tiras transparentes, vista en uso"],["assets/foto-115.jpg","Sandalia negra de tacón fino con tira transparente, foto de producto sin texto"]],colors:["Negro"],facts:["Negro","Punta estilizada","Tacón tipo aguja","Correa transparente al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia negra de tacón alto y punta estilizada, con banda transparente al frente y correa transparente al tobillo con hebilla."},
-    {id:"sandalia-de-cuna-alta-con-detalles-transparentes",name:"Sandalia de cuña alta con detalles transparentes",cat:"Punta abierta · Cuña alta · Correa al tobillo",group:"plataformas",price:190000,isNew:false,imgs:[["assets/foto-116.jpg","Sandalia blanca de cuña alta con detalles transparentes, foto original"],["assets/foto-117.jpg","Sandalia nude de cuña alta con correa al tobillo, foto original"],["assets/foto-118.jpg","Sandalia negra de cuña alta con correa al tobillo, foto original"]],colors:["Negro","Blanco","Nude"],facts:["Negro","Blanco","Nude","Punta abierta","Cuña alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de cuña alta con punta abierta, detalles transparentes y correa al tobillo con hebilla dorada. Disponible en negro, blanco y nude."},
-    {id:"mule-de-tacon-fino-con-banda-metalica",name:"Mule de tacón fino con banda metálica",cat:"Punta abierta · Tacón tipo aguja · Banda metálica",group:"tacones",price:190000,isNew:false,imgs:[["assets/foto-119.jpg","Mule dorado de tacón fino con banda metálica, en uso"],["assets/foto-120.jpg","Par de mules de tacón fino con banda metálica en tono dorado rosado"]],colors:["Dorado","Dorado rosado"],facts:["Dorado","Dorado rosado","Punta abierta","Tacón tipo aguja","Banda metálica","34","35","36","37","38","39","40"],desc:"Mule abierto de tacón alto con banda metálica sobre el empeine y tacón fino tipo aguja. Las fotos muestran acabados dorado y dorado rosado."},
-    {id:"sandalia-de-cuna-con-plataforma-tipo-corcho-y-correa",name:"Sandalia de cuña con plataforma tipo corcho y correa",cat:"Punta abierta · Cuña alta · Correa al tobillo",group:"plataformas",price:219000,isNew:false,imgs:[["assets/foto-121.jpg","Sandalia negra de cuña alta tipo corcho con tira ancha y correa al tobillo"],["assets/foto-122.jpg","Sandalia blanca de cuña alta tipo corcho con tira ancha y correa al tobillo"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Cuña alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia abierta con tira ancha sobre el empeine, correa ajustable al tobillo y plataforma alta con acabado tipo corcho. Disponible en negro y blanco."},
-    {id:"mule-nude-con-tacon-escultural-transparente",name:"Mule nude con tacón escultural transparente",cat:"Punta abierta · Tira transparente · Tacón escultural",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-123.jpg","Mule nude con tira transparente y tacón escultural, vista en uso"],["assets/foto-124.jpg","Mule nude con tira transparente y tacón escultural, vista lateral"],["assets/foto-125.jpg","Par de mules nude con tira transparente y tacón escultural"]],colors:["Nude"],facts:["Nude","Punta abierta","Tira transparente","Tacón escultural","34","35","36","37","38","39","40"],desc:"Mule nude abierto en el talón, con punta abierta, tira transparente sobre los dedos y tacón transparente de diseño escultural."},
-    {id:"sandalia-nude-de-cuna-tipo-corcho-con-tiras-anudadas",name:"Sandalia nude de cuña tipo corcho con tiras anudadas",cat:"Punta abierta · Plataforma alta · Correa al tobillo",group:"plataformas",price:219900,isNew:false,imgs:[["assets/foto-126.jpg","Sandalia nude de plataforma tipo corcho con tiras anudadas y correa al tobillo, en uso"],["assets/foto-127.jpg","Sandalia nude de cuña tipo corcho con tiras anudadas, vista lateral"]],colors:["Nude"],facts:["Nude","Punta abierta","Plataforma alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con tiras anudadas en el empeine, correa ajustable al tobillo y plataforma alta con acabado tipo corcho."}
-  ];
+
 
   /* ======================================================================== */
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -3056,6 +3169,17 @@ go(0);run()})();
       button.setAttribute("aria-label", "Añadir al carrito");
     }, 1500);
   }
+
+
+  /* ---------- Navegación de colecciones ---------- */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("a.collection-link");
+    if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    e.preventDefault();
+    a.classList.add("is-leaving");
+    setTimeout(function () { window.location.href = a.href; }, 300);
+  });
 
   /* ---------- Fotos ---------- */
   function mediaPlaceholder(label) {
@@ -3306,7 +3430,13 @@ go(0);run()})();
   function renderSpot() {
     var p = byId(CONFIG.spotlightId) || PRODUCTS[0]; if (!p) return;
     var el = $("#spot"); el.setAttribute("data-product", p.id);
-    el.innerHTML = '<div class="spot-media">' + media(p.name + ", " + p.cat, "r45", p, 0) + '</div>' +
+    var n = p.imgs ? p.imgs.length : 0;
+    var thumbs = n > 1 ? '<div class="spot-thumbs" role="group" aria-label="Fotos de ' + esc(p.name) + '">' + p.imgs.map(function(im, i) {
+      return '<button class="spot-thumb thumb" type="button" data-thumb="' + i + '" aria-pressed="' + (i === 0 ? "true" : "false") + '" aria-label="Ver foto ' + (i + 1) + " de " + n + '"><img src="' + esc(im[0]) + '" alt="" loading="lazy"></button>';
+    }).join("") + "</div>" : "";
+    var dots = n > 1 ? '<div class="spot-dots pd-gallery-dots" aria-hidden="true">' + p.imgs.map(function(_, i){ return '<i class="' + (i === 0 ? "is-active" : "") + '"></i>'; }).join("") + "</div>" : "";
+    el.innerHTML = '<div class="spot-media"><div class="spot-gallery" data-gal="' + p.id + '">' + thumbs +
+      '<div class="spot-main pd-main-media" data-gallery-index="0">' + media(p.name + ", " + p.cat, "r45", p, 0, true) + dots + '</div></div></div>' +
       '<div class="spot-info"><p class="cat">' + esc(p.cat) + "</p><h2>" + esc(p.name) + "</h2>" +
       '<p class="desc">' + esc(p.desc) + "</p>" + priceHTML(p) + colorsHTML("f", p) + sizesHTML("f", p.id) + '<p class="hint" role="status"></p>' +
       '<div class="spot-btns"><button class="btn btn-solid-light" type="button" data-buy>' + (p.price == null ? "Consultar precio por WhatsApp" : "Ir a pagar con esta selección") + "</button>" +
@@ -3645,6 +3775,7 @@ go(0);run()})();
   }
   function leaveCheckoutRoute() {
     if (!checkoutRouteActive) return false;
+    if (window.__mfCheckoutZoomLock) window.__mfCheckoutZoomLock(false);
     if (checkoutDirectRoute) {
       checkoutRouteActive = false;
       checkoutDirectRoute = false;
@@ -3682,6 +3813,7 @@ go(0);run()})();
       return;
     }
     closeAllDlg();
+    if (window.__mfCheckoutZoomLock) window.__mfCheckoutZoomLock(true);
     if (!fromRoute) enterCheckoutRoute();
     var subtotal = 0, packages = bag.reduce(function (sum, i) { return sum + i.qty; }, 0);
     var itemsHTML = bag.map(function (i) {
@@ -4031,22 +4163,34 @@ go(0);run()})();
   });
 
   /* ---------- Eventos globales ---------- */
-  function setFilter(g) {
-    var rowId = g === "plataformas" || g === "cuñas" ? "fila-plataformas" : (g === "tacones" || g === "mules" || /^tacones-/.test(g) ? "fila-tacones" : "productos");
-    state.group = (g === "plataformas" || g === "tacones") ? g : "todos";
+  function navigateToSection(hash, filter) {
+    var id = String(hash || "").replace(/^#/, "");
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    if (filter) {
+      var rowId = filter === "plataformas" || filter === "cuñas" ? "fila-plataformas" : (filter === "tacones" || filter === "mules" || /^tacones-/.test(filter) ? "fila-tacones" : "productos");
+      state.group = (filter === "plataformas" || filter === "tacones") ? filter : "todos";
+      target = document.getElementById(rowId) || document.getElementById("productos");
+    }
     try {
       var u = new URL(window.location.href);
       u.searchParams.delete(PRODUCT_PARAM);
-      u.hash = "productos";
+      u.hash = id;
       history.pushState(catalogHistoryState({ mfCatalogUrl: u.pathname + u.search + u.hash }), "", u.pathname + u.search + u.hash);
     } catch (e) {}
-    var target = document.getElementById(rowId) || $("#productos");
-    if (target) target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    requestAnimationFrame(function () {
+      target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    });
+  }
+
+  function setFilter(g) {
+    navigateToSection("productos", g);
   }
 
   var galleryTouch = { el:null, startX:0, startY:0, moved:false };
   document.addEventListener("touchstart", function(e){
-    var main = e.target.closest && e.target.closest(".pd-main-media");
+    var main = e.target.closest && e.target.closest(".pd-main-media,.spot-main");
     if (!main) return;
     galleryTouch.el = main;
     galleryTouch.startX = e.touches[0].clientX;
@@ -4100,6 +4244,19 @@ go(0);run()})();
   });
 
   document.addEventListener("click", function (e) {
+    var sectionLink = e.target.closest('a[href^="#"][data-filter],a[href="#inicio"]:not([data-product-home]),a[href="#nosotros"],a[href="#envios"],a[href="#contacto"]:not([data-wa])');
+    if (sectionLink && sectionLink.getAttribute("href") !== "#") {
+      var sectionHash = sectionLink.getAttribute("href");
+      var sectionFilter = sectionLink.getAttribute("data-filter");
+      e.preventDefault();
+      navigateToSection(sectionHash, sectionFilter);
+      if (sectionLink.hasAttribute("data-menu-close") && menu.classList.contains("open")) {
+        menu.classList.remove("open");
+        document.body.classList.remove("lock");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+      return;
+    }
     var el = e.target.closest("[data-filter],[data-view],[data-buy],[data-consult],[data-bag],[data-close],[data-menu-close],[data-qty],[data-qty-step],[data-remove],[data-checkout],[data-edit-bag],[data-pay],[data-thumb],[data-buy-now],[data-fav],[data-heart],[data-product-home],.pd-heart,[data-toast-cart],[data-toast-continue],#bagOpen");
     if (el) {
       if (el.hasAttribute("data-menu-close") && menu.classList.contains("open")) { menu.classList.remove("open"); document.body.classList.remove("lock"); menuBtn.setAttribute("aria-expanded", "false"); }

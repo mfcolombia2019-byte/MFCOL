@@ -126,8 +126,8 @@
     }
 
     if (data.paymentStatus === "aprobado") {
-      title.textContent = "Pedido recibido";
-      intro.textContent = "Gracias por elegir MF. Hemos recibido tu pedido y te escribiremos por WhatsApp con los detalles del envío.";
+      title.textContent = "¡Tu pago ha sido aprobado!";
+      intro.textContent = "Gracias por tu compra. En breve recibirás un correo con los detalles de tu pedido.";
     } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
       title.textContent = "Pago no confirmado";
       intro.textContent = "No pudimos confirmar el pago de este pedido.";
