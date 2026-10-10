@@ -20,19 +20,51 @@ async function reconcileBoldLink(order) {
   const apiKey = env("BOLD_API_KEY");
   if (!paymentLink || !apiKey) return order;
 
-  const response = await fetch(
-    "https://integrations.api.bold.co/online/link/v1/" + encodeURIComponent(paymentLink),
-    { method: "GET", headers: { Authorization: "x-api-key " + apiKey } }
-  );
-  const data = await response.json().catch(() => ({}));
+  // Bold documenta este endpoint como fallback oficial para recuperar notificaciones
+  // cuando el webhook no llegó. El endpoint de consulta de link no devuelve de forma
+  // fiable el estado de pago para todos los métodos de Link.
+  let response;
+  try {
+    response = await fetch(
+      "https://integrations.api.bold.co/payments/webhook/notifications/" +
+        encodeURIComponent(paymentLink) + "?is_external_reference=true",
+      {
+        method: "GET",
+        headers: { Authorization: "x-api-key " + apiKey },
+        signal: AbortSignal.timeout(10000)
+      }
+    );
+  } catch (error) {
+    console.error("Bold notification fallback: consulta fallida", String(error?.name || "Error"));
+    return order;
+  }
+  const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("Bold status fallback:", response.status, JSON.stringify(data));
+    console.error("Bold notification fallback: HTTP", response.status);
     return order;
   }
 
-  const status = String(data?.status || "").toUpperCase();
-  if (!["PAID", "REJECTED", "CANCELLED"].includes(status)) return order;
+  const notifications = Array.isArray(payload?.notifications) ? payload.notifications : [];
+  // No se confía en la primera notificación a ciegas: se exige la referencia exacta
+  // del Link asociado al pedido y un evento de pago reconocido.
+  const notification = notifications.find(item =>
+    String(item?.data?.metadata?.reference || "").trim() === paymentLink &&
+    ["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"].includes(
+      String(item?.type || "").toUpperCase()
+    )
+  );
+  if (!notification) return order;
 
+  const statusByType = {
+    SALE_APPROVED: "aprobado",
+    SALE_REJECTED: "rechazado",
+    VOID_APPROVED: "anulado",
+    VOID_REJECTED: "rechazado"
+  };
+  const type = String(notification.type).toUpperCase();
+  const status = statusByType[type];
+  const data = notification.data || {};
+  if (!status) return order;
   const amount = Math.round(Number(data?.total));
   if (!Number.isFinite(amount) || amount !== Number(order.total)) {
     console.error("Bold status fallback: importe no coincide", {
