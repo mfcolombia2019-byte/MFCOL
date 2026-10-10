@@ -21,7 +21,7 @@ export default async () => {
     if (!item || item.processedAt || !item.event) continue;
 
     const status = String(item.status || "pending");
-    const due = !item.nextAttemptAt || Date.parse(item.nextAttemptAt) <= now;
+    const due = status === "pending" || (Boolean(item.nextAttemptAt) && Date.parse(item.nextAttemptAt) <= now);
     const processingAt = Date.parse(String(item.processingAt || ""));
     const staleProcessing =
       status === "processing" &&
