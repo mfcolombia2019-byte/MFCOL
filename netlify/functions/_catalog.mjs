@@ -813,10 +813,9 @@ export function getCatalogProduct(id) {
   return PRODUCTS.find(p => p.id === String(id || "")) || null;
 }
 
+// Envío desactivado temporalmente para la prueba de checkout.
 function shippingFeeForPackages(count) {
-  if (count <= 1) return 17000;
-  if (count === 2) return 20000;
-  return 24000;
+  return 0;
 }
 
 export function validateCart(items) {
