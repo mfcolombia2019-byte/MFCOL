@@ -5,7 +5,7 @@ const PRODUCTS = [
   {
     "id": "sandalia-slide-de-plataforma-alta-en-cuatro-colores",
     "name": "Sandalia slide de plataforma alta",
-    "price": 190000,
+    "price": 5000,
     "colors": ["Negro", "Blanco", "Rosa", "Verde"],
     "facts": [
       "Negro", "Blanco", "Rosa", "Verde",
