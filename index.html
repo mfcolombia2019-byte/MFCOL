@@ -2705,6 +2705,65 @@ function trackMetaInitiateCheckout(reference) {
 }
 </style>
 
+
+<style id="mf-color-system">
+/* MF color system — visual-only refinement; preserve catalog and checkout behavior */
+:root{
+  --white:#fff;
+  --black:#111;
+  --text:#111;
+  --muted:#686868;
+  --soft:#f3f3f3;
+  --line:#e5e5e5;
+  --mf-accent:#dfff00;
+}
+body{background:#fff;color:#111}
+.hdr{background:rgba(255,255,255,.97);border-bottom-color:#e5e5e5}
+.btn:not(.btn-light):not(.btn-solid-light){
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.btn:not(.btn-light):not(.btn-solid-light):hover{
+  background:#333!important;
+  color:#fff!important;
+  border-color:#333!important;
+}
+#productGrid.grid .card,
+.grid .card,
+.rail-page .card,
+.rails .rail-page .card{
+  background:#f1f1f1!important;
+}
+.grid .card-body,
+.rail-page .card .card-body,
+.rails .rail-page .card .card-body{
+  background:transparent!important;
+  color:#111!important;
+}
+.grid .card-body h3,
+.grid .card-body .price,
+.rail-page .card h3,
+.rail-page .card .price{
+  color:#111!important;
+}
+.tag{
+  background:var(--mf-accent)!important;
+  color:#111!important;
+}
+.rail-chip[aria-pressed="true"]{
+  background:var(--mf-accent)!important;
+  border-color:#111!important;
+}
+.mfh{background:#fff}
+.mfh-dots button[aria-pressed="true"]{
+  box-shadow:0 0 0 3px var(--mf-accent);
+}
+@media(prefers-reduced-motion:reduce){
+  .grid .card,.btn{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <script>
