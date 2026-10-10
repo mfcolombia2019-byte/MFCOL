@@ -168,12 +168,12 @@ console.log("orders-meta tests: PASS");
 
 
 const validCart = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2 }]);
-assert.equal(validCart.total, 379800);
+assert.equal(validCart.total, 403800);
 assert.equal(validCart.items[0].unitPrice, 189900);
 
 const tamperedPrice = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2, price: 1 }]);
 assert.equal(tamperedPrice.items[0].unitPrice, 189900);
-assert.equal(tamperedPrice.total, 379800);
+assert.equal(tamperedPrice.total, 403800);
 assert.throws(() => validateCart([{ id: "producto-inexistente-para-prueba", size: "36", color: "Negro", qty: 1 }]), /Producto no disponible/i);
 assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: null }), /precio.*configurado/i);
 assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: -1 }), /precio.*configurado/i);

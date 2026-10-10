@@ -5,7 +5,7 @@ const PRODUCTS = [
   {
     "id": "sandalia-slide-de-plataforma-alta-en-cuatro-colores",
     "name": "Sandalia slide de plataforma alta",
-    "price": 5000,
+    "price": 190000,
     "colors": ["Negro", "Blanco", "Rosa", "Verde"],
     "facts": [
       "Negro", "Blanco", "Rosa", "Verde",
@@ -813,9 +813,11 @@ export function getCatalogProduct(id) {
   return PRODUCTS.find(p => p.id === String(id || "")) || null;
 }
 
-// Envío desactivado temporalmente para la prueba de checkout.
+//// Tarifas de envío nacionales según cantidad de paquetes.
 function shippingFeeForPackages(count) {
-  return 0;
+  if (count <= 0) return 0;
+  if (count === 1) return 17000;
+  return 24000;
 }
 
 export function validateProductPrice(product) {
