@@ -3486,10 +3486,12 @@ go(0);run()})();
     if (f) f.qty += qty; else bag.push({ id: id, size: size, color: color || null, qty: qty });
     saveBag(); renderBag(); if (!quiet) toast(qty > 1 ? "Añadido a la bolsa (x" + qty + ")" : "Añadido a la bolsa");
   }
-  // Envío desactivado temporalmente para la prueba de checkout.
-  function shippingFeeForPackages(count) {
-    return 0;
-  }
+ // Tarifas de envío nacionales según cantidad de paquetes.
+function shippingFeeForPackages(count) {
+  if (count <= 0) return 0;
+  if (count === 1) return 17000;
+  return 24000;
+}
   function packageLabel(count) { return count + (count === 1 ? " paquete" : " paquetes"); }
 
   function renderBag() {
