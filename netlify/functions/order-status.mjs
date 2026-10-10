@@ -45,54 +45,53 @@ async function reconcileBoldLink(order) {
   }
 
   const notifications = Array.isArray(payload?.notifications) ? payload.notifications : [];
-  // No se confía en la primera notificación a ciegas: se exige la referencia exacta
-  // del Link asociado al pedido y un evento de pago reconocido.
-  const notification = notifications.find(item =>
-    String(item?.data?.metadata?.reference || "").trim() === paymentLink &&
-    ["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"].includes(
-      String(item?.type || "").toUpperCase()
+  // Validar referencia, tipo, moneda e importe antes de considerar cualquier cambio.
+  const candidates = notifications
+    .filter(item =>
+      String(item?.data?.metadata?.reference || "").trim() === paymentLink &&
+      ["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"].includes(
+        String(item?.type || "").toUpperCase()
+      )
     )
-  );
+    .sort((a, b) => {
+      const ta = Date.parse(String(a?.data?.created_at || ""));
+      const tb = Date.parse(String(b?.data?.created_at || ""));
+      return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
+    });
+  const notification = candidates[0];
   if (!notification) return order;
 
-  const statusByType = {
-    SALE_APPROVED: "aprobado",
-    SALE_REJECTED: "rechazado",
-    VOID_APPROVED: "anulado",
-    VOID_REJECTED: "rechazado"
-  };
   const type = String(notification.type).toUpperCase();
-  const status = statusByType[type];
   const data = notification.data || {};
-  if (!status) return order;
-  const amount = Math.round(Number(data?.total));
-  if (!Number.isFinite(amount) || amount !== Number(order.total)) {
-    console.error("Bold status fallback: importe no coincide", {
+  const currency = String(data?.amount?.currency || "").toUpperCase();
+  const amount = Math.round(Number(data?.amount?.total));
+  if (
+    currency !== "COP" ||
+    !Number.isFinite(amount) ||
+    amount !== Number(order.total)
+  ) {
+    console.error("Bold status fallback: importe o moneda no coinciden", {
       reference: order.reference,
       expected: order.total,
-      received: data?.total
+      received: data?.amount?.total,
+      currency
     });
     return order;
   }
 
-  const type = status === "PAID" ? "SALE_APPROVED" : "SALE_REJECTED";
-  const transactionId = String(data?.transaction_id || data?.id || paymentLink).trim();
+  const transactionId = String(data?.payment_id || notification.subject || paymentLink).trim();
   const event = {
-    id: "poll_" + paymentLink + "_" + status + "_" + transactionId,
+    id: "poll_" + paymentLink + "_" + type + "_" + transactionId,
     type,
     subject: transactionId,
-    source: "/payments/links",
+    source: String(notification.source || "/payments/links"),
     spec_version: "1.0",
-    time: Date.now() * 1000000,
+    time: Number(notification.time) || Date.now() * 1000000,
     data: {
+      ...data,
       payment_id: transactionId,
-      amount: { currency: "COP", total: amount },
-      metadata: { reference: paymentLink },
-      payment_method: String(data?.payment_method || "LINK"),
-      bold_code: "",
-      payer_email: "",
-      created_at: "",
-      integration: "LINK"
+      amount: { ...data.amount, currency, total: amount },
+      metadata: { ...data.metadata, reference: paymentLink }
     }
   };
 
