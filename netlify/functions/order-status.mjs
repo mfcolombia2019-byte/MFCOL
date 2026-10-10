@@ -20,14 +20,13 @@ async function reconcileBoldLink(order) {
   const apiKey = env("BOLD_API_KEY");
   if (!paymentLink || !apiKey) return order;
 
-  // Bold documenta este endpoint como fallback oficial para recuperar notificaciones
-  // cuando el webhook no llegó. El endpoint de consulta de link no devuelve de forma
-  // fiable el estado de pago para todos los métodos de Link.
+  // En API Link de pagos, Bold documenta metadata.reference como el identificador LNK_*.
+  // Por eso el fallback consulta y valida la notificación con paymentLink, no order.reference.
   let response;
   try {
     response = await fetch(
       "https://integrations.api.bold.co/payments/webhook/notifications/" +
-        encodeURIComponent(order.reference) + "?is_external_reference=true",
+        encodeURIComponent(paymentLink) + "?is_external_reference=true",
       {
         method: "GET",
         headers: { Authorization: "x-api-key " + apiKey },
