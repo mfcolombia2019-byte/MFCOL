@@ -25,7 +25,7 @@ const {
   purchaseEventId,
   outboxKeyForPurchase
 } = await import("../netlify/functions/_orders.mjs");
-const { validateCart } = await import("../netlify/functions/_catalog.mjs");
+const { validateCart, validateProductPrice } = await import("../netlify/functions/_catalog.mjs");
 const { buildMetaPurchase } = await import("../netlify/functions/_meta.mjs");
 const {
   validateAdminBoldOrder,
@@ -174,7 +174,10 @@ assert.equal(validCart.items[0].unitPrice, 189900);
 const tamperedPrice = validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 2, price: 1 }]);
 assert.equal(tamperedPrice.items[0].unitPrice, 189900);
 assert.equal(tamperedPrice.total, 379800);
-assert.throws(() => validateCart([{ id: "sandalia-de-cuna-trenzada-en-negro-y-rosado", size: "36", color: "Negro", qty: 1 }]), /precio.*configurado/i);
+assert.throws(() => validateCart([{ id: "producto-inexistente-para-prueba", size: "36", color: "Negro", qty: 1 }]), /Producto no disponible/i);
+assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: null }), /precio.*configurado/i);
+assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: -1 }), /precio.*configurado/i);
+assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: Number.NaN }), /precio.*configurado/i);
 assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "33", color: "Negro", qty: 1 }]), /Talla inválida/);
 
 console.log("checkout server-authority tests: PASS");

@@ -818,6 +818,12 @@ function shippingFeeForPackages(count) {
   return 0;
 }
 
+export function validateProductPrice(product) {
+  if (!Number.isFinite(product?.price) || product.price < 0) {
+    throw new Error("El precio de " + (product?.name || "producto") + " no está configurado");
+  }
+  return product.price;
+}
 export function validateCart(items) {
   if (!Array.isArray(items) || !items.length || items.length > 50) {
     throw new Error("Carrito inválido");
@@ -828,9 +834,7 @@ export function validateCart(items) {
   for (const raw of items) {
     const product = getCatalogProduct(raw?.id);
     if (!product) throw new Error("Producto no disponible");
-    if (!Number.isFinite(product.price) || product.price < 0) {
-      throw new Error("El precio de " + product.name + " no está configurado");
-    }
+    validateProductPrice(product);
     const qty = Math.round(Number(raw?.qty));
     if (!Number.isInteger(qty) || qty < 1 || qty > 20) throw new Error("Cantidad inválida");
     const size = String(raw?.size ?? "").trim();
