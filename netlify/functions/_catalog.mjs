@@ -837,7 +837,7 @@ export function validateCart(items) {
     const product = getCatalogProduct(raw?.id);
     if (!product) throw new Error("Producto no disponible");
     validateProductPrice(product);
-    const qty = Math.round(Number(raw?.qty));
+    const qty = Number(raw?.qty);
     if (!Number.isInteger(qty) || qty < 1 || qty > 20) throw new Error("Cantidad inválida");
     const size = String(raw?.size ?? "").trim();
     if (!/^(?:3[4-9]|40)$/.test(size)) throw new Error("Talla inválida");
