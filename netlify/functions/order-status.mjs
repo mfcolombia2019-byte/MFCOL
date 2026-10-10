@@ -44,13 +44,13 @@ async function reconcileBoldLink(order) {
     return order;
   }
 
-  // En API Link de pagos, Bold documenta metadata.reference como el identificador LNK_*.
-  // Por eso el fallback consulta y valida la notificación con paymentLink, no order.reference.
+  // crear-link-pago.mjs envía la referencia del pedido en el campo `reference`.
+  // La consulta de Bold debe usar esa referencia externa y validarla en metadata.
   let response;
   try {
     response = await fetch(
       "https://integrations.api.bold.co/payments/webhook/notifications/" +
-        encodeURIComponent(paymentLink) + "?is_external_reference=true",
+        encodeURIComponent(String(order.reference)) + "?is_external_reference=true",
       {
         method: "GET",
         headers: { Authorization: "x-api-key " + apiKey },
@@ -71,7 +71,7 @@ async function reconcileBoldLink(order) {
   // Validar referencia, tipo, moneda e importe antes de considerar cualquier cambio.
   const candidates = notifications
     .filter(item =>
-      String(item?.data?.metadata?.reference || "").trim() === paymentLink &&
+      String(item?.data?.metadata?.reference || "").trim() === String(order.reference) &&
       ["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"].includes(
         String(item?.type || "").toUpperCase()
       )
@@ -104,7 +104,7 @@ async function reconcileBoldLink(order) {
 
   const transactionId = String(data?.payment_id || notification.subject || paymentLink).trim();
   const event = {
-    id: "poll_" + paymentLink + "_" + type + "_" + transactionId,
+    id: "poll_" + String(order.reference) + "_" + type + "_" + transactionId,
     type,
     subject: transactionId,
     source: String(notification.source || "/payments/links"),
@@ -114,7 +114,7 @@ async function reconcileBoldLink(order) {
       ...data,
       payment_id: transactionId,
       amount: { ...data.amount, currency, total: amount },
-      metadata: { ...data.metadata, reference: paymentLink }
+      metadata: { ...data.metadata, reference: String(order.reference) }
     }
   };
 
