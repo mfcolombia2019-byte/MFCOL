@@ -27,7 +27,7 @@ async function reconcileBoldLink(order) {
   try {
     response = await fetch(
       "https://integrations.api.bold.co/payments/webhook/notifications/" +
-        encodeURIComponent(paymentLink) + "?is_external_reference=true",
+        encodeURIComponent(order.reference) + "?is_external_reference=true",
       {
         method: "GET",
         headers: { Authorization: "x-api-key " + apiKey },
