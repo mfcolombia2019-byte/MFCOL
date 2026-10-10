@@ -117,29 +117,6 @@ const PRODUCTS = [
     ]
   },
   {
-    "id": "sandalia-de-plataforma-con-tira-ancha",
-    "name": "Sandalia de plataforma con tira ancha",
-    "price": 190000,
-    "colors": [
-      "Negro",
-      "Blanco"
-    ],
-    "facts": [
-      "Negro",
-      "Blanco",
-      "Punta abierta",
-      "Plataforma alta",
-      "Estilo slide",
-      "34",
-      "35",
-      "36",
-      "37",
-      "38",
-      "39",
-      "40"
-    ]
-  },
-  {
     "id": "sandalia-de-tacon-con-tira-transparente",
     "name": "Sandalia de tacón con tira transparente",
     "price": 179900,
