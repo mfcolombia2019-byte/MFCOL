@@ -15,10 +15,34 @@ function env(name) {
   return String(process.env[name] || "").trim();
 }
 
+const BOLD_FALLBACK_COOLDOWN_MS = 15000;
+
+async function claimBoldFallbackCheck(reference) {
+  const key = "bold-fallback-checks/" + reference;
+  const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
+  const lastCheckedAt = Date.parse(String(current?.data?.checkedAt || ""));
+  const now = Date.now();
+  if (Number.isFinite(lastCheckedAt) && now - lastCheckedAt < BOLD_FALLBACK_COOLDOWN_MS) {
+    return false;
+  }
+  const next = { checkedAt: new Date(now).toISOString() };
+  const result = current?.data
+    ? await store.setJSON(key, next, { onlyIfMatch: current.etag })
+    : await store.setJSON(key, next, { onlyIfNew: true });
+  // A failed or ambiguous claim must not trigger another upstream request.
+  return Boolean(result?.modified && result?.etag);
+}
+
 async function reconcileBoldLink(order) {
   const paymentLink = String(order?.boldPaymentLink || "").trim();
   const apiKey = env("BOLD_API_KEY");
   if (!paymentLink || !apiKey) return order;
+  try {
+    if (!(await claimBoldFallbackCheck(String(order.reference || "")))) return order;
+  } catch (error) {
+    console.error("Bold notification fallback: no se pudo reservar consulta", String(error?.name || "Error"));
+    return order;
+  }
 
   // En API Link de pagos, Bold documenta metadata.reference como el identificador LNK_*.
   // Por eso el fallback consulta y valida la notificación con paymentLink, no order.reference.
