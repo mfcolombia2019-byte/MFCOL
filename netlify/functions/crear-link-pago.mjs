@@ -40,6 +40,12 @@ async function associateBoldLink(reference, paymentLink) {
   const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) throw new Error("Pedido no encontrado");
   if (current.data.boldPaymentLink && current.data.paymentLink) {
+    if (
+      current.data.boldPaymentLink !== paymentLink ||
+      current.data.paymentLink !== "https://checkout.bold.co/" + paymentLink
+    ) {
+      throw new Error("El pedido ya tiene asociado otro enlace de Bold");
+    }
     return current.data;
   }
 
@@ -59,6 +65,30 @@ async function associateBoldLink(reference, paymentLink) {
   return next;
 }
 
+async function ensureBoldLinkMapping(reference, paymentLink) {
+  const key = "bold-links/" + paymentLink;
+  const existing = await store.get(key, { type: "json", consistency: "strong" });
+
+  if (existing?.reference) {
+    if (existing.reference !== reference) {
+      throw new Error("El enlace de Bold ya está asociado a otro pedido");
+    }
+    return existing;
+  }
+
+  const mapping = {
+    reference,
+    createdAt: new Date().toISOString()
+  };
+  const result = await store.setJSON(key, mapping, { onlyIfNew: true });
+
+  if (result?.modified) return mapping;
+
+  const latest = await store.get(key, { type: "json", consistency: "strong" });
+  if (latest?.reference === reference) return latest;
+
+  throw new Error("No se pudo confirmar la asociación del enlace Bold");
+}
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
@@ -127,6 +157,12 @@ export default async (req) => {
   });
 
   if (order.boldPaymentLink && order.paymentLink) {
+    try {
+      await ensureBoldLinkMapping(reference, order.boldPaymentLink);
+    } catch (error) {
+      console.error("No se pudo confirmar la asociación del enlace Bold:", error);
+      return json({ error: "No se pudo confirmar la asociación del enlace de pago" }, 503);
+    }
     const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
     const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
     return json({
@@ -164,15 +200,59 @@ export default async (req) => {
   }
 
   const paymentLink = String(data.payload.payment_link);
-  const saved = await associateBoldLink(reference, paymentLink);
+  let saved;
+
+  try {
+    saved = await associateBoldLink(reference, paymentLink);
+  } catch (error) {
+    console.error("No se pudo asociar el enlace de Bold:", error);
+
+    try {
+      const latest = await store.get("orders/" + reference, {
+        type: "json",
+        consistency: "strong"
+      });
+
+      if (!latest) {
+        return json({ error: "Pedido no encontrado" }, 404);
+      }
+
+      if (
+        latest.boldPaymentLink &&
+        latest.paymentLink &&
+        (
+          latest.boldPaymentLink !== paymentLink ||
+          latest.paymentLink !== "https://checkout.bold.co/" + paymentLink
+        )
+      ) {
+        return json({
+          error: "El pedido ya tiene asociado otro enlace de pago"
+        }, 409);
+      }
+    } catch (readError) {
+      console.error("No se pudo verificar el estado del pedido:", readError);
+    }
+
+    return json({
+      error: "No se pudo confirmar la asociación del enlace de pago"
+    }, 503);
+  }
 
   // Bold's API Link webhook documentation identifies metadata.reference as the
   // generated LNK_* payment link. Keep an explicit mapping so the webhook can
   // resolve the original order without trusting browser data.
-  await store.setJSON("bold-links/" + paymentLink, {
-    reference,
-    createdAt: new Date().toISOString()
-  });
+  if (
+    saved.boldPaymentLink !== paymentLink ||
+    saved.paymentLink !== "https://checkout.bold.co/" + paymentLink
+  ) {
+    return json({ error: "El pedido ya tiene asociado otro enlace de pago" }, 409);
+  }
+  try {
+    await ensureBoldLinkMapping(reference, paymentLink);
+  } catch (error) {
+    console.error("No se pudo confirmar la asociación del enlace Bold:", error);
+    return json({ error: "No se pudo confirmar la asociación del enlace de pago" }, 503);
+  }
 
   const embedded = buildEmbedded(description, total);
 
