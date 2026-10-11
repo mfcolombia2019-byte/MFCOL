@@ -198,6 +198,15 @@ export async function processWhatsAppOutboxKey(key) {
   if (!current?.data) return { ok: false, skipped: true, reason: "not_found" };
   if (current.data.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
 
+  // Terminal errors must not be retried by direct callers bypassing the scheduled worker.
+  const currentAttempts = Number(current.data.attempts || 0);
+  if (
+    current.data.status === "error" &&
+    (!current.data.nextAttemptAt || currentAttempts >= 8)
+  ) {
+    return { ok: false, skipped: true, reason: "terminal_error", key };
+  }
+
   const now = Date.now();
   if (current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
     return { ok: false, skipped: true, reason: "not_due", key };
