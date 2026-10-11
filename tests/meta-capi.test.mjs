@@ -7,6 +7,24 @@ function hash(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
 
+async function withMetaEnv(values, callback) {
+  const names = ["META_CAPI_ACCESS_TOKEN", "META_GRAPH_API_VERSION", "META_DATASET_ID", "META_TEST_EVENT_CODE"];
+  const previous = Object.fromEntries(names.map(name => [name, process.env[name]]));
+  for (const name of names) {
+    if (Object.hasOwn(values, name)) process.env[name] = values[name];
+    else delete process.env[name];
+  }
+
+  try {
+    return await callback();
+  } finally {
+    for (const name of names) {
+      if (previous[name] === undefined) delete process.env[name];
+      else process.env[name] = previous[name];
+    }
+  }
+}
+
 test("buildMetaPurchase normaliza nombre, apellidos y teléfono antes de hashear", () => {
   const event = buildMetaPurchase({
     confirmedAmount: 125000,
@@ -28,67 +46,61 @@ test("buildMetaPurchase normaliza nombre, apellidos y teléfono antes de hashear
   assert.equal(event.custom_data.currency, "COP");
 });
 
-test("sendMetaEvent acepta versión válida y dataset numérico sin llamar servicios reales", async () => {
-  const oldEnv = {
-    token: process.env.META_CAPI_ACCESS_TOKEN,
-    version: process.env.META_GRAPH_API_VERSION,
-    dataset: process.env.META_DATASET_ID,
-    fetch: globalThis.fetch
-  };
+test("sendMetaEvent acepta versión válida y dataset numérico sin llamar servicios reales", async t => {
   let requestUrl;
   let requestOptions;
-  try {
-    process.env.META_CAPI_ACCESS_TOKEN = "test-token";
-    process.env.META_GRAPH_API_VERSION = "v25.0";
-    process.env.META_DATASET_ID = META_DATASET_ID;
-    globalThis.fetch = async (url, options) => {
-      requestUrl = String(url);
-      requestOptions = options;
-      return { ok: true, status: 200, json: async () => ({ events_received: 1 }) };
-    };
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    requestUrl = String(url);
+    requestOptions = options;
+    return { ok: true, status: 200, json: async () => ({ events_received: 1 }) };
+  });
 
-    const result = await sendMetaEvent({ event_name: "Purchase", event_id: "test-event" });
-    assert.equal(result.status, 200);
-    assert.match(requestUrl, /graph\.facebook\.com\/v25\.0\/1092821839891082\/events/);
-    assert.equal(requestOptions.method, "POST");
-    assert.equal(JSON.parse(requestOptions.body).data[0].event_id, "test-event");
-  } finally {
-    if (oldEnv.token === undefined) delete process.env.META_CAPI_ACCESS_TOKEN;
-    else process.env.META_CAPI_ACCESS_TOKEN = oldEnv.token;
-    if (oldEnv.version === undefined) delete process.env.META_GRAPH_API_VERSION;
-    else process.env.META_GRAPH_API_VERSION = oldEnv.version;
-    if (oldEnv.dataset === undefined) delete process.env.META_DATASET_ID;
-    else process.env.META_DATASET_ID = oldEnv.dataset;
-    globalThis.fetch = oldEnv.fetch;
-  }
+  const result = await withMetaEnv({
+    META_CAPI_ACCESS_TOKEN: "test-token",
+    META_GRAPH_API_VERSION: "v25.0",
+    META_DATASET_ID: META_DATASET_ID
+  }, () => sendMetaEvent({ event_name: "Purchase", event_id: "test-event" }));
+  assert.equal(result.status, 200);
+  assert.match(requestUrl, /graph\.facebook\.com\/v25\.0\/1092821839891082\/events/);
+  assert.equal(requestOptions.method, "POST");
+  assert.equal(JSON.parse(requestOptions.body).data[0].event_id, "test-event");
 });
 
-test("sendMetaEvent rechaza una versión inválida antes de llamar a fetch", async () => {
-  const oldEnv = {
-    token: process.env.META_CAPI_ACCESS_TOKEN,
-    version: process.env.META_GRAPH_API_VERSION,
-    fetch: globalThis.fetch
-  };
-  let fetchCalled = false;
-  try {
-    process.env.META_CAPI_ACCESS_TOKEN = "test-token";
-    process.env.META_GRAPH_API_VERSION = "vXX";
-    globalThis.fetch = async () => {
-      fetchCalled = true;
-      throw new Error("fetch no debería ejecutarse");
-    };
+test("sendMetaEvent acepta versión sin prefijo v y la normaliza en el endpoint", async t => {
+  let requestUrl;
+  t.mock.method(globalThis, "fetch", async url => {
+    requestUrl = String(url);
+    return { ok: true, status: 200, json: async () => ({}) };
+  });
 
-    await assert.rejects(sendMetaEvent({ event_name: "Purchase" }), error => {
-      assert.match(error.message, /META_GRAPH_API_VERSION inválida/);
-      assert.equal(error.retryable, false);
-      return true;
-    });
-    assert.equal(fetchCalled, false);
-  } finally {
-    if (oldEnv.token === undefined) delete process.env.META_CAPI_ACCESS_TOKEN;
-    else process.env.META_CAPI_ACCESS_TOKEN = oldEnv.token;
-    if (oldEnv.version === undefined) delete process.env.META_GRAPH_API_VERSION;
-    else process.env.META_GRAPH_API_VERSION = oldEnv.version;
-    globalThis.fetch = oldEnv.fetch;
+  await withMetaEnv({
+    META_CAPI_ACCESS_TOKEN: "test-token",
+    META_GRAPH_API_VERSION: "25.0",
+    META_DATASET_ID: "123"
+  }, () => sendMetaEvent({ event_name: "Purchase" }));
+
+  assert.match(requestUrl, /graph\.facebook\.com\/v25\.0\/123\/events/);
+});
+
+test("sendMetaEvent rechaza configuración ausente o inválida antes de llamar fetch", async t => {
+  let fetchCalls = 0;
+  t.mock.method(globalThis, "fetch", async () => {
+    fetchCalls += 1;
+    return { ok: true, status: 200, json: async () => ({}) };
+  });
+
+  const invalidConfigurations = [
+    [{ META_GRAPH_API_VERSION: "v25.0", META_DATASET_ID: "123" }, /META_CAPI_ACCESS_TOKEN/],
+    [{ META_CAPI_ACCESS_TOKEN: "test-token", META_GRAPH_API_VERSION: "vXX", META_DATASET_ID: "123" }, /META_GRAPH_API_VERSION inválida/],
+    [{ META_CAPI_ACCESS_TOKEN: "test-token", META_GRAPH_API_VERSION: "v25.0", META_DATASET_ID: "12x" }, /META_DATASET_ID inválido/]
+  ];
+
+  for (const [configuration, expectedError] of invalidConfigurations) {
+    await assert.rejects(
+      withMetaEnv(configuration, () => sendMetaEvent({ event_name: "Purchase" })),
+      expectedError
+    );
   }
+
+  assert.equal(fetchCalls, 0);
 });
