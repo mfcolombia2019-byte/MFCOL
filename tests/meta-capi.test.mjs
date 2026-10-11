@@ -22,7 +22,7 @@ test("buildMetaPurchase normaliza nombre, apellidos y teléfono antes de hashear
   assert.equal(event.event_name, "Purchase");
   assert.equal(event.event_id, "purchase-123");
   assert.equal(event.user_data.fn[0], hash("maria"));
-  assert.equal(event.user_data.ln[0], hash("josé gomez"));
+  assert.equal(event.user_data.ln[0], hash("jose gomez"));
   assert.equal(event.user_data.ph[0], hash("573115551234"));
   assert.equal(event.custom_data.value, 125000);
   assert.equal(event.custom_data.currency, "COP");
