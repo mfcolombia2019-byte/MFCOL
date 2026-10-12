@@ -118,12 +118,12 @@ async function requestStatus(reference = "MFORDER123") {
   return orderStatus(new Request("https://tienda.example/.netlify/functions/order-status?ref=" + encodeURIComponent(reference)));
 }
 
-test("consulta Bold por referencia externa del pedido y reconcilia aprobación", async () => {
+test("consulta Bold por ID LNK del enlace y reconcilia aprobación", async () => {
   seedOrder();
   const fetchMock = mock.method(globalThis, "fetch", async (url, options) => {
-    assert.match(String(url), /\/payments\/webhook\/notifications\/MFORDER123\?is_external_reference=true$/);
+    assert.match(String(url), /\/payments\/webhook\/notifications\/LNK_TEST123$/);
     assert.equal(options.headers.Authorization, "x-api-key test-key-not-a-real-secret");
-    return new Response(JSON.stringify({ notifications: [notification("MFORDER123")] }), {
+    return new Response(JSON.stringify({ notifications: [notification("LNK_TEST123")] }), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });
@@ -163,7 +163,7 @@ test("no aprueba un pago cuyo importe o moneda no coinciden", async () => {
 test("ignora una notificación de otra referencia externa", async () => {
   seedOrder();
   const fetchMock = mock.method(globalThis, "fetch", async () => new Response(JSON.stringify({
-    notifications: [notification("MFOTHERORDER")]
+    notifications: [notification("LNK_OTHER123")]
   }), { status: 200, headers: { "Content-Type": "application/json" } }));
   try {
     const response = await requestStatus();
