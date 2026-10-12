@@ -44,14 +44,14 @@ async function reconcileBoldLink(order) {
     return order;
   }
 
-  // La consulta usa la referencia externa enviada al crear el pago (pedido MF).
-  // La notificación solo se acepta si metadata.reference coincide exactamente
-  // con esa referencia, además de validar tipo, importe y moneda.
+  // En API Link de Bold, metadata.reference suele ser el ID LNK_* del enlace,
+  // no la referencia interna del pedido MF. Consultamos por el ID del link y
+  // aceptamos únicamente la referencia del link asociado o la referencia MF.
   let response;
   try {
     response = await fetch(
       "https://integrations.api.bold.co/payments/webhook/notifications/" +
-        encodeURIComponent(String(order.reference)) + "?is_external_reference=true",
+        encodeURIComponent(paymentLink),
       {
         method: "GET",
         headers: { Authorization: "x-api-key " + apiKey },
@@ -72,7 +72,9 @@ async function reconcileBoldLink(order) {
   // Validar referencia, tipo, moneda e importe antes de considerar cualquier cambio.
   const candidates = notifications
     .filter(item =>
-      String(item?.data?.metadata?.reference || "").trim() === String(order.reference) &&
+      [String(paymentLink), String(order.reference)].includes(
+        String(item?.data?.metadata?.reference || "").trim()
+      ) &&
       ["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"].includes(
         String(item?.type || "").toUpperCase()
       )
