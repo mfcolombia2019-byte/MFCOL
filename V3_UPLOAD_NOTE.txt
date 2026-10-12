@@ -1,0 +1,1 @@
+El ZIP v3 se revisó; esta rama está reservada para incorporar el paquete completo tras comparar archivos y pruebas.
