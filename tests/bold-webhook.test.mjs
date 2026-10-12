@@ -154,10 +154,10 @@ test("firma válida con clave vacía en pruebas y firma inválida", () => {
 });
 
 test("selección de secreto: vacío solo fuera de producción", () => {
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "branch-deploy", BOLD_SECRET_KEY: "prod-secret" }), "");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "deploy-preview", BOLD_SECRET_KEY: "prod-secret" }), "");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_SECRET_KEY: "prod-secret" }), "prod-secret");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production" }), "");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "branch-deploy", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "deploy-preview", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "identity-key");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_SECRET_KEY: "only-secret-key" }), "");
 });
 
 test("JSON malformado y método HTTP", async () => {
