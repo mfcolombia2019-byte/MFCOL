@@ -118,12 +118,22 @@ async function requestStatus(reference = "MFORDER123") {
   return orderStatus(new Request("https://tienda.example/.netlify/functions/order-status?ref=" + encodeURIComponent(reference)));
 }
 
-test("consulta Bold por ID LNK del enlace y reconcilia aprobación", async () => {
+test("consulta el estado del Botón de pagos por la referencia del pedido y reconcilia aprobación", async () => {
   seedOrder();
   const fetchMock = mock.method(globalThis, "fetch", async (url, options) => {
-    assert.match(String(url), /\/payments\/webhook\/notifications\/LNK_TEST123$/);
+    // El checkout real usa orderId = referencia MF; el ID LNK_ del enlace no se consulta.
+    assert.equal(String(url), "https://payments.api.bold.co/v2/payment-voucher/MFORDER123");
     assert.equal(options.headers.Authorization, "x-api-key test-key-not-a-real-secret");
-    return new Response(JSON.stringify({ notifications: [notification("LNK_TEST123")] }), {
+    return new Response(JSON.stringify({
+      link_id: "BTN_TEST",
+      transaction_id: "PAYMENT123",
+      total: 5000,
+      subtotal: 5000,
+      reference_id: "MFORDER123",
+      payment_method: "CREDIT_CARD",
+      transaction_date: "2026-10-12 03:00:00-05:00",
+      payment_status: "APPROVED"
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });
@@ -181,7 +191,12 @@ test("limita las consultas repetidas de respaldo durante 15 segundos", async () 
   let calls = 0;
   const fetchMock = mock.method(globalThis, "fetch", async () => {
     calls++;
-    return new Response(JSON.stringify({ notifications: [] }), {
+    return new Response(JSON.stringify({
+      link_id: "BTN_TEST",
+      total: 5000,
+      reference_id: "MFORDER123",
+      payment_status: "NO_TRANSACTION_FOUND"
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });
