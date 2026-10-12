@@ -109,7 +109,7 @@ test("fuera de producción rechaza un origen de despliegue que coincide con prod
   assert.equal(canonicalOrigin(read({ CONTEXT: "deploy-preview", DEPLOY_PRIME_URL: "no es una url" })), "");
 });
 
-async function createCheckout(vars) {
+async function createCheckout(vars, requestUrl = "https://irrelevante.example/.netlify/functions/crear-link-pago") {
   const saved = {};
   const names = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "BOLD_SECRET_KEY", "BOLD_API_KEY"];
   for (const name of names) {
@@ -130,7 +130,7 @@ async function createCheckout(vars) {
       paymentLink: "https://checkout.bold.co/LNK_EXISTING"
     });
     etags.set("orders/MFORIGIN1", '"seed"');
-    const response = await handler(new Request("https://irrelevante.example/.netlify/functions/crear-link-pago", {
+    const response = await handler(new Request(requestUrl, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reference: "MFORIGIN1" })
@@ -178,4 +178,49 @@ test("una vista previa sin origen propio válido no crea el pago en lugar de vol
   assert.equal(status, 503);
   assert.equal(body.embedded, undefined);
   assert.ok(!JSON.stringify(body).includes("tienda.mfcol.com"));
+});
+
+test("sin variables DEPLOY_* en tiempo de ejecución, una vista previa usa el origen de su propia petición", () => {
+  assert.equal(
+    canonicalOrigin(
+      read({ CONTEXT: "deploy-preview", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION }),
+      PREVIEW + "/.netlify/functions/crear-link-pago"
+    ),
+    PREVIEW
+  );
+});
+
+test("el origen de la petición se rechaza si es de producción, no es HTTPS o no es *.netlify.app", () => {
+  const env = read({ CONTEXT: "deploy-preview", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION });
+  assert.equal(canonicalOrigin(env, PRODUCTION + "/.netlify/functions/crear-link-pago"), "");
+  assert.equal(canonicalOrigin(env, "https://otro-dominio.example/.netlify/functions/crear-link-pago"), "");
+  assert.equal(canonicalOrigin(env, "http://deploy-preview-30--mfcol.netlify.app/x"), "");
+  assert.equal(canonicalOrigin(env, "no es una url"), "");
+  assert.equal(canonicalOrigin(env, ""), "");
+});
+
+test("si el dominio netlify.app de la petición es el principal de producción, se rechaza", () => {
+  const main = "https://mfcol.netlify.app";
+  assert.equal(
+    canonicalOrigin(read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: main }), main + "/x"),
+    ""
+  );
+});
+
+test("producción no usa el origen de la petición", () => {
+  assert.equal(
+    canonicalOrigin(read({ CONTEXT: "production", SITE_CANONICAL_ORIGIN: PRODUCTION }), PREVIEW + "/x"),
+    PRODUCTION
+  );
+  assert.equal(canonicalOrigin(read({ CONTEXT: "production" }), PREVIEW + "/x"), "");
+});
+
+test("el checkout de una vista previa sin variables DEPLOY_* funciona y regresa a la vista previa", async () => {
+  const { status, body } = await createCheckout(
+    { CONTEXT: "deploy-preview", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION },
+    PREVIEW + "/.netlify/functions/crear-link-pago"
+  );
+  assert.equal(status, 200);
+  assert.equal(body.embedded.redirectionUrl, PREVIEW + "/gracias.html?ref=MFORIGIN1");
+  assert.ok(!JSON.stringify(body.embedded).includes("tienda.mfcol.com"));
 });
