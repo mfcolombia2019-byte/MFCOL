@@ -53,11 +53,12 @@ export async function processOutboxKey(key) {
   const current = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) return { ok: false, skipped: true, reason: "not_found" };
   if (current.data.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
-  if (current.data.status === "processing") {
-    return { ok: false, skipped: true, reason: "busy", key };
-  }
-
   const now = Date.now();
+  if (current.data.status === "processing") {
+    const processingAt = Date.parse(String(current.data.processingAt || ""));
+    const stale = Number.isFinite(processingAt) && now - processingAt >= 10 * 60 * 1000;
+    if (!stale) return { ok: false, skipped: true, reason: "busy", key };
+  }
   if (current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
     return { ok: false, skipped: true, reason: "not_due", key };
   }

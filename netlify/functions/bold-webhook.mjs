@@ -109,9 +109,16 @@ export default async (req, context) => {
       console.error("No se pudo procesar webhook Bold:", error);
       const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
       if (current && !current.processedAt) {
+        const attempts = Number(current.attempts || 0) + 1;
+        const retryable = attempts < 8;
         current.status = "error";
+        current.attempts = attempts;
         current.lastError = String(error?.message || error).slice(0, 1000);
         current.updatedAt = new Date().toISOString();
+        current.processingAt = "";
+        current.nextAttemptAt = retryable
+          ? new Date(Date.now() + Math.min(60 * 60 * 1000, 30 * 1000 * (2 ** Math.max(0, attempts - 1)))).toISOString()
+          : "";
         await store.setJSON(inboxKey, current);
       }
     });
