@@ -9,6 +9,7 @@ on:
       - fix/bold-reference-id-required
   pull_request:
     branches:
+      - main
       - security/orders-meta-capi
 
 jobs:
