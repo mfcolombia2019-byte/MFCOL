@@ -70,7 +70,7 @@
     var data = null;
     var lastTemporaryError = null;
     var permanentError = null;
-    var maxAttempts = 24;
+    var maxAttempts = 120;
 
     for (var attempts = 1; attempts <= maxAttempts; attempts += 1) {
       try {
@@ -105,7 +105,7 @@
       }
 
       if (attempts < maxAttempts) {
-        await new Promise(function (resolve) { setTimeout(resolve, 1000); });
+        await new Promise(function (resolve) { setTimeout(resolve, 5000); });
       }
     }
 
@@ -133,7 +133,7 @@
       intro.textContent = "No pudimos confirmar el pago de este pedido.";
     } else {
       title.textContent = "Pedido recibido";
-      intro.textContent = "Tu pedido fue recibido y estamos verificando el estado del pago.";
+      intro.textContent = "Tu pedido fue recibido. Seguimos verificando la confirmación de Bold; si tarda, puedes volver a consultar esta página en unos minutos.";
     }
 
     resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
