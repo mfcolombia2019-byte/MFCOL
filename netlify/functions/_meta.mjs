@@ -7,15 +7,15 @@ function sha256(value) {
 }
 
 function normalizeName(value) {
-  return String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+  return String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function normalizePhone(value) {
-  return String(value || "").replace(/\\D/g, "");
+  return String(value || "").replace(/\D/g, "");
 }
 
 function splitName(value) {
-  const parts = normalizeName(value).split(/\\s+/).filter(Boolean);
+  const parts = normalizeName(value).split(/\s+/).filter(Boolean);
   return { first: parts[0] || "", last: parts.slice(1).join(" ") };
 }
 
@@ -72,9 +72,9 @@ export async function sendMetaEvent(event) {
   let version = String(process.env.META_GRAPH_API_VERSION || "").trim();
   const datasetId = String(process.env.META_DATASET_ID || META_DATASET_ID);
   if (!token) { const error = new Error("Falta META_CAPI_ACCESS_TOKEN"); error.retryable = false; throw error; }
-  if (!/^v?\\d+\\.\\d+$/.test(version)) { const error = new Error("META_GRAPH_API_VERSION inválida"); error.retryable = false; throw error; }
+  if (!/^v?\d+\.\d+$/.test(version)) { const error = new Error("META_GRAPH_API_VERSION inválida"); error.retryable = false; throw error; }
   if (!version.startsWith("v")) version = "v" + version;
-  if (!/^\\d+$/.test(datasetId)) { const error = new Error("META_DATASET_ID inválido"); error.retryable = false; throw error; }
+  if (!/^\d+$/.test(datasetId)) { const error = new Error("META_DATASET_ID inválido"); error.retryable = false; throw error; }
 
   const payload = { data: [event] };
   if (process.env.META_TEST_EVENT_CODE) {
