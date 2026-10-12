@@ -11,7 +11,7 @@ function encodeForm(data) {
 export function getBoldWebhookSecret(env = process.env) {
   const context = String(env?.CONTEXT || "").trim().toLowerCase();
   if (context === "production") {
-    return String(env?.BOLD_SECRET_KEY || "");
+    return String(env?.BOLD_API_KEY || "");
   }
   // Bold documents an empty signing key for its test webhook. Non-production
   // deploys use the isolated mfc-admin-nonprod store, so a public test endpoint
@@ -37,7 +37,7 @@ export default async (req, context) => {
   const secret = getBoldWebhookSecret();
 
   if (contextName === "production" && !secret) {
-    console.error("BOLD_SECRET_KEY no está configurada en producción");
+    console.error("BOLD_API_KEY no está configurada en producción");
     return new Response("Configuración de webhook incompleta", { status: 500 });
   }
   if (!validSignature(rawBody, signature, secret)) return new Response("Firma inválida", { status: 400 });
