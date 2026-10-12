@@ -1,0 +1,28 @@
+name: MFCOL flow audit
+
+on:
+  push:
+    branches:
+      - audit/flujos-integrales
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        run: npm install
+      - name: Run automated flow tests
+        run: node --test --experimental-test-module-mocks tests/*.test.mjs

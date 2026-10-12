@@ -62,7 +62,10 @@ export default async (req) => {
       return new Response("Invalid JSON", { status: 400 });
     }
 
-    console.log("WhatsApp webhook received", JSON.stringify(payload));
+    console.log("WhatsApp webhook received", {
+      object: typeof payload?.object === "string" ? payload.object : "unknown",
+      entryCount: Array.isArray(payload?.entry) ? payload.entry.length : 0,
+    });
 
     return json({ received: true });
   }
