@@ -17,7 +17,9 @@ function canonicalOrigin() {
 
   const candidates = isProduction
     ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
-    : [env("SITE_CANONICAL_ORIGIN"), env("DEPLOY_PRIME_URL"), env("URL")];
+    // A deploy preview must return to itself even if SITE_CANONICAL_ORIGIN
+    // is globally configured to the production domain.
+    : [env("DEPLOY_PRIME_URL"), env("URL"), env("SITE_CANONICAL_ORIGIN")];
 
   for (const candidate of candidates) {
     const raw = String(candidate || "").trim().replace(/\/+$/, "");
