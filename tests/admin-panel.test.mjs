@@ -24,6 +24,7 @@ const store = {
     writes.push(key);
     return { modified: true, etag };
   },
+  async delete(key) { data.delete(key); },
   async list({ prefix }) { return { blobs: [...data.keys()].filter(k => k.startsWith(prefix)).map(key => ({ key })) }; }
 };
 
@@ -189,18 +190,33 @@ test("despacho: dos actualizaciones conservan el historial y el conflicto concur
   assert.equal(data.get("shipping/MF4").data.status, "despachado");
 });
 
-// ---------- inventario ----------
-test("inventario: guarda por talla, fusiona y valida contra el catálogo", async () => {
-  const r = await post(inventory, "admin-inventory", { productId: PID, sizes: { "36": 2, "37": 3 } });
+// ---------- inventario (por color y talla, con historial) ----------
+test("inventario: ajusta por color y talla, registra anterior/nueva/motivo y valida", async () => {
+  const r = await post(inventory, "admin-inventory", { productId: PID, reason: "Conteo inicial", changes: { "Negro|36": 2, "Negro|37": 3 } });
   assert.equal(r.status, 200);
-  await post(inventory, "admin-inventory", { productId: PID, sizes: { "37": 0, "38": 5 } });
-  const inv = (await (await get(inventory, "admin-inventory")).json()).inventory;
-  assert.deepEqual(inv[0].sizes, { "36": 2, "37": 0, "38": 5 });
-  for (const bad of [{ "36": -1 }, { "36": 1.5 }, { "36": "x" }, { "99": 1 }, { "50": 1 }, { "abc": 1 }]) {
-    assert.equal((await post(inventory, "admin-inventory", { productId: PID, sizes: bad })).status, 400, JSON.stringify(bad));
+  const r2 = await post(inventory, "admin-inventory", { productId: PID, reason: "Venta en tienda", changes: { "Negro|37": 1, "Rosa|38": 5 } });
+  const inv = (await r2.json()).inventory;
+  assert.deepEqual(inv.stock, { "Negro|36": 2, "Negro|37": 1, "Rosa|38": 5 });
+  const h = inv.history.filter(x => x.key === "Negro|37");
+  assert.deepEqual([h[1].before, h[1].after, h[1].delta, h[1].reason], [3, 1, -2, "Venta en tienda"]);
+  assert.equal(inv.history.find(x => x.key === "Rosa|38").before, null, "sin registro previo, no se inventa una cantidad anterior");
+  for (const bad of [{ "Negro|36": -1 }, { "Negro|36": 1.5 }, { "Negro|36": "x" }, { "36": 1 }, { "Naranja|36": 1 }, { "Negro|99": 1 }, { "Negro|36": 100000 }]) {
+    assert.equal((await post(inventory, "admin-inventory", { productId: PID, reason: "x y z", changes: bad })).status, 400, JSON.stringify(bad));
   }
-  assert.equal((await post(inventory, "admin-inventory", { productId: "no-existe", sizes: { "36": 1 } })).status, 404);
-  assert.equal(writes.every(k => k.startsWith("inventory/")), true, "no escribe en products/ ni en el catálogo");
+  assert.equal((await post(inventory, "admin-inventory", { productId: PID, reason: "", changes: { "Negro|36": 1 } })).status, 400, "el motivo es obligatorio");
+  assert.equal((await post(inventory, "admin-inventory", { productId: "no-existe", reason: "abc", changes: { "36": 1 } })).status, 404);
+  assert.equal(writes.every(k => k.startsWith("inventory/")), true, "no escribe en products/, catalog/ ni orders/");
+});
+
+test("inventario: sin cambios no escribe y el conflicto concurrente responde 409", async () => {
+  await post(inventory, "admin-inventory", { productId: PID, reason: "Conteo", changes: { "Negro|36": 2 } });
+  const n = writes.length;
+  const same = await post(inventory, "admin-inventory", { productId: PID, reason: "Conteo", changes: { "Negro|36": 2 } });
+  assert.equal((await same.json()).unchanged, true);
+  assert.equal(writes.length, n);
+  afterRead = (key) => { data.get(key).etag = "otro"; };
+  assert.equal((await post(inventory, "admin-inventory", { productId: PID, reason: "Conteo", changes: { "Negro|36": 9 } })).status, 409);
+  assert.equal(data.get("inventory/" + PID).data.stock["Negro|36"], 2);
 });
 
 // ---------- precios de solo lectura ----------
@@ -218,7 +234,7 @@ test("admin-api: los precios son de solo lectura y guardar 'active' no borra otr
 
 // ---------- aislamiento de flujos protegidos ----------
 test("las funciones nuevas no importan ni escriben flujos protegidos (Bold, checkout, pedidos, WhatsApp)", () => {
-  for (const f of ["admin-expenses", "admin-shipping", "admin-inventory", "_admin-data"]) {
+  for (const f of ["admin-expenses", "admin-shipping", "admin-inventory", "admin-catalog", "_admin-data"]) {
     const src = readFileSync(new URL("../netlify/functions/" + f + ".mjs", import.meta.url), "utf8");
     assert.equal(/_orders|_bold|_whatsapp|_meta|crear-link-pago|bold-status|order-status/.test(src), false, f);
     assert.equal(/setJSON\(\s*["']orders\//.test(src), false, f + " no escribe pedidos");

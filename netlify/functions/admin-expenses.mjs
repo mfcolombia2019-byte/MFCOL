@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { store, listJson, json, requireAdmin } from "./_admin.mjs";
-import { validateExpenseInput, validateExpenseId, summarizeFinance, isValidMonth, EXPENSE_CATEGORIES, EXPENSE_PAYMENT_METHODS } from "./_admin-data.mjs";
+import { validateExpenseInput, validateExpenseId, summarizeFinance, computeCogs, isValidMonth, EXPENSE_CATEGORIES, EXPENSE_PAYMENT_METHODS } from "./_admin-data.mjs";
 
 // Gastos del negocio. Prefijo independiente "expenses/" en el almacén administrativo
 // (producción y no producción ya están separados por _admin.mjs). No toca pedidos.
@@ -21,12 +21,14 @@ export default async (req) => {
     const url = new URL(req.url);
     const month = url.searchParams.get("month") || "";
     if (month && !isValidMonth(month)) return json({ error: "Mes no válido (AAAA-MM)" }, 400);
-    const [expenses, orders] = await Promise.all([listJson("expenses/"), listJson("orders/")]);
+    const [expenses, orders, catalog] = await Promise.all([listJson("expenses/"), listJson("orders/"), listJson("catalog/")]);
+    // Costos de mercancía solo de productos con costo registrado en el panel (nunca inventados).
+    const costs = Object.fromEntries(catalog.filter(p => Number.isFinite(p?.cost)).map(p => [p.id, p.cost]));
     expenses.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
     const visible = month ? expenses.filter(e => String(e.date).startsWith(month)) : expenses;
     return json({
       expenses: visible,
-      summary: summarizeFinance(orders, expenses, month),
+      summary: { ...summarizeFinance(orders, expenses, month), cogs: computeCogs(orders, costs, month) },
       options: { categories: EXPENSE_CATEGORIES, paymentMethods: EXPENSE_PAYMENT_METHODS }
     });
   }
