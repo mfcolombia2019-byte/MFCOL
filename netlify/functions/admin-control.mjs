@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { store, getJson, listJson, json, requireAdmin, safeId } from "./_admin.mjs";
 
 const SHIP_STATES = new Set(["pendiente","preparando","despachado","en_transito","entregado","incidencia"]);
@@ -79,9 +80,9 @@ export default async (req) => {
     const size = Number(body.size);
     const stock = safeMoney(body.stock);
     if (!productId || !name || !color || !Number.isInteger(size) || size < 34 || size > 40 || stock == null) return json({ error: "Completa producto, color, talla 34–40 y existencias válidas." }, 400);
-    const key = productId + "-" + color.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + size;
+    const key = crypto.createHash("sha256").update(productId + "|" + color.toLowerCase() + "|" + size).digest("hex");
     const variant = { productId, name, color, size, stock, updatedAt: new Date().toISOString() };
-    await store.setJSON("inventory-variants/" + safeId(key), variant);
+    await store.setJSON("inventory-variants/" + key, variant);
     return json({ ok: true, variant });
   }
 
