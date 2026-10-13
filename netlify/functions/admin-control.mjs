@@ -27,11 +27,16 @@ export default async (req) => {
       const paid = orders.filter(o => o.paymentStatus === "aprobado");
       const revenue = paid.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
       const costMap = new Map(costs.map(c => [c.productId, Number(c.unitCost) || 0]));
-      const costOfGoods = paid.reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((part, item) => part + (costMap.get(item.id) || 0) * (Number(item.qty) || 0), 0) : 0), 0);
+      let missingCostUnits = 0;
+      const costOfGoods = paid.reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((part, item) => {
+        const qty = Number(item.qty) || 0;
+        if (!costMap.has(item.id)) missingCostUnits += qty;
+        return part + (costMap.get(item.id) || 0) * qty;
+      }, 0) : 0), 0);
       const expenseTotal = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
       expenses.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
       costs.sort((a, b) => String(a.name).localeCompare(String(b.name)));
-      return json({ summary: { revenue, costOfGoods, expenses: expenseTotal, profit: revenue - costOfGoods - expenseTotal }, costs, expenses });
+      return json({ summary: { revenue, costOfGoods, expenses: expenseTotal, profit: revenue - costOfGoods - expenseTotal, missingCostUnits }, costs, expenses });
     }
     if (section === "inventory") {
       const variants = await listJson("inventory-variants/");
