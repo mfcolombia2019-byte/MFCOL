@@ -34,9 +34,38 @@ export default async (req) => {
         return part + (costMap.get(item.id) || 0) * qty;
       }, 0) : 0), 0);
       const expenseTotal = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+      const monthRows = new Map();
+      const monthKey = value => {
+        const raw = String(value || "");
+        const match = raw.match(/^(\\d{4})-(\\d{2})/);
+        return match ? match[1] + "-" + match[2] : "";
+      };
+      const ensureMonth = key => {
+        if (!key) return null;
+        if (!monthRows.has(key)) monthRows.set(key, { month: key, sales: 0, paidSales: 0, pendingPayments: 0, costOfGoods: 0, expenses: 0, orders: 0, profit: 0 });
+        return monthRows.get(key);
+      };
+      for (const order of orders) {
+        const row = ensureMonth(monthKey(order.createdAt));
+        if (!row) continue;
+        row.orders += 1;
+        if (order.paymentStatus === "aprobado") {
+          row.sales += Number(order.total) || 0;
+          row.paidSales += Number(order.total) || 0;
+          if (Array.isArray(order.items)) for (const item of order.items) row.costOfGoods += (costMap.get(item.id) || 0) * (Number(item.qty) || 0);
+        } else if (!["cancelado","rechazado"].includes(String(order.paymentStatus || "").toLowerCase())) {
+          row.pendingPayments += 1;
+        }
+      }
+      for (const expense of expenses) {
+        const row = ensureMonth(monthKey(expense.date || expense.createdAt));
+        if (row) row.expenses += Number(expense.amount) || 0;
+      }
+      for (const row of monthRows.values()) row.profit = row.paidSales - row.costOfGoods - row.expenses;
       expenses.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
       costs.sort((a, b) => String(a.name).localeCompare(String(b.name)));
-      return json({ summary: { revenue, costOfGoods, expenses: expenseTotal, profit: revenue - costOfGoods - expenseTotal, missingCostUnits }, costs, expenses });
+      const monthly = [...monthRows.values()].sort((a, b) => b.month.localeCompare(a.month));
+      return json({ summary: { revenue, costOfGoods, expenses: expenseTotal, profit: revenue - costOfGoods - expenseTotal, missingCostUnits }, costs, expenses, monthly });
     }
     if (section === "inventory") {
       const variants = await listJson("inventory-variants/");
