@@ -273,6 +273,56 @@ test("unauthenticated admin requests are rejected before Bold is called", async 
   }
 });
 
+test("voucher without payment_status falls back to notifications instead of failing", async () => {
+  const approvedEvent = {
+    type: "SALE_APPROVED",
+    subject: "TX_9",
+    data: { payment_id: "TX_9", created_at: "2026-10-12T10:00:00Z", amount: { currency: "COP", total: 443800 }, metadata: { reference: REF } }
+  };
+  await withBold({
+    [VOUCHER]: () => jsonResponse({ reference_id: REF }),
+    [NOTIFICATIONS]: () => jsonResponse({ notifications: [approvedEvent] })
+  }, async (calls) => {
+    const body = await (await request("reference=" + REF)).json();
+    assert.equal(body.paymentStatus, "aprobado");
+    assert.equal(body.source, "notifications");
+    assert.equal(calls.length, 2);
+  });
+  await withBold({
+    [VOUCHER]: () => jsonResponse({ reference_id: REF }),
+    [NOTIFICATIONS]: () => jsonResponse({ notifications: [] })
+  }, async () => {
+    const response = await request("reference=" + REF);
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(body.paymentStatus, "sin_confirmacion");
+    assert.equal(body.verified, false);
+  });
+});
+
+test("voided voucher is reported as anulado, not rejected", async () => {
+  await withBold({ [VOUCHER]: () => jsonResponse(approvedVoucher({ payment_status: "VOIDED" })) }, async () => {
+    const body = await (await request("reference=" + REF)).json();
+    assert.equal(body.paymentStatus, "anulado");
+    assert.equal(body.message, "Pago anulado");
+  });
+});
+
+test("timeout while reading the response body is reported as a timeout", async () => {
+  const stalled = () => new Response(new ReadableStream({
+    start(controller) {
+      controller.error(Object.assign(new Error("secret-bearing body timeout"), { name: "TimeoutError" }));
+    }
+  }), { status: 200, headers: { "Content-Type": "application/json" } });
+  await withBold({ [VOUCHER]: stalled, [NOTIFICATIONS]: stalled }, async () => {
+    const response = await request("reference=" + REF);
+    const body = await response.json();
+    assert.equal(response.status, 502);
+    assert.equal(body.diagnostic.stage, "upstream_timeout");
+    assert.equal(JSON.stringify(body).includes("secret-bearing"), false);
+  });
+});
+
 test("querying is read-only: the function never imports the order store", async () => {
   const { readFileSync } = await import("node:fs");
   const source = readFileSync(new URL("../netlify/functions/bold-status.mjs", import.meta.url), "utf8");

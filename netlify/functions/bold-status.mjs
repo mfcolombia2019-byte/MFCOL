@@ -8,7 +8,8 @@ const BOLD_NOTIFICATIONS_URL = "https://integrations.api.bold.co/payments/webhoo
 // Dos consultas secuenciales deben caber en el límite de 10 s de una función de Netlify.
 const BOLD_TIMEOUT_MS = 4500;
 
-const VOUCHER_REJECTED = new Set(["REJECTED", "FAILED", "DECLINED", "CANCELLED", "CANCELED", "VOIDED", "EXPIRED"]);
+const VOUCHER_REJECTED = new Set(["REJECTED", "FAILED", "DECLINED", "CANCELLED", "CANCELED", "EXPIRED"]);
+const VOUCHER_VOIDED = new Set(["VOIDED"]);
 const VOUCHER_PENDING = new Set(["PENDING", "PROCESSING", "IN_PROCESS", "CREATED"]);
 
 // GET autenticado a Bold. Nunca devuelve ni registra el cuerpo de la respuesta de
@@ -24,9 +25,17 @@ async function boldGet(url) {
     return { failure: { kind: "network", timeout: error?.name === "TimeoutError" } };
   }
   const contentType = String(res.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  let text = "";
+  try {
+    text = await res.text();
+  } catch (error) {
+    // El timeout también cubre la lectura del cuerpo: se informa como tal.
+    if (error?.name === "TimeoutError" || error?.name === "AbortError") {
+      return { failure: { kind: "network", timeout: true } };
+    }
+  }
   let data = null;
   try {
-    const text = await res.text();
     if (text) data = JSON.parse(text);
   } catch {
     data = null;
@@ -59,7 +68,7 @@ function failureResponse(failure, fallbackFailure) {
   if (fallbackFailure?.httpStatus) diagnostic.fallbackHttpStatus = fallbackFailure.httpStatus;
 
   if (failure.kind === "format") {
-    return json({ error: "Bold devolvió una respuesta que no es JSON", code: "bold_bad_response", diagnostic }, 502);
+    return json({ error: "Bold devolvió una respuesta inesperada o que no es JSON", code: "bold_bad_response", diagnostic }, 502);
   }
   const status = failure.httpStatus;
   if (status === 401 || status === 403) {
@@ -90,7 +99,8 @@ function paymentBody(base, paymentStatus, message, verified) {
 // exactamente la referencia consultada y existe transaction_id; nunca por parámetros del navegador.
 function interpretVoucher(voucher, reference) {
   const status = String(voucher.payment_status || "").toUpperCase();
-  if (!status) return { response: mismatchResponse("payment-voucher", "missing_payment_status") };
+  // Sin estado la respuesta no es utilizable: se prueba el respaldo, como en order-status.
+  if (!status) return { unusable: true };
 
   const voucherReference = String(voucher.reference_id ?? "").trim();
   if (voucherReference && voucherReference !== reference) {
@@ -109,6 +119,9 @@ function interpretVoucher(voucher, reference) {
   }
   if (VOUCHER_REJECTED.has(status)) {
     return { body: paymentBody(base, "rechazado", "Pago rechazado", Boolean(voucherReference)) };
+  }
+  if (VOUCHER_VOIDED.has(status)) {
+    return { body: paymentBody(base, "anulado", "Pago anulado", Boolean(voucherReference)) };
   }
   if (VOUCHER_PENDING.has(status)) {
     return { body: paymentBody(base, "pendiente", "Pago pendiente de confirmación en Bold", Boolean(voucherReference)) };
@@ -150,10 +163,11 @@ function interpretNotifications(data, reference) {
 }
 
 async function queryByReference(reference) {
-  const voucher = await boldGet(BOLD_VOUCHER_URL + encodeURIComponent(reference));
+  let voucher = await boldGet(BOLD_VOUCHER_URL + encodeURIComponent(reference));
   if (voucher.data) {
     const result = interpretVoucher(voucher.data, reference);
-    return result.response || json(result.body, 200);
+    if (!result.unusable) return result.response || json(result.body, 200);
+    voucher = { failure: { kind: "format", httpStatus: 200, contentType: "unknown" } };
   }
 
   const notifications = await boldGet(BOLD_NOTIFICATIONS_URL + encodeURIComponent(reference) + "?is_external_reference=true");
