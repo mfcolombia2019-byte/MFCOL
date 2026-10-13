@@ -72,8 +72,11 @@ export default async (req) => {
     const category = str(body.category, 60);
     const amount = safeMoney(body.amount, { allowZero: false });
     const date = str(body.date, 10);
-    if (!description || !category || amount == null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ error: "Revisa el concepto, categoría, valor y fecha del gasto." }, 400);
-    const expense = { id: makeId("expense"), description, category, amount, date, createdAt: new Date().toISOString() };
+    const paymentMethod = str(body.paymentMethod, 40);
+    const reference = str(body.reference, 120);
+    const recurringMonthly = body.recurringMonthly === true;
+    if (!description || !category || amount == null || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (paymentMethod && !["Transferencia","Efectivo","Tarjeta","Otro"].includes(paymentMethod))) return json({ error: "Revisa el concepto, categoría, valor, fecha y medio de pago del gasto." }, 400);
+    const expense = { id: makeId("expense"), description, category, amount, date, paymentMethod, reference, recurringMonthly, createdAt: new Date().toISOString() };
     await store.setJSON("finance-expenses/" + expense.id, expense);
     return json({ ok: true, expense });
   }
