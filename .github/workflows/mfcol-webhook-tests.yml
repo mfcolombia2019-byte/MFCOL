@@ -7,6 +7,7 @@ on:
       - repair/bold-webhook-test-safe
       - feature/paleta-moderna
       - fix/bold-reference-id-required
+      - feature/centro-control-mfc
   pull_request:
     branches:
       - main
