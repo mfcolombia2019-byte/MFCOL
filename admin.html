@@ -80,7 +80,13 @@ async function load(view){
   if(view==="dashboard"){const d=await api("/.netlify/functions/admin-api?section=dashboard");c.innerHTML=
    '<div class="cards"><div class="metric">Pedidos<b>'+d.stats.orders+'</b></div><div class="metric">Pendientes<b>'+d.stats.pending+'</b></div><div class="metric">Pagados<b>'+d.stats.paid+'</b></div><div class="metric">Ingresos<b>'+money(d.stats.revenue)+'</b></div></div>'+
    '<div class="panel"><h2>Pedidos recientes</h2>'+orderTable(d.recentOrders)+'</div>';return}
-  if(view==="orders"){const d=await api("/.netlify/functions/orders");c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><div class="row"><button class="btn light" onclick="load(\'bold\')">Herramientas Bold</button><button class="btn light" onclick="load(\'orders\')">Actualizar</button></div></div>'+orderTable(d.orders)+'</div>';return}
+  if(view==="orders"){
+   const [d,dispatchData]=await Promise.all([api("/.netlify/functions/orders"),api("/.netlify/functions/admin-control?section=dispatches")]);
+   const dispatchMap=new Map(dispatchData.orders.map(o=>[o.reference,o.dispatch]));
+   const rows=d.orders.map(o=>({...o,dispatch:dispatchMap.get(o.reference)}));
+   c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><div class="row"><button class="btn light" onclick="load(\\'bold\\')">Herramientas Bold</button><button class="btn light" onclick="load(\\'orders\\')">Actualizar</button></div></div>'+orderTable(rows)+'</div>';return
+  }
+
   if(view==="settings"){const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';$("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Guardado");};return}
 
   if(view==="finance"){
