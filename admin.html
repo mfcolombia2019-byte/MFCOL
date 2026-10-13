@@ -1,96 +1,540 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es-CO">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Admin — Marlon Footwear</title>
+<title>Admin · Marlon Footwear</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#111;--muted:#777;--line:#e8e8e8;--paper:#fff;--soft:#f7f7f7;--serif:Georgia,"Times New Roman",serif}
-*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.5 Inter,Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer}
-.shell{max-width:1400px;margin:auto;padding:22px}
-.login{min-height:100svh;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(420px,100%);padding:34px;border:1px solid var(--line)}
-h1,h2,h3{font-family:var(--serif);font-weight:400}.login h1{font-size:38px;margin:0 0 8px}.muted{color:var(--muted)}
-input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;padding:11px 12px;margin:6px 0 12px}textarea{min-height:110px;resize:vertical}
-.btn{border:1px solid #111;background:#111;color:#fff;padding:11px 16px}.btn.light{background:#fff;color:#111}.btn.danger{border-color:#a22;background:#a22}
-.hidden{display:none!important}
-.app-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-family:var(--serif);font-size:30px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--line);background:#fff;padding:9px 12px}.nav button.active{background:#111;color:#fff;border-color:#111}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);padding:18px}.metric b{display:block;font:400 30px var(--serif);margin-top:4px}
-.panel{background:#fff;border:1px solid var(--line);padding:20px;margin-top:16px}.panel h2{margin:0 0 16px;font-size:26px}
-.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 8px;text-align:left;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.status{display:inline-block;padding:4px 7px;background:var(--soft);font-size:11px}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spaced{justify-content:space-between}
-pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monospace;background:var(--soft);padding:12px}
-.toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:12px 15px;display:none;z-index:20}
-@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.shell{padding:14px}.app-head{align-items:flex-start;flex-direction:column}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:'Figtree',system-ui,sans-serif;color:#111;padding-bottom:6.5rem;background:linear-gradient(160deg,#eaf1f9 0%,#ecf7f1 55%,#f3effb 100%) fixed;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',sans-serif;margin:0}
+:root{--ac:#5b86bd;--ad:#35567f;--t:#dbe8f8;--s:#f1f6fc;--ok:#0a7a3b;--warn:#b36b00;--bad:#c00}
+body[data-sec=pedidos]{--ac:#5b86bd;--ad:#35567f;--t:#dbe8f8;--s:#f1f6fc}
+body[data-sec=finanzas]{--ac:#4f9a7e;--ad:#2f6b52;--t:#d5efe3;--s:#f0faf5}
+body[data-sec=despachos]{--ac:#4a95a3;--ad:#2c6a76;--t:#d2eef2;--s:#effafb}
+body[data-sec=inventario]{--ac:#8274b8;--ad:#54478a;--t:#e3def5;--s:#f6f3fd}
+body[data-sec=marca]{--ac:#b96f98;--ad:#8a4468;--t:#f5dfeb;--s:#fcf3f8}
+.logo{display:block;height:1.9rem;width:auto;color:#111}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;text-align:center;cursor:pointer;background:var(--ac);color:#fff;border:2px solid var(--ac);font:600 .9rem 'Figtree',sans-serif;padding:.7rem 1.2rem;border-radius:999px;transition:.2s;text-decoration:none;min-height:2.75rem}
+.btn:hover{background:transparent;color:var(--ad)}
+.btn.ghost{background:transparent;color:var(--ad);border-color:var(--ac)}.btn.ghost:hover{background:var(--ac);color:#fff}
+.btn.red{border-color:var(--bad);background:transparent;color:var(--bad)}.btn.red:hover{background:var(--bad);color:#fff}
+.btn[disabled]{opacity:.55;cursor:wait}
+.top{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.7rem .8rem;padding-top:calc(.7rem + env(safe-area-inset-top,0px));background:rgba(234,241,249,.88);backdrop-filter:blur(12px)}
+.top .brand{display:block;cursor:pointer}
+.tl{display:flex;gap:.35rem}
+.tl a{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;text-decoration:none;color:var(--ad);background:rgba(255,255,255,.6);border:2px solid var(--ac);border-radius:999px;padding:.35rem .75rem;font:600 .76rem 'Figtree',sans-serif;transition:.2s;white-space:nowrap;min-height:2.2rem}
+.tl a:hover,.tl a.on{background:var(--ac);color:#fff}
+.tl a.fill{background:linear-gradient(135deg,#6b93c9,#6bb996);border-color:transparent;color:#fff}.tl a.fill:hover{opacity:.85}
+.nav{position:fixed;left:.6rem;right:.6rem;bottom:calc(.6rem + env(safe-area-inset-bottom,0px));z-index:60;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:.2rem;background:#2a3850;border-radius:1.8rem;padding:.35rem;box-shadow:0 14px 30px -12px rgba(42,56,80,.55)}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.5rem .1rem .4rem;border-radius:1.4rem;color:#9fb0c8;font:600 .64rem 'Figtree',sans-serif;cursor:pointer;transition:.2s;user-select:none;text-decoration:none}
+.nav a svg{width:1.3rem;height:1.3rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav a.on{background:#fff;color:#2a3850}
+.intro{padding:1.2rem 1.2rem .6rem}.intro h1{font-weight:800;font-size:2.6rem;letter-spacing:-.03em;line-height:.95;color:var(--ad)}.intro p{margin:.6rem 0 0;color:#5b6472;line-height:1.4}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.view{display:none;animation:in .4s both}.view.on{display:block}
+.stack{padding:0 .6rem 2rem}
+.sc{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:15rem;cursor:pointer;border-radius:2rem;padding:1.4rem 1.4rem 1.2rem;margin-bottom:1rem;box-shadow:0 -12px 28px -18px rgba(42,56,80,.35);text-decoration:none;animation:in .6s both}
+.sc.c1{background:linear-gradient(150deg,#e3eefc,#bfd6f3);color:#1f3a5f}
+.sc.c2{background:linear-gradient(150deg,#e0f6ec,#b3e6cf);color:#1d4a36}
+.sc.c3{background:linear-gradient(150deg,#def4f7,#b4e0e8);color:#1c4b55}
+.sc.c4{background:linear-gradient(150deg,#ece8fa,#d3cbf0);color:#3d3170}
+.sc .num{align-self:flex-start;font:600 .8rem 'Figtree',sans-serif;padding:.35rem .8rem;border-radius:999px;background:rgba(255,255,255,.75);color:inherit;position:relative;z-index:1}
+.sc .big{font:800 2.6rem/.95 'Bricolage Grotesque',sans-serif;letter-spacing:-.04em}
+.sc .row{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;position:relative;z-index:1}
+.sc small{display:block;opacity:.8;font-size:.9rem;margin-top:.5rem}
+.go{width:3rem;height:3rem;border-radius:50%;background:rgba(255,255,255,.8);color:inherit;display:grid;place-items:center;font-size:1.3rem;flex:none}
+.wm{position:absolute;right:-1.4rem;top:-.8rem;opacity:.2;pointer-events:none}
+.wm svg{width:11.5rem;height:11.5rem;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.wrap{padding:0 .8rem 2rem;max-width:1400px;margin:0 auto}
+.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin:.4rem 0 .8rem}
+@media(min-width:700px){.chips{grid-template-columns:repeat(4,1fr)}}
+.chips.c3{grid-template-columns:repeat(3,1fr)}
+.chip{background:#fff;border-radius:1.2rem;padding:.8rem 1rem;box-shadow:0 8px 20px -16px rgba(42,56,80,.5);border-bottom:3px solid var(--t)}
+.chip span{display:block;font-size:.75rem;color:#555}
+.chip b{font:800 1.3rem 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+.chip small{display:block;font-size:.7rem;color:#777;margin-top:.1rem}
+.charts{display:grid;gap:.6rem;margin-bottom:1rem}
+@media(min-width:700px){.charts{grid-template-columns:3fr 2fr}}
+.panel{background:#fff;border-radius:1.4rem;padding:1rem 1.1rem;box-shadow:0 10px 24px -18px rgba(42,56,80,.45)}
+.panel h3{font-size:1rem;margin-bottom:.5rem}
+.lg{display:flex;gap:.5rem;align-items:center;font-size:.75rem;color:#555;flex-wrap:wrap}
+.lg i{width:.7rem;height:.7rem;border-radius:3px;background:#7fcfae;display:inline-block}.lg i.g{background:#e0a0a0;margin-left:.6rem}
+.tp span{display:block;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp div{position:relative;background:#eee;border-radius:999px;height:1.3rem;margin:.2rem 0 .6rem}
+.tp u{display:block;height:100%;background:linear-gradient(90deg,#9fd8bf,#9ad3de);border-radius:999px;min-width:.4rem}
+.tp u.r{background:linear-gradient(90deg,#f0b4b4,#e8c7c7)}
+.tp b{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-size:.75rem;color:#1f3a3a}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem;align-items:center}
+.bar .btn{padding:.55rem 1rem;font-size:.85rem;min-height:2.5rem}
+.bar input[type=search],.bar select{border:2px solid var(--ac);background:#fff;border-radius:999px;padding:.55rem 1rem;font:500 .9rem 'Figtree',sans-serif;outline:none;min-height:2.5rem}
+.bar input[type=search]{flex:1;min-width:8rem}
+.sheet{background:#fff;border-radius:1rem;overflow:auto;max-height:calc(100vh - 16rem);min-height:6rem;border:2px solid var(--ac);-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;font-size:.88rem}
+th,td{border-right:1px solid #d4d4d0;border-bottom:1px solid #d4d4d0;padding:.45rem .6rem;background:#fff;vertical-align:middle}
+thead th{position:sticky;top:0;z-index:3;background:var(--t);color:var(--ad);font:600 .75rem 'Figtree',sans-serif;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap}
+th.r,td.r{text-align:right;white-space:nowrap}
+tfoot td{position:sticky;bottom:0;z-index:3;background:var(--t);color:var(--ad);font-weight:700}
+td.v{text-decoration:line-through;color:#999}
+.hint{color:#666;font-size:.8rem;margin:.7rem .3rem;line-height:1.45}
+.list{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card{background:#fff;border-radius:1.4rem;padding:1rem 1.1rem;box-shadow:0 10px 24px -18px rgba(42,56,80,.45);min-width:0}
+.card h3{font-size:1.1rem;letter-spacing:-.02em;word-break:break-word}
+.card p{margin:.3rem 0 0;color:#555;font-size:.88rem;word-break:break-word}
+.card .top2{display:flex;justify-content:space-between;gap:.6rem;align-items:flex-start}
+.card .amt{font:800 1.2rem 'Bricolage Grotesque',sans-serif;white-space:nowrap}
+.card ul{margin:.4rem 0 0;padding-left:1.1rem;font-size:.85rem;color:#444}
+.warn{color:var(--bad)!important;font-weight:600}
+.pill{display:inline-flex;align-items:center;border:2px solid var(--ac);background:#fff;color:var(--ad);border-radius:999px;font:600 .75rem 'Figtree',sans-serif;padding:.25rem .7rem;cursor:pointer;margin:.3rem .4rem .3rem 0;min-height:2rem}
+.pill.on{background:var(--ac);color:#fff}
+.tag{display:inline-block;border-radius:999px;font:600 .7rem 'Figtree',sans-serif;padding:.15rem .6rem;background:#eee;color:#444;margin:.2rem .3rem .2rem 0}
+.tag.ok{background:#d8f1e3;color:var(--ok)}.tag.pend{background:#fdebc8;color:var(--warn)}.tag.bad{background:#fbd9d9;color:var(--bad)}.tag.info{background:var(--t);color:var(--ad)}
+.edit{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.7rem}
+.edit .full{grid-column:1/-1}
+.edit label,.lbl{font-size:.72rem;color:#555;display:block;margin-bottom:.15rem}
+.edit input,.edit select,.edit textarea,.field{width:100%;border:2px solid #d3dbe6;border-radius:.8rem;padding:.5rem .6rem;font:600 .9rem 'Figtree',sans-serif;background:#fff;color:#111;min-height:2.6rem}
+.edit textarea{min-height:3.4rem;resize:vertical}
+.edit input:focus,.edit select:focus,.edit textarea:focus,.field:focus{outline:none;border-color:var(--ac);background:var(--s)}
+.empty{color:#666;padding:2rem 1rem;text-align:center;grid-column:1/-1;background:rgba(255,255,255,.6);border-radius:1.2rem}
+.err{background:#fdecec;color:#8a1c1c;border-radius:1rem;padding:.8rem 1rem;grid-column:1/-1}
+.banner{background:#fff8e6;border:1px solid #f1d49a;color:#6b4a00;border-radius:1rem;padding:.7rem .9rem;font-size:.82rem;line-height:1.45;margin:.2rem 0 .8rem}
+.msg{margin-top:.5rem;font-size:.82rem;white-space:pre-wrap;word-break:break-word;background:var(--s);border-radius:.8rem;padding:.6rem .7rem}
+.msg.bad{background:#fdecec;color:#8a1c1c}
+pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monospace;background:#f4f6f9;padding:.7rem;border-radius:.8rem;margin:.5rem 0 0}
+details.panel summary{cursor:pointer;font:700 1rem 'Bricolage Grotesque',sans-serif;min-height:2rem}
+.lh{display:flex;gap:.7rem;align-items:flex-start}
+.th{width:3.4rem;height:3.4rem;border-radius:.9rem;object-fit:cover;flex:none;background:#eee;display:grid;place-items:center;font-size:.55rem;color:#777;text-align:center;overflow:hidden}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.8rem}
+@media(min-width:420px){.tg{grid-template-columns:repeat(7,1fr)}}
+.tc{text-align:center}
+.tc label{font:700 .75rem 'Figtree',sans-serif;display:block;margin-bottom:.15rem}
+.tc input{width:100%;border:2px solid #d3dbe6;border-radius:.7rem;padding:.4rem 0;text-align:center;font:700 .95rem 'Figtree',sans-serif;background:#fff;color:#111;-moz-appearance:textfield;min-height:2.5rem}
+.tc input:focus{outline:none;border-color:var(--ac);background:var(--s)}
+.tc input::-webkit-inner-spin-button{display:none}
+.tc .q{display:block;font-size:.65rem;color:#666;margin-top:.15rem}
+.tc .q.low{color:var(--warn);font-weight:600}.tc .q.out{color:var(--bad);font-weight:600}
+#toast{position:fixed;left:50%;bottom:6rem;transform:translate(-50%,300%);opacity:0;visibility:hidden;pointer-events:none;background:#2a3850;color:#fff;padding:.7rem 1rem;border-radius:999px;font-size:.88rem;z-index:90;transition:.3s;max-width:92vw;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
+#toast.on{transform:translate(-50%,0);opacity:1;visibility:visible}#toast.bad{background:#8a1c1c}
+.modal{position:fixed;inset:0;z-index:95;background:rgba(42,56,80,.35);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center}
+.sheetm{background:#fff;width:100%;max-width:520px;border-radius:2rem 2rem 0 0;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom,0px));animation:in .3s both;max-height:92vh;overflow:auto}
+.sheetm h3{font-size:1.4rem;letter-spacing:-.02em}
+.acts{display:flex;gap:.5rem;margin-top:1.2rem}.acts .btn{flex:1}
+.ic{width:1.05em;height:1.05em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;opacity:.8}
+.login{min-height:100svh;display:grid;place-items:center;padding:20px}
+.login-card{background:#fff;width:min(420px,100%);padding:2rem 1.6rem;border-radius:1.6rem;box-shadow:0 14px 30px -18px rgba(42,56,80,.5)}
+.login-card h1{font-weight:800;font-size:2.4rem;letter-spacing:-.03em;color:var(--ad)}
+.muted{color:#666}
+@media(min-width:900px){.stack{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;max-width:1100px;margin:0 auto}.sc{margin:0}}
 </style>
 </head>
-<body>
-<div id="login" class="login">
+<body data-sec="home">
+
+<div id="login" class="login" hidden>
   <form class="login-card" id="loginForm">
     <h1>Admin</h1>
     <p class="muted">Marlon Footwear · gestión de tienda</p>
-    <input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required>
-    <button class="btn" style="width:100%">Entrar</button>
-    <p id="loginMsg" class="muted"></p>
+    <label class="lbl" for="password">Contraseña</label>
+    <input class="field" id="password" type="password" autocomplete="current-password" required>
+    <button class="btn" style="width:100%;margin-top:.8rem">Entrar</button>
+    <p id="loginMsg" class="muted" role="status"></p>
   </form>
 </div>
 
-<div id="app" class="hidden">
-  <div class="shell">
-    <header class="app-head">
-    <div><div class="brand">Marlon Footwear</div><div class="muted">Panel de administración</div></div>
-    <div class="row"><a class="btn light" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light" id="logout">Salir</button></div>
-    </header>
-    <nav class="nav" id="nav">
-      <button data-view="dashboard" class="active">Resumen</button>
-      <button data-view="orders">Pedidos</button>
-      <button data-view="products">Productos</button>
-      <button data-view="settings">Marca</button>
-      <button data-view="bold">Bold</button>
-    </nav>
-    <main id="content"></main>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
+<div id="app" hidden>
+<header class="top">
+  <a class="brand" href="#" aria-label="Inicio"><svg class="logo" role="img" aria-label="Marlon Footwear" viewBox="240 254 581 508" fill="currentColor"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg></a>
+  <nav class="tl" aria-label="Accesos">
+    <a class="fill" href="/" target="_blank" rel="noopener" id="tienda">Ver tienda</a>
+    <a href="#marca" id="tmarca">Marca</a>
+    <a href="#" id="salir" role="button">Salir</a>
+  </nav>
+</header>
 
+<section class="view on" id="v-home">
+  <div class="intro"><h1>Admin</h1><p>Toca una sección para entrar. Las cifras salen de los datos reales de la tienda.</p></div>
+  <main class="stack" id="stack"></main>
+</section>
+
+<section class="view" id="v-pedidos">
+  <div class="intro"><h1>Pedidos</h1><p>Pedidos reales de la tienda. El estado del pago solo lo confirma Bold; aquí no se edita.</p></div>
+  <div class="wrap">
+    <details class="panel" id="boldTools" style="margin-bottom:.8rem">
+      <summary>Herramientas de Bold</summary>
+      <h3 style="margin-top:.8rem">Consultar pago</h3>
+      <p class="hint" style="margin:.2rem 0 0">Consulta de solo lectura. Usa la referencia del pedido (MF…) o el link de pago (LNK_…).</p>
+      <form id="boldForm" class="edit">
+        <div><label for="bf-ref">Referencia del pedido</label><input id="bf-ref" name="reference" placeholder="MF..." autocapitalize="characters" autocomplete="off"></div>
+        <div><label for="bf-lnk">o link de pago</label><input id="bf-lnk" name="payment_link" placeholder="LNK_..." autocomplete="off"></div>
+        <div class="full"><button class="btn">Consultar</button></div>
+      </form>
+      <div id="boldResult" class="msg" hidden></div>
+      <h3 style="margin-top:1.2rem">Crear link de pago</h3>
+      <p class="hint" style="margin:.2rem 0 0">Solo para un pedido existente y pendiente. El importe lo define el pedido, no este formulario.</p>
+      <form id="createBoldForm" class="edit">
+        <div class="full"><label for="cb-ref">Referencia del pedido</label><input id="cb-ref" name="reference" placeholder="MF..." required autocomplete="off"></div>
+        <div class="full"><button class="btn ghost">Crear link seguro</button></div>
+      </form>
+      <div id="createBoldResult" class="msg" hidden></div>
+    </details>
+    <div class="bar" id="pf"></div>
+    <div class="bar"><input type="search" id="pq" placeholder="Buscar referencia, cliente, teléfono…" aria-label="Buscar pedidos"><button class="btn ghost" id="preload" type="button">Actualizar</button></div>
+    <div class="list" id="plist"></div>
+  </div>
+</section>
+
+<section class="view" id="v-finanzas">
+  <div class="intro"><h1>Finanzas</h1><p>Dinero recibido (pagos aprobados por Bold) frente a gastos registrados.</p></div>
+  <div class="wrap">
+    <div class="bar"><select id="mes" aria-label="Mes"></select><button class="btn" id="newg" type="button">+ Nuevo gasto</button><button class="btn ghost" id="csv" type="button">Exportar CSV</button></div>
+    <div class="chips" id="chips"></div>
+    <div class="charts" id="charts"></div>
+    <div class="bar" id="gf"></div>
+    <div class="sheet"><table>
+      <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Método</th><th>Ref.</th><th class="r">Monto</th><th>Acciones</th></tr></thead>
+      <tbody id="tg"></tbody>
+      <tfoot><tr><td colspan="5">TOTAL GASTOS (sin anulados)</td><td class="r" id="g-tot"></td><td></td></tr></tfoot>
+    </table></div>
+    <p class="hint" id="fhint"></p>
+  </div>
+</section>
+
+<section class="view" id="v-despachos">
+  <div class="intro"><h1>Despachos</h1><p>Transportadora y guía de cada envío. Cambiar un despacho nunca cambia el pago.</p></div>
+  <div class="wrap"><div class="chips c3" id="dchips"></div><div class="bar" id="df"></div><div class="list" id="dlist"></div></div>
+</section>
+
+<section class="view" id="v-inventario">
+  <div class="intro"><h1>Inventario</h1><p>Productos del catálogo y existencias por talla registradas a mano.</p></div>
+  <div class="wrap">
+    <div class="banner"><b>Cómo funciona hoy:</b> las existencias son un registro manual. <b>No se descuentan solas</b> cuando se vende un pedido y la tienda no las usa para mostrar «agotado». Los <b>precios son de solo lectura</b> en esta fase (el pago se valida contra otro listado y deben cambiarse juntos).</div>
+    <div class="chips" id="ichips"></div>
+    <div class="bar"><input type="search" id="iq" placeholder="Buscar producto…" aria-label="Buscar productos"></div>
+    <div class="list" id="invlist"></div>
+  </div>
+</section>
+
+<section class="view" id="v-marca">
+  <div class="intro"><h1>Marca</h1><p>Datos visibles de la tienda.</p></div>
+  <div class="wrap"><div class="list" id="marcaBox"></div></div>
+</section>
+
+<nav class="nav" id="nav" aria-label="Secciones">
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</a>
+  <a href="#pedidos"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Pedidos</a>
+  <a href="#finanzas"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20V9"/></svg>Finanzas</a>
+  <a href="#despachos"><svg viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 10h5l3 3v3h-8z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Despachos</a>
+  <a href="#inventario"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg>Inventario</a>
+</nav>
+</div>
+
+<div id="gm" class="modal" hidden><form class="sheetm" id="gform">
+  <h3 id="gm-title">Nuevo gasto</h3>
+  <div class="edit">
+    <div class="full"><label for="g-desc">Descripción</label><input id="g-desc" required maxlength="160" autocomplete="off"></div>
+    <div><label for="g-amount">Importe (COP)</label><input id="g-amount" type="number" inputmode="numeric" min="1" step="1" required></div>
+    <div><label for="g-date">Fecha</label><input id="g-date" type="date" required></div>
+    <div><label for="g-cat">Categoría</label><select id="g-cat"></select></div>
+    <div><label for="g-pm">Método de pago</label><select id="g-pm"></select></div>
+    <div><label for="g-ref">Referencia (opcional)</label><input id="g-ref" maxlength="80" autocomplete="off"></div>
+    <div><label for="g-rec">Recurrencia</label><select id="g-rec"><option value="">Único</option><option value="mensual">Mensual</option></select></div>
+  </div>
+  <p id="g-err" class="warn" role="alert" style="margin:.7rem 0 0;font-size:.85rem"></p>
+  <div class="acts"><button class="btn ghost" id="g-cancel" type="button">Cancelar</button><button class="btn" id="g-save">Guardar gasto</button></div>
+</form></div>
+<datalist id="carriers"><option value="Servientrega"><option value="Interrapidísimo"><option value="Coordinadora"><option value="Envía"><option value="TCC"><option value="Deprisa"></datalist>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="/productos.js"></script>
 <script>
+"use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",2400)}
-async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok){const err=new Error(d.error||"Error");if(d.diagnostic)err.diagnostic=d.diagnostic;throw err}return d}
-function showLogin(){ $("#app").classList.add("hidden");$("#login").classList.remove("hidden"); }
-function showApp(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard"); }
-async function login(){
- const r=await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value}),credentials:"same-origin"});
- const d=await r.json().catch(()=>({}));
- if(!r.ok){$("#loginMsg").textContent=d.error||"No se pudo iniciar sesión";return}
- $("#loginMsg").textContent="";
- showApp();
+const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
+const fmtDT=iso=>{const t=Date.parse(iso);return Number.isFinite(t)?new Date(t).toLocaleString("es-CO",{timeZone:"America/Bogota",dateStyle:"medium",timeStyle:"short"}):""};
+const todayBogota=()=>new Date(Date.now()-5*3600e3).toISOString().slice(0,10);
+const mlabel=m=>m?new Date(m+"-15T12:00:00Z").toLocaleDateString("es-CO",{month:"long",year:"numeric",timeZone:"UTC"}):"Todos los meses";
+const CATALOG=(typeof PRODUCTS!=="undefined"&&Array.isArray(PRODUCTS))?PRODUCTS:[];
+const FN="/.netlify/functions/";
+
+let toastT;
+function toast(m,bad){const t=$("#toast");t.textContent=m;t.classList.toggle("bad",!!bad);t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),bad?6000:3000)}
+
+async function api(url,opts={}){
+  const r=await fetch(url,{credentials:"same-origin",...opts});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){showLogin();throw new Error("Sesión vencida")}
+  if(!r.ok){const e=new Error(d.error||("Error HTTP "+r.status+" (la respuesta del servidor no tiene detalle)"));if(d.diagnostic)e.diagnostic=d.diagnostic;e.status=r.status;throw e}
+  return d;
 }
-$("#loginForm").onsubmit=e=>{e.preventDefault();login()};
-$("#logout").onclick=async()=>{await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"logout"}),credentials:"same-origin"});showLogin()};
-async function load(view){
- $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
- const c=$("#content");c.innerHTML='<div class="panel">Cargando…</div>';
- try{
-  if(view==="dashboard"){const d=await api("/.netlify/functions/admin-api?section=dashboard");c.innerHTML=
-   '<div class="cards"><div class="metric">Pedidos<b>'+d.stats.orders+'</b></div><div class="metric">Pendientes<b>'+d.stats.pending+'</b></div><div class="metric">Pagados<b>'+d.stats.paid+'</b></div><div class="metric">Ingresos<b>'+money(d.stats.revenue)+'</b></div></div>'+
-   '<div class="panel"><h2>Pedidos recientes</h2>'+orderTable(d.recentOrders)+'</div>';return}
-  if(view==="orders"){const d=await api("/.netlify/functions/orders");c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><button class="btn light" onclick="load(\'orders\')">Actualizar</button></div>'+orderTable(d.orders)+'</div>';return}
-  if(view==="products"){const d=await api("/.netlify/functions/admin-api?section=products");c.innerHTML='<div class="panel"><h2>Ajustes de productos</h2><p class="muted">Los 32 productos actuales siguen en el catálogo. Aquí puedes guardar ajustes por ID sin borrar el catálogo original.</p><form id="productForm" class="form-grid"><div><label>ID del producto</label><input name="id" placeholder="ej. mf-01" required></div><div><label>Nombre opcional</label><input name="name"></div><div><label>Precio</label><input name="price" type="number" min="0"></div><div><label>Stock</label><input name="stock" type="number" min="0"></div><div><label>Categoría</label><input name="category" placeholder="Tacones / Plataformas"></div><div class="row" style="align-self:end"><label><input name="active" type="checkbox" checked> Activo</label></div><div class="full"><button class="btn">Guardar ajuste</button></div></form><div class="table-wrap">'+(d.products.length?'<table class="table"><tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Stock</th></tr>'+d.products.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+money(p.price)+'</td><td>'+esc(p.active?'Activo':'Oculto')+'</td><td>'+esc(p.stock??'—')+'</td></tr>').join('')+'</table>':'<p class="muted">Todavía no hay ajustes guardados.</p>')+'</div></div>';
-   $("#productForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-product",id:f.get("id"),name:f.get("name"),price:f.get("price"),stock:f.get("stock"),category:f.get("category"),active:f.get("active")==="on"})});toast("Producto actualizado");load("products")};return}
-  if(view==="settings"){const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';$("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Guardado");};return}
-  if(view==="bold"){c.innerHTML='<div class="panel"><h2>Bold</h2><h3>Crear link de pago</h3><form id="createBoldForm" class="form-grid"><div><label>Total COP</label><input name="total" type="number" min="1000" required></div><div><label>Referencia</label><input name="reference" placeholder="MF..."></div><div class="full"><label>Descripción</label><input name="description" value="Pedido MF Colombia"></div><div class="full"><button class="btn">Crear link seguro</button></div></form><pre id="createBoldResult">Sin link creado.</pre><hr style="border:0;border-top:1px solid var(--line);margin:28px 0"><h3>Consultar pago</h3><form id="boldForm"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."><label>o referencia externa</label><input name="reference" placeholder="MF..."><button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>';$("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{const d=await api("/.netlify/functions/admin-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({total:f.get("total"),reference:f.get("reference"),description:f.get("description")})});$("#createBoldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#createBoldResult").textContent=err.message}};$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message+(err.diagnostic?"\nDiagnóstico: "+JSON.stringify(err.diagnostic,null,2):"")}};return}
- }catch(e){c.innerHTML='<div class="panel"><p>'+esc(e.message)+'</p></div>'}
+const post=(fn,body)=>api(FN+fn,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+
+function showLogin(){$("#app").hidden=true;$("#login").hidden=false}
+function showApp(){$("#login").hidden=true;$("#app").hidden=false;route()}
+$("#loginForm").onsubmit=async e=>{e.preventDefault();
+  try{const r=await fetch(FN+"admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({action:"login",password:$("#password").value})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){$("#loginMsg").textContent=d.error||"No se pudo iniciar sesión";return}
+    $("#password").value="";$("#loginMsg").textContent="";showApp();
+  }catch(_){$("#loginMsg").textContent="No hay conexión con el servidor"}};
+$("#salir").onclick=async e=>{e.preventDefault();try{await fetch(FN+"admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({action:"logout"})})}catch(_){}showLogin()};
+
+/* ---------- utilidades de vista ---------- */
+const loading=el=>{el.innerHTML='<div class="empty">Cargando…</div>'};
+function failBox(el,e,retry){el.innerHTML='<div class="err">'+esc(e.message||"Error")+' <button class="pill" data-retry>Reintentar</button></div>';const b=el.querySelector("[data-retry]");if(b)b.onclick=retry}
+const payTag=s=>({aprobado:'<span class="tag ok">Pago aprobado</span>',pendiente:'<span class="tag pend">Pago pendiente</span>',rechazado:'<span class="tag bad">Pago rechazado</span>',anulado:'<span class="tag bad">Pago anulado</span>'}[s]||'<span class="tag">'+esc(s||"—")+'</span>');
+const itemsHTML=o=>{const it=Array.isArray(o.items)?o.items:[];
+  if(it.length)return"<ul>"+it.map(i=>"<li>"+esc(i.qty||1)+" × "+esc(i.name||i.id||"Producto")+(i.size?" · talla "+esc(i.size):"")+(i.color?" · "+esc(i.color):"")+"</li>").join("")+"</ul>";
+  return o.pedido?"<pre>"+esc(o.pedido)+"</pre>":'<p class="muted">Sin detalle de productos.</p>'};
+
+/* ---------- datos compartidos ---------- */
+const S={orders:[],shipping:[],inventory:[],overrides:[],settings:{},exp:null};
+const loadOrders=async()=>{S.orders=(await api(FN+"orders")).orders||[]};
+const loadShipping=async()=>{S.shipping=(await api(FN+"admin-shipping")).shipping||[]};
+const loadInventory=async()=>{S.inventory=(await api(FN+"admin-inventory")).inventory||[]};
+const shipOf=ref=>S.shipping.find(s=>s.reference===ref);
+
+/* ---------- navegación ---------- */
+const VIEWS=["home","pedidos","finanzas","despachos","inventario","marca"];
+function route(){
+  if($("#app").hidden)return;
+  const h=location.hash.slice(1);const id=VIEWS.includes(h)?h:"home";
+  $$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+id));
+  $$("#nav a").forEach(a=>a.classList.toggle("on",(a.getAttribute("href").slice(1)||"home")===id));
+  $("#tmarca").classList.toggle("on",id==="marca");
+  document.body.dataset.sec=id;scrollTo(0,0);
+  ({home,pedidos,finanzas,despachos,inventario,marca})[id]();
 }
-function orderTable(rows){if(!rows?.length)return'<p class="muted">No hay pedidos todavía.</p>';return'<div class="table-wrap"><table class="table"><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Pedido</th><th>Link de pago</th><th>Acciones</th></tr>'+rows.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt)+'</span></td><td>'+esc(o.name)+'<br>'+esc(o.phone)+'<br>'+esc(o.city)+'</td><td>'+money(o.total)+'</td><td><span class="status">'+esc(o.paymentStatus)+'</span><br>'+esc(o.boldPaymentMethod||o.paymentMethod)+'</td><td><pre>'+esc(o.pedido||"")+'</pre></td><td>'+(o.paymentLink?'<a href="'+esc(o.paymentLink)+'" target="_blank" rel="noopener">Reenviar link</a>':'<span class="muted">—</span>')+'</td><td><select onchange="updateOrder(\''+esc(o.reference)+'\',this.value)"><option value="">Estado…</option><option value="confirmado">Confirmado</option><option value="preparando">Preparando</option><option value="enviado">Enviado</option><option value="entregado">Entregado</option><option value="cancelado">Cancelado</option></select></td></tr>').join('')+'</table></div>'}
-async function updateOrder(ref,status){if(!status)return;await api("/.netlify/functions/orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,status})});toast("Pedido actualizado");load("orders")}
-$$("#nav button").forEach(b=>b.addEventListener("click",()=>load(b.dataset.view)));
-(async()=>{const r=await fetch("/.netlify/functions/admin-auth",{credentials:"same-origin"});if(r.ok)showApp()})();
+addEventListener("hashchange",route);
+$(".brand").onclick=e=>{e.preventDefault();history.replaceState(null,"",location.pathname+location.search);route()};
+
+/* ---------- inicio ---------- */
+const IC={bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>',chart:'<path d="M5 20v-8M12 20V5M19 20V9"/>',truck:'<path d="M2 6h11v10H2zM13 10h5l3 3v3h-8z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',box:'<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>'};
+async function home(){
+  const el=$("#stack");loading(el);
+  const month=todayBogota().slice(0,7);
+  const [o,e,s,i]=await Promise.allSettled([loadOrders(),api(FN+"admin-expenses?month="+month),loadShipping(),loadInventory()]);
+  const dash="—";
+  const ok=x=>x.status==="fulfilled";
+  const failed=[["pedidos",o],["finanzas",e],["despachos",s],["inventario",i]].filter(([,x])=>!ok(x)).map(([n])=>n);
+  const sum=ok(e)?e.value.summary:null;
+  const live=S.orders.filter(x=>x.status!=="cancelado");
+  const toShip=live.filter(x=>{const sh=shipOf(x.reference);return !sh||["pendiente","preparando"].includes(sh.status)});
+  const inRoute=S.shipping.filter(x=>["despachado","en_transito"].includes(x.status));
+  const regd=S.inventory.filter(x=>Object.keys(x.sizes||{}).length).length;
+  const cards=[
+    {id:"pedidos",i:"bag",t:"Pedidos",cls:"c1",a:ok(o)?S.orders.length+" pedidos":dash,b:ok(o)?S.orders.filter(x=>x.paymentStatus==="pendiente"&&x.status!=="cancelado").length+" con pago pendiente":dash},
+    {id:"finanzas",i:"chart",t:"Finanzas",cls:"c2",a:sum?money(sum.approved.total)+" aprobado este mes":dash,b:sum?"Neto "+money(sum.net):dash},
+    {id:"despachos",i:"truck",t:"Despachos",cls:"c3",a:ok(o)&&ok(s)?toShip.length+" por despachar":dash,b:ok(s)?inRoute.length+" en camino":dash},
+    {id:"inventario",i:"box",t:"Inventario",cls:"c4",a:CATALOG.length+" modelos en catálogo",b:ok(i)?regd+" con existencias registradas":dash}
+  ];
+  el.innerHTML=(failed.length?'<div class="err" style="grid-column:1/-1;margin:0 0 .8rem">No se pudieron leer: '+esc(failed.join(", "))+'. Las cifras muestran «—», no cero.</div>':"")+
+    cards.map((c,n)=>'<a class="sc '+c.cls+'" href="#'+c.id+'"><span class="wm"><svg viewBox="0 0 24 24">'+IC[c.i]+'</svg></span><span class="num">0'+(n+1)+" / 0"+cards.length+'</span><div class="row"><div><h2 class="big">'+c.t+"</h2><small>"+esc(c.a)+" · "+esc(c.b)+'</small></div><span class="go">→</span></div></a>').join("");
+}
+
+/* ---------- pedidos ---------- */
+let pFilter="todos";
+const PFILT=[["todos","Todos"],["pendiente","Pago pendiente"],["aprobado","Pago aprobado"],["rechazado","Rechazado / anulado"],["cancelado","Cancelados"]];
+function pedidosList(){
+  const q=$("#pq").value.trim().toLowerCase();
+  $("#pf").innerHTML=PFILT.map(([k,l])=>'<button class="pill'+(pFilter===k?" on":"")+'" data-f="'+k+'">'+l+"</button>").join("");
+  $$("#pf [data-f]").forEach(b=>b.onclick=()=>{pFilter=b.dataset.f;pedidosList()});
+  const rows=S.orders.filter(o=>{
+    if(pFilter==="cancelado"&&o.status!=="cancelado")return false;
+    if(pFilter==="pendiente"&&!(o.paymentStatus==="pendiente"&&o.status!=="cancelado"))return false;
+    if(pFilter==="aprobado"&&o.paymentStatus!=="aprobado")return false;
+    if(pFilter==="rechazado"&&!["rechazado","anulado"].includes(o.paymentStatus))return false;
+    if(!q)return true;
+    return [o.reference,o.name,o.phone,o.city].some(v=>String(v||"").toLowerCase().includes(q));
+  });
+  const el=$("#plist");
+  if(!S.orders.length){el.innerHTML='<div class="empty">Todavía no hay pedidos.</div>';return}
+  if(!rows.length){el.innerHTML='<div class="empty">Ningún pedido coincide con el filtro.</div>';return}
+  el.innerHTML=rows.map(o=>'<div class="card" data-ref="'+esc(o.reference)+'"><div class="top2"><div><h3>'+esc(o.reference)+'</h3><p>'+esc(fmtDT(o.createdAt))+'</p></div><div class="amt">'+money(o.total)+"</div></div>"+
+    "<div>"+payTag(o.paymentStatus)+'<span class="tag info">Pedido: '+esc(o.status||"nuevo")+"</span>"+(o.boldPaymentMethod||o.paymentMethod?'<span class="tag">'+esc(o.boldPaymentMethod||o.paymentMethod)+"</span>":"")+"</div>"+
+    "<p><b>"+esc(o.name||"Sin nombre")+"</b> · "+esc(o.phone||"")+"<br>"+esc([o.address,o.city].filter(Boolean).join(", "))+"</p>"+itemsHTML(o)+
+    '<div class="edit"><div class="full"><label>Estado del pedido</label><select data-status><option value="">Cambiar estado…</option>'+["confirmado","preparando","enviado","entregado","cancelado"].map(s=>'<option value="'+s+'"'+(o.status===s?" disabled":"")+">"+s[0].toUpperCase()+s.slice(1)+"</option>").join("")+"</select></div></div>"+
+    '<div class="bar" style="margin:.6rem 0 0"><button class="btn ghost" data-check type="button">Consultar pago</button>'+(o.paymentLink?'<a class="btn ghost" href="'+esc(o.paymentLink)+'" target="_blank" rel="noopener">Ver link de pago</a>':"")+"</div>"+
+    '<div class="msg" data-res hidden></div></div>').join("");
+  $$("#plist .card").forEach(card=>{const ref=card.dataset.ref;
+    card.querySelector("[data-status]").onchange=async e=>{const v=e.target.value;if(!v)return;
+      try{await api(FN+"orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,status:v})});toast("Pedido actualizado");await loadOrders();pedidosList()}catch(err){toast(err.message,true);e.target.value=""}};
+    card.querySelector("[data-check]").onclick=()=>checkPayment(ref,card.querySelector("[data-res]"),card.querySelector("[data-check]"))});
+}
+function renderBold(el,d){el.hidden=false;el.classList.remove("bad");el.textContent=(d&&d.message?d.message+"\n\n":"")+JSON.stringify(d,null,2)}
+function renderBoldErr(el,err){el.hidden=false;el.classList.add("bad");el.textContent=err.message+(err.diagnostic?"\nDiagnóstico: "+JSON.stringify(err.diagnostic,null,2):"")}
+async function checkPayment(ref,el,btn){
+  if(btn)btn.disabled=true;el.hidden=false;el.classList.remove("bad");el.textContent="Consultando a Bold…";
+  try{renderBold(el,await api(FN+"bold-status?reference="+encodeURIComponent(ref)))}catch(err){renderBoldErr(el,err)}
+  finally{if(btn)btn.disabled=false}
+}
+async function pedidos(){
+  const el=$("#plist");loading(el);
+  try{await loadOrders();pedidosList()}catch(e){failBox(el,e,pedidos)}
+}
+$("#pq").oninput=()=>pedidosList();
+$("#preload").onclick=()=>pedidos();
+$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),res=$("#boldResult");
+  const lnk=String(f.get("payment_link")||"").trim(),ref=String(f.get("reference")||"").trim();
+  if(!lnk&&!ref){res.hidden=false;res.classList.add("bad");res.textContent="Escribe la referencia del pedido o el link de pago.";return}
+  res.hidden=false;res.classList.remove("bad");res.textContent="Consultando a Bold…";
+  try{renderBold(res,await api(FN+"bold-status"+(lnk?"?payment_link="+encodeURIComponent(lnk):"?reference="+encodeURIComponent(ref))))}catch(err){renderBoldErr(res,err)}};
+$("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),res=$("#createBoldResult");
+  res.hidden=false;res.classList.remove("bad");res.textContent="Creando link…";
+  try{const d=await post("admin-bold",{reference:String(f.get("reference")||"").trim()});res.textContent=JSON.stringify(d,null,2)}catch(err){res.classList.add("bad");res.textContent=err.message}};
+
+/* ---------- finanzas ---------- */
+let fMonth=todayBogota().slice(0,7),gFilter="todos",editing=null,newId=null;
+const CAT_LABEL={publicidad:"Publicidad",envios:"Envíos",empaques:"Empaques",inventario:"Inventario",servicios:"Servicios",impuestos:"Impuestos",otros:"Otros"};
+const PM_LABEL={efectivo:"Efectivo",transferencia:"Transferencia",tarjeta:"Tarjeta",bold:"Bold",otro:"Otro"};
+async function finanzas(){
+  loading($("#chips"));$("#charts").innerHTML="";$("#tg").innerHTML="";
+  try{
+    const d=await api(FN+"admin-expenses"+(fMonth?"?month="+encodeURIComponent(fMonth):""));
+    S.exp=d;renderFin();
+  }catch(e){$("#chips").innerHTML='<div class="err" style="grid-column:1/-1">'+esc(e.message)+' <button class="pill" id="fretry">Reintentar</button></div>';const b=$("#fretry");if(b)b.onclick=finanzas}
+}
+function renderFin(){
+  const d=S.exp,sm=d.summary;
+  const months=[...new Set([todayBogota().slice(0,7),...Object.keys(sm.byMonth||{})])].sort().reverse();
+  if(fMonth&&!months.includes(fMonth))months.unshift(fMonth);
+  $("#mes").innerHTML='<option value="">Todos los meses</option>'+months.map(m=>'<option value="'+m+'"'+(m===fMonth?" selected":"")+">"+esc(mlabel(m))+"</option>").join("");
+  $("#chips").innerHTML=
+   '<div class="chip"><span>Pagos aprobados (Bold)</span><b>'+money(sm.approved.total)+"</b><small>"+sm.approved.count+" pedidos</small></div>"+
+   '<div class="chip"><span>Pagos pendientes</span><b>'+money(sm.pending.total)+"</b><small>"+sm.pending.count+" pedidos · aún no es dinero recibido</small></div>"+
+   '<div class="chip"><span>Gastos</span><b>'+money(sm.expenses.total)+"</b><small>"+sm.expenses.count+" registros</small></div>"+
+   '<div class="chip"><span>Resultado neto</span><b'+(sm.net<0?' class="warn"':"")+">"+money(sm.net)+"</b><small>aprobado − gastos</small></div>";
+  const ms=Object.keys(sm.byMonth||{}).sort().slice(-6);
+  const max=Math.max(1,...ms.flatMap(m=>[sm.byMonth[m].approved,sm.byMonth[m].expenses]));
+  const cats=Object.entries(sm.expenses.byCategory||{}).sort((a,b)=>b[1]-a[1]);
+  const cmax=Math.max(1,...cats.map(c=>c[1]));
+  $("#charts").innerHTML='<div class="panel"><h3>Aprobado y gastos por mes</h3><div class="lg"><i></i>Aprobado<i class="g"></i>Gastos</div>'+
+    (ms.length?'<div class="tp" style="margin-top:.6rem">'+ms.map(m=>"<span>"+esc(mlabel(m))+'</span><div><u style="width:'+Math.max(2,sm.byMonth[m].approved/max*100)+'%"></u><b>'+money(sm.byMonth[m].approved)+'</b></div><div><u class="r" style="width:'+Math.max(2,sm.byMonth[m].expenses/max*100)+'%"></u><b>'+money(sm.byMonth[m].expenses)+"</b></div>").join("")+"</div>":'<p class="hint">Aún no hay pagos aprobados ni gastos registrados.</p>')+"</div>"+
+    '<div class="panel"><h3>Gastos por categoría</h3>'+(cats.length?'<div class="tp">'+cats.map(([c,v])=>"<span>"+esc(CAT_LABEL[c]||c)+'</span><div><u class="r" style="width:'+Math.max(2,v/cmax*100)+'%"></u><b>'+money(v)+"</b></div>").join("")+"</div>":'<p class="hint">Sin gastos en este periodo.</p>')+"</div>";
+  $("#gf").innerHTML=[["todos","Todos"],["recurrentes","Recurrentes"],["anulados","Anulados"]].map(([k,l])=>'<button class="pill'+(gFilter===k?" on":"")+'" data-g="'+k+'">'+l+"</button>").join("");
+  $$("#gf [data-g]").forEach(b=>b.onclick=()=>{gFilter=b.dataset.g;renderFin()});
+  const rows=d.expenses.filter(e=>gFilter==="recurrentes"?(e.recurrence&&!e.voided):gFilter==="anulados"?e.voided:true);
+  $("#tg").innerHTML=rows.length?rows.map(e=>"<tr"+(e.voided?' class="voided"':"")+"><td"+(e.voided?' class="v"':"")+">"+esc(e.date)+"</td><td"+(e.voided?' class="v"':"")+">"+esc(e.description)+(e.recurrence?' <span class="tag info">'+esc(e.recurrence)+"</span>":"")+(e.voided?' <span class="tag bad">Anulado</span>':"")+"</td><td>"+esc(CAT_LABEL[e.category]||e.category)+"</td><td>"+esc(PM_LABEL[e.paymentMethod]||e.paymentMethod)+"</td><td>"+esc(e.reference||"")+'</td><td class="r'+(e.voided?" v":"")+'">'+money(e.amount)+"</td><td>"+(e.voided?"":'<button class="pill" data-edit="'+esc(e.id)+'">Editar</button><button class="pill" data-void="'+esc(e.id)+'">Anular</button>')+"</td></tr>").join(""):'<tr><td colspan="7" class="empty" style="text-align:center">No hay gastos registrados en este periodo.</td></tr>';
+  $("#g-tot").textContent=money(sm.expenses.total);
+  $$("#tg [data-edit]").forEach(b=>b.onclick=()=>openGasto(d.expenses.find(x=>x.id===b.dataset.edit)));
+  $$("#tg [data-void]").forEach(b=>b.onclick=async()=>{const e=d.expenses.find(x=>x.id===b.dataset.void);if(!confirm("¿Anular el gasto «"+e.description+"» por "+money(e.amount)+"? No se borra: queda marcado como anulado."))return;
+    try{await post("admin-expenses",{action:"void",id:e.id,reason:"Anulado desde el panel"});toast("Gasto anulado");finanzas()}catch(err){toast(err.message,true)}});
+  $("#fhint").innerHTML="<b>Qué significa cada cifra:</b> «aprobado» es dinero con pago confirmado por Bold (importe confirmado por Bold, mes del pago). «Pendiente» son pedidos sin pago confirmado y no cuentan como ingreso. Los pedidos no se suman dos veces: la única fuente de ingresos es el pago aprobado de cada pedido. El neto no incluye costos de producto ni márgenes porque no hay datos de costos. Los pedidos cobrados por fuera de Bold aparecen como pendientes hasta que el sistema reciba su confirmación.";
+}
+$("#mes").onchange=e=>{fMonth=e.target.value;finanzas()};
+function fillSel(sel,opts,labels){sel.innerHTML=opts.map(o=>'<option value="'+esc(o)+'">'+esc(labels[o]||o)+"</option>").join("")}
+function openGasto(e){
+  const o=(S.exp&&S.exp.options)||{categories:Object.keys(CAT_LABEL),paymentMethods:Object.keys(PM_LABEL)};
+  fillSel($("#g-cat"),o.categories,CAT_LABEL);fillSel($("#g-pm"),o.paymentMethods,PM_LABEL);
+  editing=e||null;newId=e?null:"gx_"+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):Date.now().toString(36)+Math.random().toString(36).slice(2,12));
+  $("#gm-title").textContent=e?"Editar gasto":"Nuevo gasto";
+  $("#g-desc").value=e?e.description:"";$("#g-amount").value=e?e.amount:"";$("#g-date").value=e?e.date:todayBogota();
+  $("#g-cat").value=e?e.category:o.categories[0];$("#g-pm").value=e?e.paymentMethod:o.paymentMethods[0];
+  $("#g-ref").value=e?(e.reference||""):"";$("#g-rec").value=e?(e.recurrence||""):"";
+  $("#g-err").textContent="";$("#gm").hidden=false;$("#g-desc").focus();
+}
+$("#newg").onclick=()=>openGasto(null);
+$("#g-cancel").onclick=()=>{$("#gm").hidden=true};
+$("#gm").addEventListener("click",e=>{if(e.target.id==="gm")$("#gm").hidden=true});
+$("#gform").onsubmit=async ev=>{ev.preventDefault();const btn=$("#g-save");btn.disabled=true;$("#g-err").textContent="";
+  const body={description:$("#g-desc").value,amount:$("#g-amount").value,date:$("#g-date").value,category:$("#g-cat").value,paymentMethod:$("#g-pm").value,reference:$("#g-ref").value,recurrence:$("#g-rec").value};
+  try{await post("admin-expenses",editing?{action:"update",id:editing.id,...body}:{action:"create",id:newId,...body});$("#gm").hidden=true;toast(editing?"Gasto actualizado":"Gasto guardado");finanzas()}
+  catch(err){$("#g-err").textContent=err.message}finally{btn.disabled=false}};
+const csvCell=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+$("#csv").onclick=()=>{if(!S.exp||!S.exp.expenses.length){toast("No hay gastos para exportar",true);return}
+  const rows=[["fecha","descripcion","categoria","metodo","referencia","recurrencia","monto","anulado"],...S.exp.expenses.map(e=>[e.date,e.description,e.category,e.paymentMethod,e.reference||"",e.recurrence||"",e.amount,e.voided?"si":"no"])];
+  const url=URL.createObjectURL(new Blob(["﻿"+rows.map(r=>r.map(csvCell).join(",")).join("\n")],{type:"text/csv;charset=utf-8"}));
+  const a=document.createElement("a");a.href=url;a.download="gastos-"+(fMonth||"todos")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+
+/* ---------- despachos ---------- */
+let dFilter="pendientes";
+const SH_LABEL={pendiente:"Pendiente",preparando:"Preparando",despachado:"Despachado",en_transito:"En tránsito",entregado:"Entregado",novedad:"Novedad",devuelto:"Devuelto"};
+const SHIP_GROUP={pendientes:s=>!s||["pendiente","preparando"].includes(s.status),camino:s=>s&&["despachado","en_transito"].includes(s.status),entregados:s=>s&&s.status==="entregado",problemas:s=>s&&["novedad","devuelto"].includes(s.status)};
+async function despachos(){
+  const el=$("#dlist");loading(el);
+  try{await Promise.all([loadOrders(),loadShipping()]);renderDesp()}catch(e){failBox(el,e,despachos)}
+}
+function renderDesp(){
+  const live=S.orders.filter(o=>o.status!=="cancelado");
+  const cnt=k=>live.filter(o=>SHIP_GROUP[k](shipOf(o.reference))).length;
+  $("#dchips").innerHTML='<div class="chip"><span>Por despachar</span><b>'+cnt("pendientes")+'</b></div><div class="chip"><span>En camino</span><b>'+cnt("camino")+'</b></div><div class="chip"><span>Entregados</span><b>'+cnt("entregados")+"</b></div>";
+  $("#df").innerHTML=[["pendientes","Por despachar"],["camino","En camino"],["entregados","Entregados"],["problemas","Novedades / devueltos"],["todos","Todos"]].map(([k,l])=>'<button class="pill'+(dFilter===k?" on":"")+'" data-d="'+k+'">'+l+"</button>").join("");
+  $$("#df [data-d]").forEach(b=>b.onclick=()=>{dFilter=b.dataset.d;renderDesp()});
+  const rows=live.filter(o=>dFilter==="todos"||SHIP_GROUP[dFilter](shipOf(o.reference)));
+  const el=$("#dlist");
+  if(!rows.length){el.innerHTML='<div class="empty">'+(S.orders.length?"No hay pedidos en este grupo.":"Todavía no hay pedidos para despachar.")+"</div>";return}
+  el.innerHTML=rows.map(o=>{const sh=shipOf(o.reference)||{};const last=(sh.history||[]).slice(-1)[0];
+    return '<div class="card" data-ref="'+esc(o.reference)+'"><div class="top2"><div><h3>'+esc(o.reference)+"</h3><p>"+esc(fmtDT(o.createdAt))+'</p></div><div class="amt">'+money(o.total)+"</div></div>"+
+    "<div>"+payTag(o.paymentStatus)+'<span class="tag info">'+esc(SH_LABEL[sh.status]||"Sin despacho")+"</span></div>"+
+    (o.paymentStatus!=="aprobado"?'<p class="warn">El pago de este pedido no está aprobado.</p>':"")+
+    "<p><b>"+esc(o.name||"")+"</b> · "+esc(o.phone||"")+"<br>"+esc([o.address,o.city].filter(Boolean).join(", "))+"</p>"+itemsHTML(o)+
+    '<form class="edit" data-form><div><label>Estado</label><select name="status">'+Object.entries(SH_LABEL).map(([k,l])=>'<option value="'+k+'"'+((sh.status||"pendiente")===k?" selected":"")+">"+l+"</option>").join("")+'</select></div>'+
+    '<div><label>Transportadora</label><input name="carrier" list="carriers" maxlength="60" value="'+esc(sh.carrier||"")+'" autocomplete="off"></div>'+
+    '<div><label>Número de guía</label><input name="guide" maxlength="60" value="'+esc(sh.guide||"")+'" autocomplete="off"></div>'+
+    '<div><label>Fecha de despacho</label><input type="date" name="shippedAt" value="'+esc(sh.shippedAt||"")+'"></div>'+
+    '<div><label>Fecha de entrega</label><input type="date" name="deliveredAt" value="'+esc(sh.deliveredAt||"")+'"></div>'+
+    '<div class="full"><label>Notas</label><textarea name="notes" maxlength="500">'+esc(sh.notes||"")+"</textarea></div>"+
+    '<div class="full"><button class="btn">Guardar despacho</button></div></form>'+
+    '<p class="hint" style="margin:.4rem 0 0">'+(last?"Último cambio: "+esc(fmtDT(last.at)):"Sin cambios registrados")+". El seguimiento es manual: no hay conexión con la transportadora.</p></div>"}).join("");
+  $$("#dlist [data-form]").forEach(f=>f.onsubmit=async ev=>{ev.preventDefault();const ref=f.closest(".card").dataset.ref,btn=f.querySelector("button");
+    const v=Object.fromEntries(new FormData(f));btn.disabled=true;
+    try{await post("admin-shipping",{reference:ref,...v});toast("Despacho guardado");await loadShipping();renderDesp()}catch(err){toast(err.message,true)}finally{btn.disabled=false}});
+}
+
+/* ---------- inventario ---------- */
+const sizesOf=p=>(p.facts||[]).filter(f=>/^\d{2}$/.test(String(f))).map(String);
+const ovOf=id=>S.overrides.find(o=>o.id===id);
+const invOf=id=>S.inventory.find(x=>x.productId===id);
+async function inventario(){
+  const el=$("#invlist");loading(el);
+  try{await loadInventory();S.overrides=(await api(FN+"admin-api?section=products")).products||[];renderInv()}catch(e){failBox(el,e,inventario)}
+}
+function renderInv(){
+  const q=$("#iq").value.trim().toLowerCase();
+  let regd=0,out=0,low=0;
+  CATALOG.forEach(p=>{const s=(invOf(p.id)||{}).sizes||{};const v=Object.values(s);if(v.length)regd++;out+=v.filter(n=>n===0).length;low+=v.filter(n=>n>0&&n<=2).length});
+  $("#ichips").innerHTML='<div class="chip"><span>Modelos</span><b>'+CATALOG.length+'</b></div><div class="chip"><span>Con existencias registradas</span><b>'+regd+'</b></div><div class="chip"><span>Tallas agotadas</span><b>'+out+'</b></div><div class="chip"><span>Tallas bajas (≤2)</span><b>'+low+"</b></div>";
+  const rows=CATALOG.filter(p=>!q||String(p.name).toLowerCase().includes(q));
+  const el=$("#invlist");
+  if(!CATALOG.length){el.innerHTML='<div class="err">No se pudo leer el catálogo (productos.js).</div>';return}
+  if(!rows.length){el.innerHTML='<div class="empty">Ningún producto coincide.</div>';return}
+  el.innerHTML=rows.map(p=>{const ov=ovOf(p.id)||{},inv=(invOf(p.id)||{}).sizes||{},active=ov.active!==false,img=p.imgs&&p.imgs[0]&&p.imgs[0][0];
+    const effPrice=(ov.price!=null&&Number.isFinite(Number(ov.price)))?ov.price:p.price;
+    return '<div class="card" data-id="'+esc(p.id)+'"><div class="lh"><div class="th">'+(img?'<img src="/'+esc(img)+'" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentNode.textContent=\'Sin foto\'">':"Sin foto")+'</div><div style="min-width:0"><h3>'+esc(p.name)+"</h3><p>"+esc(p.cat||"")+"</p><p><b>"+money(effPrice)+'</b> <span class="muted">· precio de solo lectura</span></p></div></div>'+
+      '<div style="margin-top:.4rem"><span class="tag '+(active?"ok":"bad")+'">'+(active?"Visible en la tienda":"Oculto en la tienda")+'</span><button class="pill" data-toggle>'+(active?"Ocultar":"Mostrar")+"</button></div>"+
+      '<div class="tg">'+sizesOf(p).map(t=>{const n=inv[t];const cls=n===0?"out":(n!=null&&n<=2?"low":"");return '<div class="tc"><label>'+t+'</label><input data-t="'+t+'" type="number" inputmode="numeric" min="0" max="99999" step="1" placeholder="—" value="'+(n!=null?n:"")+'"><span class="q '+cls+'">'+(n==null?"sin registro":n===0?"agotado":n<=2?"bajo":"ok")+"</span></div>"}).join("")+"</div>"+
+      '<div class="bar" style="margin:.7rem 0 0"><button class="btn" data-save>Guardar existencias</button></div></div>'}).join("");
+  $$("#invlist .card").forEach(card=>{const id=card.dataset.id;
+    card.querySelector("[data-save]").onclick=async e=>{const sizes={};
+      card.querySelectorAll("[data-t]").forEach(i=>{if(i.value!=="")sizes[i.dataset.t]=Number(i.value)});
+      if(!Object.keys(sizes).length){toast("Escribe al menos una cantidad",true);return}
+      e.target.disabled=true;try{await post("admin-inventory",{productId:id,sizes});toast("Existencias guardadas");await loadInventory();renderInv()}catch(err){toast(err.message,true);e.target.disabled=false}};
+    card.querySelector("[data-toggle]").onclick=async e=>{const active=(ovOf(id)||{}).active!==false;e.target.disabled=true;
+      try{await post("admin-api",{action:"save-product",id,active:!active});toast(active?"Producto oculto":"Producto visible");S.overrides=(await api(FN+"admin-api?section=products")).products||[];renderInv()}catch(err){toast(err.message,true);e.target.disabled=false}}});
+}
+$("#iq").oninput=()=>{if(S.inventory)renderInv()};
+
+/* ---------- marca ---------- */
+async function marca(){
+  const el=$("#marcaBox");loading(el);
+  try{
+    const s=(await api(FN+"admin-api?section=settings")).settings||{};
+    el.innerHTML='<div class="card"><h3>Datos de la marca</h3><form id="mkForm" class="edit">'+
+      '<div class="full"><label for="mk-msg">Mensaje de marca (se muestra en la portada de la tienda)</label><input id="mk-msg" maxlength="300" value="'+esc(s.brandMessage||"")+'"></div>'+
+      '<div class="full"><label for="mk-wa">WhatsApp de contacto (solo números)</label><input id="mk-wa" type="tel" inputmode="tel" maxlength="20" value="'+esc(s.whatsapp||"")+'"></div>'+
+      '<div class="full"><label for="mk-ig">Instagram</label><input id="mk-ig" maxlength="80" value="'+esc(s.instagram||"")+'"></div>'+
+      '<div class="full"><label for="mk-em">Correo</label><input id="mk-em" type="email" maxlength="160" value="'+esc(s.email||"")+'"></div>'+
+      '<div class="full"><button class="btn">Guardar</button></div></form>'+
+      '<p class="hint">Hoy la tienda solo aplica el mensaje de marca; WhatsApp, Instagram y correo se guardan pero la portada no los lee todavía.'+(s.updatedAt?" Última actualización: "+esc(fmtDT(s.updatedAt))+".":"")+"</p></div>";
+    $("#mkForm").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;
+      try{await post("admin-api",{action:"save-settings",brandMessage:$("#mk-msg").value,whatsapp:$("#mk-wa").value,instagram:$("#mk-ig").value,email:$("#mk-em").value});toast("Datos de la marca guardados")}catch(err){toast(err.message,true)}finally{b.disabled=false}};
+  }catch(e){failBox(el,e,marca)}
+}
+
+/* ---------- arranque ---------- */
+(async()=>{try{const r=await fetch(FN+"admin-auth",{credentials:"same-origin"});if(r.ok)showApp();else showLogin()}catch(_){showLogin()}})();
 </script>
 </body>
 </html>
