@@ -156,8 +156,62 @@ test("firma válida con clave vacía en pruebas y firma inválida", () => {
 test("selección de secreto: vacío solo fuera de producción", () => {
   assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "branch-deploy", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
   assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "deploy-preview", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "identity-key");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_SECRET_KEY: "only-secret-key" }), "");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "prod-secret");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_SECRET_KEY: "only-secret-key" }), "only-secret-key");
+  // La llave de identidad es pública (se entrega al navegador): nunca firma el webhook.
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key" }), "");
+});
+
+test("producción: un webhook firmado con la llave de identidad pública se rechaza y no aprueba el pedido", async () => {
+  reset();
+  const saved = { CONTEXT: process.env.CONTEXT, API: process.env.BOLD_API_KEY, SECRET: process.env.BOLD_SECRET_KEY };
+  process.env.CONTEXT = "production";
+  process.env.BOLD_API_KEY = "identity-key";
+  process.env.BOLD_SECRET_KEY = "prod-secret";
+  try {
+    put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+    const body = JSON.stringify(event());
+
+    const forged = await webhook.default(req(body, signature(body, "identity-key")));
+    assert.equal(forged.status, 400);
+    assert.equal(await forged.text(), "Firma inválida");
+    assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "pendiente");
+    assert.equal(state.has("webhook-inbox/evt-test-1"), false);
+    assert.equal(outboxEnqueues, 0);
+
+    const noSignature = await webhook.default(req(body, ""));
+    assert.equal(noSignature.status, 400);
+
+    let background;
+    const genuine = await webhook.default(req(body, signature(body, "prod-secret")), { waitUntil(p) { background = p; } });
+    assert.equal(genuine.status, 200);
+    await background;
+    assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "aprobado");
+    assert.equal(outboxEnqueues, 1);
+  } finally {
+    for (const [name, value] of [["CONTEXT", saved.CONTEXT], ["BOLD_API_KEY", saved.API], ["BOLD_SECRET_KEY", saved.SECRET]]) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+  }
+});
+
+test("producción sin BOLD_SECRET_KEY falla cerrado aunque exista la llave de identidad", async () => {
+  reset();
+  const saved = { CONTEXT: process.env.CONTEXT, API: process.env.BOLD_API_KEY, SECRET: process.env.BOLD_SECRET_KEY };
+  process.env.CONTEXT = "production";
+  process.env.BOLD_API_KEY = "identity-key";
+  delete process.env.BOLD_SECRET_KEY;
+  try {
+    put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+    const body = JSON.stringify(event());
+    const response = await webhook.default(req(body, signature(body, "identity-key")));
+    assert.equal(response.status, 500);
+    assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "pendiente");
+  } finally {
+    for (const [name, value] of [["CONTEXT", saved.CONTEXT], ["BOLD_API_KEY", saved.API], ["BOLD_SECRET_KEY", saved.SECRET]]) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+  }
 });
 
 test("JSON malformado y método HTTP", async () => {
