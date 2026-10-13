@@ -6,8 +6,10 @@ on:
       - security/orders-meta-capi
       - repair/bold-webhook-test-safe
       - feature/paleta-moderna
+      - fix/bold-reference-id-required
   pull_request:
     branches:
+      - main
       - security/orders-meta-capi
 
 jobs:

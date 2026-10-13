@@ -14,7 +14,7 @@ Esta rama prepara la protección del flujo de pedidos sin tocar producción, dom
 
 bold-webhook.mjs:
 
-1. valida x-bold-signature usando el cuerpo crudo, Base64 y HMAC-SHA256;
+1. valida x-bold-signature usando el cuerpo crudo, Base64 y HMAC-SHA256. En producción la clave es `BOLD_SECRET_KEY` (la «llave secreta» de Bold); `BOLD_API_KEY` es la llave de identidad, se entrega al navegador para abrir el checkout y nunca autentica un webhook. Si falta `BOLD_SECRET_KEY` en producción, el webhook responde 500 y no procesa nada. Fuera de producción la clave es vacía, como documenta Bold para pruebas;
 2. persiste primero el evento validado en webhook-inbox/<event-id>;
 3. responde 200 OK inmediatamente después de persistir el evento;
 4. procesa el pedido y el outbox mediante context.waitUntil() cuando está disponible;
