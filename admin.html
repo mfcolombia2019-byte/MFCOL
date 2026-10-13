@@ -6,26 +6,81 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Admin — Marlon Footwear</title>
 <style>
-:root{--ink:#111;--muted:#777;--line:#e8e8e8;--paper:#fff;--soft:#f7f7f7;--serif:Georgia,"Times New Roman",serif}
+:root{--ink:#20211f;--muted:#777a73;--line:#e8e7e1;--paper:#fff;--soft:#f7f7f3;--sage:#dce5d7;--sage-ink:#40513e;--beige:#f0e8db;--serif:Georgia,"Times New Roman",serif}
 *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.5 Inter,Arial,sans-serif}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 .shell{max-width:1400px;margin:auto;padding:22px}
-.login{min-height:100svh;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(420px,100%);padding:34px;border:1px solid var(--line)}
+.login{min-height:100svh;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(420px,100%);padding:34px;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 36px #22210c08}
 h1,h2,h3{font-family:var(--serif);font-weight:400}.login h1{font-size:38px;margin:0 0 8px}.muted{color:var(--muted)}
 input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;padding:11px 12px;margin:6px 0 12px}textarea{min-height:110px;resize:vertical}
-.btn{border:1px solid #111;background:#111;color:#fff;padding:11px 16px}.btn.light{background:#fff;color:#111}.btn.danger{border-color:#a22;background:#a22}
+.btn{border:1px solid #242521;background:#242521;color:#fff;padding:11px 16px;border-radius:10px}.btn.light{background:#fff;color:#242521;border-color:var(--line)}.btn.danger{border-color:#a22;background:#a22}
 .hidden{display:none!important}
-.app-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-family:var(--serif);font-size:30px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--line);background:#fff;padding:9px 12px}.nav button.active{background:#111;color:#fff;border-color:#111}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);padding:18px}.metric b{display:block;font:400 30px var(--serif);margin-top:4px}
-.panel{background:#fff;border:1px solid var(--line);padding:20px;margin-top:16px}.panel h2{margin:0 0 16px;font-size:26px}
+.app-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-family:var(--serif);font-size:30px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px}.nav button.active{background:#dce5d7;color:#31412f;border-color:#dce5d7}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);padding:18px;border-radius:16px}.metric b{display:block;font:400 30px var(--serif);margin-top:4px}
+.panel{background:#fff;border:1px solid var(--line);padding:20px;margin-top:16px;border-radius:16px}.panel h2{margin:0 0 16px;font-size:26px}
 .table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 8px;text-align:left;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.status{display:inline-block;padding:4px 7px;background:var(--soft);font-size:11px}
+.status{display:inline-block;padding:4px 9px;background:var(--sage);color:var(--sage-ink);font-size:11px;border-radius:999px}
 .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spaced{justify-content:space-between}
 pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monospace;background:var(--soft);padding:12px}
-.toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:12px 15px;display:none;z-index:20}
+.toast{position:fixed;right:18px;bottom:18px;background:#242521;color:#fff;padding:12px 15px;display:none;z-index:20;border-radius:12px}.section-note{color:var(--muted);margin-top:-6px}.metric small{color:var(--muted)}.pill{display:inline-flex;align-items:center;background:var(--beige);padding:4px 10px;border-radius:999px;font-size:12px}.empty{padding:24px;text-align:center;color:var(--muted)}
 @media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.shell{padding:14px}.app-head{align-items:flex-start;flex-direction:column}}
-</style>
+
+/* Pulido visual del panel: conserva íntegra la lógica y los formularios */
+:root{--ink:#20211f;--muted:#70756d;--line:#e5e7df;--paper:#fff;--soft:#f7f8f5;--sage:#e2eadf;--sage-ink:#30472f;--beige:#f1ece3;--green:#334b35}
+body{background:var(--soft);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.shell{max-width:1180px;padding:clamp(14px,3vw,30px)}
+.app-head{padding:8px 0 20px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.brand{font-size:clamp(25px,3vw,32px);letter-spacing:-.035em}
+.nav{padding:5px;background:#eeefe9;border:1px solid var(--line);border-radius:14px;gap:5px}
+.nav button{border:1px solid transparent;background:transparent;border-radius:10px;padding:10px 16px;color:#50554d;transition:background .18s ease,color .18s ease}
+.nav button.active{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 5px #17231712}
+.cards{gap:14px}
+.metric{padding:clamp(15px,2.2vw,22px);border-radius:18px;box-shadow:0 2px 8px #25291d05}
+.metric small{font-size:13px;line-height:1.4}
+.metric b{font-family:Inter,Arial,sans-serif;font-weight:650;font-size:clamp(22px,2.6vw,29px);letter-spacing:-.04em;overflow-wrap:anywhere}
+.panel{padding:clamp(16px,2.5vw,26px);margin-top:16px;border-radius:20px;box-shadow:0 3px 14px #25291d06}
+.panel h2{font-family:Inter,Arial,sans-serif;font-weight:650;font-size:clamp(21px,2.5vw,26px);letter-spacing:-.035em;margin-bottom:8px}
+.section-note{font-size:13px;line-height:1.6;margin:0 0 18px}
+label{display:block;font-size:13px;font-weight:600;color:#444a41}
+input,textarea,select{display:block;width:100%;min-height:46px;margin:7px 0 0;padding:12px 13px;border:1px solid #dfe2d9;border-radius:11px;color:var(--ink);background:#fff;outline:none;transition:border-color .16s,box-shadow .16s}
+input::placeholder,textarea::placeholder{color:#a0a49b}
+input:focus,textarea:focus,select:focus{border-color:#71896d;box-shadow:0 0 0 3px #dce7d780}
+.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:17px 16px}
+.form-grid>div{min-width:0}
+.form-grid .full{grid-column:1/-1}
+.btn{min-height:44px;padding:11px 18px;border-radius:11px;background:var(--green);border-color:var(--green);font-weight:600;transition:transform .16s,background .16s}
+.btn:hover{background:#263a28}
+.btn:active{transform:translateY(1px)}
+.btn.light{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.light:hover{background:#f3f5f0}
+.pill,.status{border-radius:8px;font-weight:600}
+.table{font-size:13px}
+.table th{font-size:10px;letter-spacing:.09em}
+.table th,.table td{padding:13px 10px}
+.empty{padding:24px 12px;border:1px dashed var(--line);border-radius:12px;background:#fbfcfa}
+.login-card{border-radius:22px;box-shadow:0 16px 45px #25291d0b}
+@media(max-width:700px){
+ .shell{padding:13px}
+ .app-head{gap:12px;margin-bottom:15px}
+ .brand{font-size:26px}
+ .app-head>.row{width:100%;gap:7px}
+ .app-head>.row .btn{flex:1;text-align:center;padding:10px 8px}
+ .nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .nav button{padding:10px 5px;font-size:13px;white-space:nowrap}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .metric{padding:14px 12px;border-radius:15px}
+ .metric b{font-size:clamp(19px,5vw,25px)}
+ .panel{padding:17px 14px;border-radius:17px;margin-top:13px}
+ .form-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+ .form-grid .full{grid-column:auto}
+ .form-grid .row{align-items:stretch}
+ .form-grid .row .btn{flex:1}
+ .table{min-width:560px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 18px;color:var(--muted);font-size:12px}.chart-legend span{display:flex;align-items:center;gap:7px}.chart-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}.legend-sales{background:#334b35}.legend-costs{background:#a6b99b}.legend-expenses{background:#c8bba6}.month-chart-row{display:grid;grid-template-columns:135px minmax(0,1fr);gap:14px;padding:15px 0;border-top:1px solid var(--line)}.month-chart-label{font-weight:650;text-transform:capitalize;padding-top:4px}.month-chart-bars{display:grid;gap:8px;min-width:0}.chart-line{display:grid;grid-template-columns:58px minmax(45px,1fr) minmax(82px,auto);gap:8px;align-items:center;font-size:11px}.chart-line>span{color:var(--muted)}.chart-line b{text-align:right;font-size:11px;white-space:nowrap}.chart-track{height:10px;background:#f0f1ec;border-radius:99px;overflow:hidden}.chart-track i{display:block;height:100%;min-width:0;border-radius:99px}.chart-sales{background:#334b35}.chart-costs{background:#a6b99b}.chart-expenses{background:#c8bba6}@media(max-width:600px){.month-chart-row{grid-template-columns:1fr;gap:7px}.chart-line{grid-template-columns:50px minmax(25px,1fr) minmax(72px,auto);gap:6px}.chart-line b{font-size:10px}.chart-legend{gap:10px}}</style>
 </head>
 <body>
 <div id="login" class="login">
@@ -42,14 +97,14 @@ pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monosp
   <div class="shell">
     <header class="app-head">
     <div><div class="brand">Marlon Footwear</div><div class="muted">Panel de administración</div></div>
-    <div class="row"><a class="btn light" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light" id="logout">Salir</button></div>
+    <div class="row"><a class="btn light" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light" type="button" onclick="load(&quot;settings&quot;)">Marca</button><button class="btn light" id="logout">Salir</button></div>
     </header>
     <nav class="nav" id="nav">
-      <button data-view="dashboard" class="active">Resumen</button>
+      <button data-view="dashboard" class="active">Inicio</button>
       <button data-view="orders">Pedidos</button>
-      <button data-view="products">Productos</button>
-      <button data-view="settings">Marca</button>
-      <button data-view="bold">Bold</button>
+      <button data-view="finance">Finanzas</button>
+      <button data-view="dispatches">Despachos</button>
+      <button data-view="inventory">Inventario</button>
     </nav>
     <main id="content"></main>
   </div>
@@ -61,7 +116,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",2400)}
-async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok){const err=new Error(d.error||"Error");if(d.diagnostic)err.diagnostic=d.diagnostic;throw err}return d}
+async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok){const err=new Error(d.error||("Error HTTP "+r.status+" (la respuesta del servidor no tiene detalle)"));if(d.diagnostic)err.diagnostic=d.diagnostic;throw err}return d}
 function showLogin(){ $("#app").classList.add("hidden");$("#login").classList.remove("hidden"); }
 function showApp(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard"); }
 async function login(){
@@ -73,22 +128,83 @@ async function login(){
 }
 $("#loginForm").onsubmit=e=>{e.preventDefault();login()};
 $("#logout").onclick=async()=>{await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"logout"}),credentials:"same-origin"});showLogin()};
+function renderFinance(d){
+ const currentMonth=new Date().toISOString().slice(0,7);
+ const rows=d.monthly||[];
+ if(!rows.some(r=>r.month===currentMonth))rows.unshift({month:currentMonth,sales:0,paidSales:0,pendingPayments:0,costOfGoods:0,expenses:0,orders:0,profit:0});
+ const monthName=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("es-CO",{month:"long",year:"numeric"})};
+ const maxValue=Math.max(1,...rows.slice(0,6).flatMap(r=>[r.paidSales,r.costOfGoods,r.expenses]));
+ const monthlyRows=rows.map(r=>'<tr><td>'+esc(monthName(r.month))+'</td><td>'+money(r.paidSales)+'</td><td>'+money(r.costOfGoods)+'</td><td>'+money(r.expenses)+'</td><td>'+money(r.profit)+'</td><td>'+esc(r.orders)+'</td></tr>').join("");
+ const chartRows=rows.slice(0,6).reverse().map(r=>'<div class="month-chart-row"><div class="month-chart-label">'+esc(monthName(r.month).replace(/ de /," "))+'</div><div class="month-chart-bars"><div class="chart-line"><span>Ventas</span><div class="chart-track"><i class="chart-sales" style="width:'+Math.round(r.paidSales/maxValue*100)+'%"></i></div><b>'+money(r.paidSales)+'</b></div><div class="chart-line"><span>Costos</span><div class="chart-track"><i class="chart-costs" style="width:'+Math.round(r.costOfGoods/maxValue*100)+'%"></i></div><b>'+money(r.costOfGoods)+'</b></div><div class="chart-line"><span>Gastos</span><div class="chart-track"><i class="chart-expenses" style="width:'+Math.round(r.expenses/maxValue*100)+'%"></i></div><b>'+money(r.expenses)+'</b></div></div></div>').join("");
+ $("#content").innerHTML='<div class="cards"><div class="metric"><small>Ingresos pagados</small><b>'+money(d.summary.revenue)+'</b></div><div class="metric"><small>Costo de productos vendidos</small><b>'+money(d.summary.costOfGoods)+'</b></div><div class="metric"><small>Gastos registrados</small><b>'+money(d.summary.expenses)+'</b></div><div class="metric"><small>Utilidad estimada</small><b>'+money(d.summary.profit)+'</b></div></div>'+
+ (d.summary.missingCostUnits?'<div class="panel"><p class="section-note">Utilidad parcial: faltan costos registrados para '+d.summary.missingCostUnits+' unidad(es) vendida(s). Completa los costos en Finanzas para mejorar la estimación.</p></div>':'')+
+ '<div class="panel"><div class="row spaced"><div><h2>Ventas, costos y gastos por mes</h2><p class="section-note">Comparación basada en pedidos y gastos guardados.</p></div><span class="pill">Últimos 6 meses con actividad</span></div><div class="chart-legend"><span><i class="legend-sales"></i>Ventas pagadas</span><span><i class="legend-costs"></i>Costos</span><span><i class="legend-expenses"></i>Gastos</span></div>'+(chartRows||'<div class="empty">Aún no hay datos mensuales para graficar.</div>')+'</div>'+
+ '<div class="panel"><div class="row spaced"><div><h2>Resumen financiero mensual</h2><p class="section-note">Cada fila agrupa las operaciones del mes indicado.</p></div><button class="btn light" type="button" onclick="load(\'finance\')">Actualizar</button></div><div class="table-wrap">'+(rows.length?'<table class="table"><thead><tr><th>Mes</th><th>Ventas pagadas</th><th>Costos vendidos</th><th>Gastos</th><th>Utilidad estimada</th><th>Pedidos</th></tr></thead><tbody>'+monthlyRows+'</tbody></table>':'<div class="empty">Todavía no hay movimientos mensuales.</div>')+'</div><p class="section-note">Los pedidos pendientes no cuentan como ingresos cobrados. La utilidad es estimada y depende de que registres los costos reales.</p></div>'+
+ '<div class="panel"><h2>Costos por modelo</h2><p class="section-note">Guarda el costo unitario real de cada modelo. La utilidad es estimada; no reemplaza la contabilidad.</p><form id="costForm" class="form-grid"><div><label>ID del producto</label><input name="productId" required placeholder="ID exacto del catálogo"></div><div><label>Nombre del modelo</label><input name="name" required></div><div><label>Costo unitario (COP)</label><input name="unitCost" type="number" min="0" step="1" required></div><div class="row" style="align-self:end"><button class="btn">Guardar costo</button></div></form><div class="table-wrap">'+(d.costs.length?'<table class="table"><tr><th>Modelo</th><th>ID</th><th>Costo unitario</th></tr>'+d.costs.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.productId)+'</td><td>'+money(x.unitCost)+'</td></tr>').join('')+'</table>':'<div class="empty">Aún no hay costos registrados.</div>')+'</div></div>'+
+ '<div class="panel"><div class="row spaced"><div><h2>Registrar gasto</h2><p class="section-note">Registra el movimiento para incluirlo en el resumen mensual.</p></div><span class="pill">Finanzas</span></div><form id="expenseForm" class="form-grid"><div><label for="expenseDescription">Descripción / concepto *</label><input id="expenseDescription" name="description" required maxlength="180" placeholder="Ej. Pago del envío de un pedido"></div><div><label for="expenseCategory">Categoría *</label><select id="expenseCategory" name="category" required><option>Envíos</option><option>Publicidad</option><option>Compra de mercancía</option><option>Empaques y materiales</option><option>Comisiones bancarias o de pago</option><option>Gastos operativos</option><option>Proveedor</option><option>Otros</option></select></div><div><label for="expenseAmount">Valor del gasto (COP) *</label><input id="expenseAmount" name="amount" type="number" inputmode="numeric" min="1" max="1000000000" step="1" required placeholder="Ej. 45000"></div><div><label for="expenseDate">Fecha del gasto *</label><input id="expenseDate" name="date" type="date" required value="2026-10-13"></div><div><label for="expensePaymentMethod">Medio de pago</label><select id="expensePaymentMethod" name="paymentMethod"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></div><div><label for="expenseReference">Referencia o soporte (opcional)</label><input id="expenseReference" name="reference" maxlength="120" placeholder="Factura, pedido o comprobante"></div><div class="full"><label for="expenseRecurring">¿Es recurrente cada mes?</label><select id="expenseRecurring" name="recurringMonthly"><option value="false" selected>No</option><option value="true">Sí</option></select></div><div class="full row"><button class="btn" type="submit">Registrar gasto</button><button class="btn light" type="reset">Limpiar formulario</button></div></form><div class="table-wrap">'+(d.expenses.length?'<table class="table"><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Valor</th><th>Medio de pago</th></tr>'+d.expenses.map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.description)+'</td><td>'+esc(x.category)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.paymentMethod||"—")+'</td></tr>').join('')+'</table>':'<div class="empty">Aún no hay gastos registrados.</div>')+'</div></div>';
+ $("#costForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{await api("/.netlify/functions/admin-control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-cost",productId:f.get("productId"),name:f.get("name"),unitCost:f.get("unitCost")})});toast("Costo guardado");load("finance")}catch(err){toast(err.message)}};
+ $("#expenseForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const amount=Number(f.get("amount"));if(!Number.isSafeInteger(amount)||amount<1){toast("Ingresa un valor válido");return}try{await api("/.netlify/functions/admin-control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-expense",description:f.get("description"),category:f.get("category"),amount,date:f.get("date"),paymentMethod:f.get("paymentMethod"),reference:f.get("reference"),recurringMonthly:f.get("recurringMonthly")==="true"})});toast("Gasto registrado");load("finance")}catch(err){toast(err.message)}};
+}
+let viewRequest=0;
 async function load(view){
- $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+ const requestId=++viewRequest;
+ $("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
  const c=$("#content");c.innerHTML='<div class="panel">Cargando…</div>';
  try{
-  if(view==="dashboard"){const d=await api("/.netlify/functions/admin-api?section=dashboard");c.innerHTML=
-   '<div class="cards"><div class="metric">Pedidos<b>'+d.stats.orders+'</b></div><div class="metric">Pendientes<b>'+d.stats.pending+'</b></div><div class="metric">Pagados<b>'+d.stats.paid+'</b></div><div class="metric">Ingresos<b>'+money(d.stats.revenue)+'</b></div></div>'+
-   '<div class="panel"><h2>Pedidos recientes</h2>'+orderTable(d.recentOrders)+'</div>';return}
-  if(view==="orders"){const d=await api("/.netlify/functions/orders");c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><button class="btn light" onclick="load(\'orders\')">Actualizar</button></div>'+orderTable(d.orders)+'</div>';return}
-  if(view==="products"){const d=await api("/.netlify/functions/admin-api?section=products");c.innerHTML='<div class="panel"><h2>Ajustes de productos</h2><p class="muted">Los 32 productos actuales siguen en el catálogo. Aquí puedes guardar ajustes por ID sin borrar el catálogo original.</p><form id="productForm" class="form-grid"><div><label>ID del producto</label><input name="id" placeholder="ej. mf-01" required></div><div><label>Nombre opcional</label><input name="name"></div><div><label>Precio</label><input name="price" type="number" min="0"></div><div><label>Stock</label><input name="stock" type="number" min="0"></div><div><label>Categoría</label><input name="category" placeholder="Tacones / Plataformas"></div><div class="row" style="align-self:end"><label><input name="active" type="checkbox" checked> Activo</label></div><div class="full"><button class="btn">Guardar ajuste</button></div></form><div class="table-wrap">'+(d.products.length?'<table class="table"><tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Stock</th></tr>'+d.products.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+money(p.price)+'</td><td>'+esc(p.active?'Activo':'Oculto')+'</td><td>'+esc(p.stock??'—')+'</td></tr>').join('')+'</table>':'<p class="muted">Todavía no hay ajustes guardados.</p>')+'</div></div>';
-   $("#productForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-product",id:f.get("id"),name:f.get("name"),price:f.get("price"),stock:f.get("stock"),category:f.get("category"),active:f.get("active")==="on"})});toast("Producto actualizado");load("products")};return}
-  if(view==="settings"){const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';$("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Guardado");};return}
-  if(view==="bold"){c.innerHTML='<div class="panel"><h2>Bold</h2><h3>Crear link de pago</h3><form id="createBoldForm" class="form-grid"><div><label>Total COP</label><input name="total" type="number" min="1000" required></div><div><label>Referencia</label><input name="reference" placeholder="MF..."></div><div class="full"><label>Descripción</label><input name="description" value="Pedido MF Colombia"></div><div class="full"><button class="btn">Crear link seguro</button></div></form><pre id="createBoldResult">Sin link creado.</pre><hr style="border:0;border-top:1px solid var(--line);margin:28px 0"><h3>Consultar pago</h3><form id="boldForm"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."><label>o referencia externa</label><input name="reference" placeholder="MF..."><button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>';$("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{const d=await api("/.netlify/functions/admin-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({total:f.get("total"),reference:f.get("reference"),description:f.get("description")})});$("#createBoldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#createBoldResult").textContent=err.message}};$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message+(err.diagnostic?"\nDiagnóstico: "+JSON.stringify(err.diagnostic,null,2):"")}};return}
- }catch(e){c.innerHTML='<div class="panel"><p>'+esc(e.message)+'</p></div>'}
+  if(view==="dashboard"){
+   const [d,f,sh]=await Promise.all([api("/.netlify/functions/admin-api?section=dashboard"),api("/.netlify/functions/admin-control?section=finance"),api("/.netlify/functions/admin-control?section=dispatches")]);
+   const pendingDispatch=sh.orders.filter(o=>o.paymentStatus==="aprobado"&&o.status!=="cancelado"&&!["despachado","en_transito","entregado"].includes(o.dispatch?.status)).length;
+   if(requestId!==viewRequest)return;c.innerHTML='<div class="cards"><div class="metric"><small>Ventas confirmadas</small><b>'+d.stats.paid+'</b></div><div class="metric"><small>Pendientes de despacho</small><b>'+pendingDispatch+'</b></div><div class="metric"><small>Ingresos pagados</small><b>'+money(d.stats.revenue)+'</b></div><div class="metric"><small>Utilidad estimada</small><b>'+money(f.summary.profit)+'</b></div></div>'+
+   (f.summary.missingCostUnits?'<div class="panel"><p class="section-note">Utilidad parcial: faltan costos registrados para '+f.summary.missingCostUnits+' unidad(es) vendida(s). Completa los costos en Finanzas para mejorar la estimación.</p></div>':'')+
+   '<div class="panel"><div class="row spaced"><h2>Pedidos recientes</h2><span class="pill">Total de pedidos: '+d.stats.orders+'</span></div>'+orderTable(sh.orders.slice(0,8).map(o=>({...o,dispatch:o.dispatch})))+'</div>';return
+  }
+
+  if(view==="orders"){
+   const [d,dispatchData]=await Promise.all([api("/.netlify/functions/orders"),api("/.netlify/functions/admin-control?section=dispatches")]);
+   const dispatchMap=new Map(dispatchData.orders.map(o=>[o.reference,o.dispatch]));
+   const rows=d.orders.map(o=>({...o,dispatch:dispatchMap.get(o.reference)}));
+   if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><div class="row"><button class="btn light" onclick="load(&quot;bold&quot;)">Herramientas Bold</button><button class="btn light" onclick="load(&quot;orders&quot;)">Actualizar</button></div></div>'+orderTable(rows)+'</div>';return
+  }
+
+  if(view==="settings"){
+   const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};
+   if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><p class="section-note">Ajustes de marca de la tienda.</p><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';
+   $("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Marca guardada")};return
+  }
+
+  if(view==="finance"){
+   const d=await api("/.netlify/functions/admin-control?section=finance");
+   renderFinance(d);return
+  }
+  if(view==="dispatches"){
+   const d=await api("/.netlify/functions/admin-control?section=dispatches");
+   if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><div class="row spaced"><div><h2>Despachos</h2><p class="section-note">Este seguimiento es independiente del estado de pago y del estado comercial del pedido.</p></div><button class="btn light" onclick="load(&quot;dispatches&quot;)">Actualizar</button></div>'+(d.orders.length?'<div class="table-wrap"><table class="table"><tr><th>Pedido</th><th>Cliente</th><th>Productos</th><th>Seguimiento</th><th>Guía</th><th>Guardar</th></tr>'+d.orders.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt||"")+'</span></td><td>'+esc(o.name||"")+'<br>'+esc(o.city||"")+'</td><td>'+esc((o.items||[]).map(i=>i.name+" · "+(i.color||"—")+" · talla "+i.size+" ×"+i.qty).join("\\n")||o.pedido||"—")+'</td><td><select id="dispatch-status-'+esc(o.reference)+'"><option value="pendiente" '+(o.dispatch?.status==="pendiente"?"selected":"")+'>Pendiente</option><option value="preparando" '+(o.dispatch?.status==="preparando"?"selected":"")+'>Preparando</option><option value="despachado" '+(o.dispatch?.status==="despachado"?"selected":"")+'>Despachado</option><option value="en_transito" '+(o.dispatch?.status==="en_transito"?"selected":"")+'>En tránsito</option><option value="entregado" '+(o.dispatch?.status==="entregado"?"selected":"")+'>Entregado</option><option value="incidencia" '+(o.dispatch?.status==="incidencia"?"selected":"")+'>Incidencia</option></select></td><td><input id="dispatch-guide-'+esc(o.reference)+'" value="'+esc(o.dispatch?.trackingNumber||"")+'" placeholder="Guía / transportadora"></td><td><button class="btn light" data-reference="'+esc(o.reference)+'" onclick="saveDispatch(this)">Guardar</button></td></tr>').join('')+'</table></div>':'<div class="empty">Todavía no hay pedidos registrados.</div>')+'</div>';return
+  }
+  if(view==="inventory"){
+   const d=await api("/.netlify/functions/admin-control?section=inventory");
+   const pd=await api("/.netlify/functions/admin-api?section=products");
+   if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><h2>Inventario por talla y color</h2><p class="section-note">Registra cada variante por separado. En esta fase no cambia el checkout ni bloquea compras automáticamente.</p><form id="inventoryForm" class="form-grid"><div><label>ID exacto del producto</label><input name="productId" required placeholder="ID del catálogo"></div><div><label>Nombre del modelo</label><input name="name" required></div><div><label>Color</label><input name="color" required placeholder="Negro, blanco…"></div><div><label>Talla</label><select name="size" required><option value="">Seleccionar</option>'+Array.from({length:7},(_,i)=>34+i).map(s=>'<option>'+s+'</option>').join('')+'</select></div><div><label>Existencias</label><input name="stock" type="number" min="0" step="1" required></div><div class="row" style="align-self:end"><button class="btn">Guardar variante</button></div></form><div class="table-wrap">'+(d.variants.length?'<table class="table"><tr><th>Modelo</th><th>Color</th><th>Talla</th><th>Existencias</th><th>Actualizado</th></tr>'+d.variants.map(v=>'<tr><td>'+esc(v.name)+'<br><span class="muted">'+esc(v.productId)+'</span></td><td>'+esc(v.color)+'</td><td>'+esc(v.size)+'</td><td><span class="pill">'+esc(v.stock)+'</span></td><td>'+esc(v.updatedAt||"")+'</td></tr>').join('')+'</table>':'<div class="empty">Aún no hay variantes inventariadas.</div>')+'</div></div>'+
+   '<div class="panel"><h2>Ajustes básicos de producto</h2><p class="section-note">Conserva la función existente para ajustar precio, categoría y estado sin reemplazar el catálogo original.</p><div id="catalogAdjustments"></div><div class="table-wrap">'+(pd.products.length?'<table class="table"><tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Stock general</th></tr>'+pd.products.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+money(p.price)+'</td><td>'+esc(p.active?'Activo':'Oculto')+'</td><td>'+esc(p.stock??"—")+'</td></tr>').join('')+'</table>':'<div class="empty">Aún no hay ajustes generales. Puedes guardar uno abajo.</div>')+'</div></div>';
+   $("#catalogAdjustments").innerHTML='<form id="productForm" class="form-grid"><div><label>ID del producto</label><input name="id" placeholder="ej. id-producto" required></div><div><label>Nombre opcional</label><input name="name"></div><div><label>Precio (COP)</label><input name="price" type="number" min="0"></div><div><label>Stock general opcional</label><input name="stock" type="number" min="0"></div><div><label>Categoría</label><input name="category"></div><div class="row" style="align-self:end"><label><input name="active" type="checkbox" checked> Activo</label></div><div class="full"><button class="btn">Guardar ajuste</button></div></form>';
+   $("#inventoryForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-inventory",productId:f.get("productId"),name:f.get("name"),color:f.get("color"),size:f.get("size"),stock:f.get("stock")})});toast("Variante guardada");load("inventory")};
+   $("#productForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-product",id:f.get("id"),name:f.get("name"),price:f.get("price"),stock:f.get("stock"),category:f.get("category"),active:f.get("active")==="on"})});toast("Producto actualizado");load("inventory")};return
+  }
+
+  if(view==="bold"){if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><h2>Bold</h2><h3>Crear link de pago</h3><form id="createBoldForm" class="form-grid"><div><label>Total COP</label><input name="total" type="number" min="1000" required></div><div><label>Referencia</label><input name="reference" placeholder="MF..."></div><div class="full"><label>Descripción</label><input name="description" value="Pedido MF Colombia"></div><div class="full"><button class="btn">Crear link seguro</button></div></form><pre id="createBoldResult">Sin link creado.</pre><hr style="border:0;border-top:1px solid var(--line);margin:28px 0"><h3>Consultar pago</h3><form id="boldForm"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."><label>o referencia externa</label><input name="reference" placeholder="MF..."><button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>';$("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{const d=await api("/.netlify/functions/admin-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({total:f.get("total"),reference:f.get("reference"),description:f.get("description")})});$("#createBoldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#createBoldResult").textContent=err.message}};$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=(d&&d.message?d.message+"\n\n":"")+JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message+(err.diagnostic?"\nDiagnóstico: "+JSON.stringify(err.diagnostic,null,2):"")}};return}
+ }catch(e){if(requestId!==viewRequest)return;c.innerHTML='<div class="panel"><p>'+esc(e.message)+'</p></div>'}
 }
-function orderTable(rows){if(!rows?.length)return'<p class="muted">No hay pedidos todavía.</p>';return'<div class="table-wrap"><table class="table"><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Pedido</th><th>Link de pago</th><th>Acciones</th></tr>'+rows.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt)+'</span></td><td>'+esc(o.name)+'<br>'+esc(o.phone)+'<br>'+esc(o.city)+'</td><td>'+money(o.total)+'</td><td><span class="status">'+esc(o.paymentStatus)+'</span><br>'+esc(o.boldPaymentMethod||o.paymentMethod)+'</td><td><pre>'+esc(o.pedido||"")+'</pre></td><td>'+(o.paymentLink?'<a href="'+esc(o.paymentLink)+'" target="_blank" rel="noopener">Reenviar link</a>':'<span class="muted">—</span>')+'</td><td><select onchange="updateOrder(\''+esc(o.reference)+'\',this.value)"><option value="">Estado…</option><option value="confirmado">Confirmado</option><option value="preparando">Preparando</option><option value="enviado">Enviado</option><option value="entregado">Entregado</option><option value="cancelado">Cancelado</option></select></td></tr>').join('')+'</table></div>'}
-async function updateOrder(ref,status){if(!status)return;await api("/.netlify/functions/orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,status})});toast("Pedido actualizado");load("orders")}
+function orderTable(rows){if(!rows?.length)return'<p class="muted">No hay pedidos todavía.</p>';return'<div class="table-wrap"><table class="table"><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Estado pedido</th><th>Despacho</th><th>Pedido</th><th>Link de pago</th><th>Acciones</th></tr>'+rows.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt)+'</span></td><td>'+esc(o.name)+'<br>'+esc(o.phone)+'<br>'+esc(o.city)+'</td><td>'+money(o.total)+'</td><td><span class="status">'+esc(o.paymentStatus)+'</span><br>'+esc(o.boldPaymentMethod||o.paymentMethod)+'</td><td>'+esc(o.status||"nuevo")+'</td><td><span class="pill">'+esc(o.dispatch?.status||"pendiente")+'</span>'+(o.dispatch?.trackingNumber?'<br>'+esc(o.dispatch.trackingNumber):"")+'</td><td><pre>'+esc(o.pedido||"")+'</pre></td><td>'+(o.paymentLink?'<a href="'+esc(o.paymentLink)+'" target="_blank" rel="noopener">Reenviar link</a>':'<span class="muted">—</span>')+'</td><td><select data-reference="'+esc(o.reference)+'" onchange="updateOrder(this)"><option value="">Estado…</option><option value="confirmado">Confirmado</option><option value="preparando">Preparando</option><option value="enviado">Enviado</option><option value="entregado">Entregado</option><option value="cancelado">Cancelado</option></select></td></tr>').join('')+'</table></div>'}
+
+async function updateOrder(select){const status=select.value,reference=select.dataset.reference;if(!status||!reference)return;try{await api("/.netlify/functions/orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference,status})});toast("Pedido actualizado");load("orders")}catch(e){toast(e.message)}}
+
+async function saveDispatch(button){
+ const reference=button.dataset.reference;
+ const status=$("#dispatch-status-"+CSS.escape(reference)).value;
+ const trackingNumber=$("#dispatch-guide-"+CSS.escape(reference)).value;
+ await api("/.netlify/functions/admin-control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-dispatch",reference,status,trackingNumber})});
+ toast("Seguimiento de despacho guardado");load("dispatches")
+}
+
 $$("#nav button").forEach(b=>b.addEventListener("click",()=>load(b.dataset.view)));
 (async()=>{const r=await fetch("/.netlify/functions/admin-auth",{credentials:"same-origin"});if(r.ok)showApp()})();
 </script>

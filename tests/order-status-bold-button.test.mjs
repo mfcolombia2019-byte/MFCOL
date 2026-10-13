@@ -248,6 +248,16 @@ test("referencia distinta a la del pedido no aprueba", async () => {
   assertNoSideEffects();
 });
 
+test("una aprobación sin reference_id no se acepta", async () => {
+  seedOrder();
+  await withBold(() => jsonResponse(voucher({ reference_id: undefined })), async () => {
+    const { body } = await requestStatus();
+    assert.equal(body.paymentStatus, "pendiente");
+  });
+  assert.equal(storedOrder().paymentStatus, "pendiente");
+  assertNoSideEffects();
+});
+
 test("una aprobación sin transaction_id no se acepta", async () => {
   seedOrder();
   await withBold(() => jsonResponse(voucher({ transaction_id: undefined })), async () => {
