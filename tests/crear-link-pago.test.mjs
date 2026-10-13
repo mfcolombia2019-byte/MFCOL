@@ -111,9 +111,9 @@ function seedOrder(reference, extra = {}) {
   etags.set("orders/" + reference, '"seed-' + (++nextEtag) + '"');
 }
 
-function request(reference) {
+function request(reference, origin = "https://example.test") {
   return handler(new Request(
-    "https://example.test/.netlify/functions/crear-link-pago",
+    origin + "/.netlify/functions/crear-link-pago",
     {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -276,4 +276,31 @@ test("dos solicitudes concurrentes no sobrescriben el enlace ganador", async () 
   assert.equal(state.has("bold-links/" + losingLink), false);
 
   concurrentFetchBarrier = null;
+});
+
+test("usa el origen HTTPS de netlify.app como respaldo cuando faltan variables del despliegue", async () => {
+  reset();
+  seedOrder("MF-ORIGIN-FALLBACK-1", { boldPaymentLink: "", paymentLink: "" });
+  const previousPrime = process.env.DEPLOY_PRIME_URL;
+  const previousDeploy = process.env.DEPLOY_URL;
+  delete process.env.DEPLOY_PRIME_URL;
+  delete process.env.DEPLOY_URL;
+
+  try {
+    const response = await request(
+      "MF-ORIGIN-FALLBACK-1",
+      "https://branch-test--example.netlify.app"
+    );
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.embedded.originUrl,
+      "https://branch-test--example.netlify.app/checkout?bold=cancel&ref=MF-ORIGIN-FALLBACK-1");
+    assert.equal(body.embedded.redirectionUrl,
+      "https://branch-test--example.netlify.app/gracias.html?ref=MF-ORIGIN-FALLBACK-1");
+  } finally {
+    if (previousPrime === undefined) delete process.env.DEPLOY_PRIME_URL;
+    else process.env.DEPLOY_PRIME_URL = previousPrime;
+    if (previousDeploy === undefined) delete process.env.DEPLOY_URL;
+    else process.env.DEPLOY_URL = previousDeploy;
+  }
 });
