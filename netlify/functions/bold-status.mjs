@@ -8,9 +8,13 @@ const BOLD_NOTIFICATIONS_URL = "https://integrations.api.bold.co/payments/webhoo
 // Dos consultas secuenciales deben caber en el límite de 10 s de una función de Netlify.
 const BOLD_TIMEOUT_MS = 4500;
 
-const VOUCHER_REJECTED = new Set(["REJECTED", "FAILED", "DECLINED", "CANCELLED", "CANCELED", "EXPIRED"]);
+// Estados documentados por Bold para GET /v2/payment-voucher (Botón de pagos):
+// NO_TRANSACTION_FOUND, PROCESSING, PENDING (solo PSE), APPROVED, REJECTED, FAILED, VOIDED.
+// Cualquier otro valor se informa como "desconocido" y nunca aprueba.
+const VOUCHER_REJECTED = new Set(["REJECTED", "FAILED"]);
 const VOUCHER_VOIDED = new Set(["VOIDED"]);
-const VOUCHER_PENDING = new Set(["PENDING", "PROCESSING", "IN_PROCESS", "CREATED"]);
+const VOUCHER_PENDING = new Set(["PROCESSING", "PENDING"]);
+const VOUCHER_NO_TRANSACTION = "NO_TRANSACTION_FOUND";
 
 // GET autenticado a Bold. Nunca devuelve ni registra el cuerpo de la respuesta de
 // error (puede contener datos del pagador): solo etapa, código HTTP y formato.
@@ -116,6 +120,12 @@ function interpretVoucher(voucher, reference) {
     if (!voucherReference) return { response: mismatchResponse("payment-voucher", "approved_without_reference_id") };
     if (!transactionId) return { response: mismatchResponse("payment-voucher", "approved_without_transaction_id") };
     return { body: paymentBody({ ...base, transactionId }, "aprobado", "Pago aprobado", true) };
+  }
+  if (status === VOUCHER_NO_TRANSACTION) {
+    // Bold no distingue "referencia inexistente" de "aún no se refleja el intento de pago".
+    return { body: paymentBody(base, "sin_transaccion",
+      "Bold no registra ningún intento de pago para esta referencia: el pago aún no se refleja, la referencia no existe o no es una venta del Botón de pagos",
+      Boolean(voucherReference)) };
   }
   if (VOUCHER_REJECTED.has(status)) {
     return { body: paymentBody(base, "rechazado", "Pago rechazado", Boolean(voucherReference)) };

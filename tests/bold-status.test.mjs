@@ -98,15 +98,17 @@ function jsonResponse(body, status = 200) {
 // Enruta por URL; devuelve las URL consultadas para verificar qué se llamó.
 async function withBold(routes, fn) {
   const calls = [];
-  const fetchMock = mock.method(globalThis, "fetch", async (url) => {
+  const inits = [];
+  const fetchMock = mock.method(globalThis, "fetch", async (url, init) => {
     calls.push(String(url));
+    inits.push(init);
     const route = Object.entries(routes).find(([part]) => String(url).includes(part));
     if (!route) throw new Error("unexpected url " + url);
     const value = route[1];
     return typeof value === "function" ? value() : value;
   });
   try {
-    return await fn(calls);
+    return await fn(calls, inits);
   } finally {
     fetchMock.mock.restore();
   }
@@ -321,6 +323,68 @@ test("timeout while reading the response body is reported as a timeout", async (
     assert.equal(body.diagnostic.stage, "upstream_timeout");
     assert.equal(JSON.stringify(body).includes("secret-bearing"), false);
   });
+});
+
+test("request follows the documented Bold contract: GET payment-voucher with the identity key", async () => {
+  await withBold({ [VOUCHER]: () => jsonResponse(approvedVoucher()) }, async (calls, inits) => {
+    await request("reference=" + REF);
+    assert.equal(calls[0], "https://payments.api.bold.co/v2/payment-voucher/" + REF);
+    assert.equal((inits[0].method || "GET").toUpperCase(), "GET");
+    assert.equal(inits[0].headers.Authorization, "x-api-key test-key-not-a-real-secret");
+    assert.equal(inits[0].body, undefined);
+    assert.ok(inits[0].signal, "la consulta debe tener timeout");
+  });
+});
+
+test("each documented payment_status maps to one safe result; undocumented values never approve", async () => {
+  const noAttempt = { link_id: "BTN_X", total: 443800, subtotal: 443800, description: "MF", reference_id: REF, payment_status: "NO_TRANSACTION_FOUND" };
+  const table = [
+    [approvedVoucher({ payment_status: "APPROVED" }), "aprobado"],
+    [approvedVoucher({ payment_status: "PROCESSING", transaction_id: undefined }), "pendiente"],
+    [approvedVoucher({ payment_status: "PENDING", transaction_id: undefined }), "pendiente"],
+    [approvedVoucher({ payment_status: "REJECTED" }), "rechazado"],
+    [approvedVoucher({ payment_status: "FAILED" }), "rechazado"],
+    [approvedVoucher({ payment_status: "VOIDED" }), "anulado"],
+    [noAttempt, "sin_transaccion"],
+    [approvedVoucher({ payment_status: "SOMETHING_NEW" }), "desconocido"],
+    [approvedVoucher({ payment_status: "CANCELLED" }), "desconocido"]
+  ];
+  for (const [voucher, expected] of table) {
+    await withBold({ [VOUCHER]: () => jsonResponse(voucher) }, async (calls) => {
+      const response = await request("reference=" + REF);
+      const body = await response.json();
+      assert.equal(response.status, 200, voucher.payment_status);
+      assert.equal(body.paymentStatus, expected, voucher.payment_status);
+      assert.equal(calls.length, 1, "un estado conclusivo no debe consultar el respaldo");
+      if (expected !== "aprobado") assert.notEqual(body.paymentStatus, "aprobado");
+      if (expected === "desconocido") assert.equal(body.verified, false);
+    });
+  }
+});
+
+test("a reference_id returned for a no-attempt voucher must still match", async () => {
+  const noAttempt = { link_id: "BTN_X", total: 443800, subtotal: 443800, description: "MF", reference_id: "MFOTHERORDER", payment_status: "NO_TRANSACTION_FOUND" };
+  await withBold({ [VOUCHER]: () => jsonResponse(noAttempt) }, async () => {
+    const response = await request("reference=" + REF);
+    assert.equal(response.status, 502);
+    assert.equal((await response.json()).code, "bold_reference_mismatch");
+  });
+});
+
+test("every 5xx from Bold is a temporary outage, never an approval", async () => {
+  for (const status of [500, 502, 504]) {
+    await withBold({
+      [VOUCHER]: () => new Response("gateway", { status }),
+      [NOTIFICATIONS]: () => new Response("gateway", { status })
+    }, async () => {
+      const response = await request("reference=" + REF);
+      const body = await response.json();
+      assert.equal(response.status, 502);
+      assert.equal(body.code, "bold_unavailable");
+      assert.equal(body.diagnostic.httpStatus, status);
+      assert.equal(body.paymentStatus, undefined);
+    });
+  }
 });
 
 test("querying is read-only: the function never imports the order store", async () => {
