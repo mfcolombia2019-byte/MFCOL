@@ -90,6 +90,24 @@ test("fuera de producción nunca recurre a URL ni a SITE_CANONICAL_ORIGIN", () =
   assert.equal(canonicalOrigin(read({ SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION })), "", "sin CONTEXT se trata como no producción");
 });
 
+test("fuera de producción usa el origen HTTPS de la petición si Netlify no expone metadatos del despliegue", () => {
+  assert.equal(
+    canonicalOrigin(
+      read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION }),
+      "https://test-claude-bold-whatsapp--comforting-liger-43ac3a.netlify.app/.netlify/functions/crear-link-pago"
+    ),
+    "https://test-claude-bold-whatsapp--comforting-liger-43ac3a.netlify.app"
+  );
+  assert.equal(
+    canonicalOrigin(
+      read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION }),
+      "https://tienda.mfcol.com/.netlify/functions/crear-link-pago"
+    ),
+    "",
+    "no debe usar el dominio de producción como fallback en una rama de prueba"
+  );
+});
+
 test("fuera de producción rechaza un origen de despliegue que coincide con producción o no es HTTPS", () => {
   assert.equal(
     canonicalOrigin(read({
