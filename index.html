@@ -4520,11 +4520,14 @@ go(0);run()})();
       var cfg = await r.json();
 
       var catalogChanged = false;
+      // Productos nuevos creados desde el panel admin.
+      if (typeof mfMergeCustomProducts === "function" && mfMergeCustomProducts(cfg.products)) catalogChanged = true;
       (cfg.products || []).forEach(function (o) {
+        if (o.custom) return;
         var p = byId(o.id);
         if (!p) return;
         if (o.name && p.name !== o.name) { p.name = o.name; catalogChanged = true; }
-        if (o.price !== undefined && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
+        if (o.price != null && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
         if (o.category && p.cat !== o.category) { p.cat = o.category; catalogChanged = true; }
         var active = o.active !== false;
         if (p.adminActive !== undefined && p.adminActive !== active) catalogChanged = true;
