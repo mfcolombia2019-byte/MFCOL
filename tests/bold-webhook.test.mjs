@@ -214,9 +214,10 @@ test("venta aprobada valida importe/moneda, actualiza pedido y crea outbox", asy
   assert.equal(order.confirmedAmount, 199900);
   assert.equal(order.confirmedCurrency, "COP");
   assert.equal(inbox.status, "processed");
-  assert.equal(outboxEnqueues, 1);
-  assert.equal(outboxProcessCalls, 1);
-  assert.equal(formPostCalls, 1);
+  assert.equal(outboxEnqueues, 1);          // el registro queda en el almacén aislado de pruebas
+  assert.equal(outboxProcessCalls, 0);      // pero NO se envía a Meta fuera de producción
+  assert.equal(formPostCalls, 0);           // ni al formulario de Netlify
+  assert.equal([...state.keys()].some(k => k.startsWith("whatsapp-outbox/")), false);
 });
 
 test("referencia inexistente termina en error recuperable del inbox", async () => {
@@ -385,17 +386,70 @@ test("duplicados y concurrencia procesan una sola vez", async () => {
 test("Meta CAPI fallido no deshace la aprobación ni marca el inbox como error", async () => {
   reset();
   process.env.CONTEXT = "branch-deploy";
-  metaShouldFail = true;
-  state.set("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
-  const e = event({ id: "evt-meta-fail" });
-  const body = JSON.stringify(e);
+  process.env.MFC_ALLOW_TEST_SIDE_EFFECTS = "true";   // opt-in explícito para probar envíos en una rama
+  try {
+    metaShouldFail = true;
+    state.set("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+    const e = event({ id: "evt-meta-fail" });
+    const body = JSON.stringify(e);
+    let background;
+    const response = await webhook.default(req(body, signature(body)), { waitUntil(p) { background = p; } });
+    assert.equal(response.status, 200);
+    await background;
+    assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "aprobado");
+    assert.equal(state.get("webhook-inbox/evt-meta-fail").status, "processed");
+    assert.equal(outboxProcessCalls, 1);
+  } finally {
+    delete process.env.MFC_ALLOW_TEST_SIDE_EFFECTS;
+  }
+});
+
+test("externalEffectsAllowed: solo producción u opt-in explícito", () => {
+  assert.equal(webhook.externalEffectsAllowed({ CONTEXT: "production" }), true);
+  assert.equal(webhook.externalEffectsAllowed({ CONTEXT: "Production " }), true);
+  for (const context of ["branch-deploy", "deploy-preview", "dev", "", undefined]) {
+    assert.equal(webhook.externalEffectsAllowed({ CONTEXT: context }), false);
+  }
+  assert.equal(webhook.externalEffectsAllowed({ CONTEXT: "branch-deploy", MFC_ALLOW_TEST_SIDE_EFFECTS: "true" }), true);
+  assert.equal(webhook.externalEffectsAllowed({ CONTEXT: "branch-deploy", MFC_ALLOW_TEST_SIDE_EFFECTS: "false" }), false);
+  assert.equal(webhook.externalEffectsAllowed({ CONTEXT: "branch-deploy", MFC_ALLOW_TEST_SIDE_EFFECTS: "1" }), false);
+});
+
+test("rama pública: evento falso (clave vacía) no dispara Meta, WhatsApp ni formulario", async () => {
+  reset();
+  process.env.CONTEXT = "branch-deploy";
+  delete process.env.MFC_ALLOW_TEST_SIDE_EFFECTS;
+  put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente", phone: "3001112233", name: "Ana Prueba" });
+  const body = JSON.stringify(event({ id: "evt-forged" }));
   let background;
-  const response = await webhook.default(req(body, signature(body)), { waitUntil(p) { background = p; } });
+  const response = await webhook.default(req(body, signature(body, "")), { waitUntil(p) { background = p; } });
   assert.equal(response.status, 200);
   await background;
-  assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "aprobado");
-  assert.equal(state.get("webhook-inbox/evt-meta-fail").status, "processed");
-  assert.equal(outboxProcessCalls, 1);
+  assert.equal(outboxProcessCalls, 0);
+  assert.equal(formPostCalls, 0);
+  assert.equal([...state.keys()].some(k => k.startsWith("whatsapp-outbox/")), false);
+});
+
+test("producción: un evento genuino sí ejecuta Meta y el formulario", async () => {
+  reset();
+  const saved = { CONTEXT: process.env.CONTEXT, API_KEY: process.env.BOLD_API_KEY };
+  process.env.CONTEXT = "production";
+  process.env.BOLD_API_KEY = "prod-secret";
+  try {
+    put("orders/MF-TEST-1", { reference: "MF-TEST-1", total: 199900, paymentStatus: "pendiente" });
+    const body = JSON.stringify(event({ id: "evt-prod-effects" }));
+    let background;
+    const response = await webhook.default(req(body, signature(body, "prod-secret")), { waitUntil(p) { background = p; } });
+    assert.equal(response.status, 200);
+    await background;
+    assert.equal(state.get("orders/MF-TEST-1").paymentStatus, "aprobado");
+    assert.equal(outboxProcessCalls, 1);
+    assert.equal(formPostCalls, 1);
+  } finally {
+    for (const [name, value] of [["CONTEXT", saved.CONTEXT], ["BOLD_API_KEY", saved.API_KEY]]) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+  }
 });
 
 test("evento duplicado ya procesado no vuelve a llamar el procesamiento", async () => {

@@ -19,6 +19,17 @@ export function getBoldWebhookSecret(env = process.env) {
   return "";
 }
 
+// Fuera de producción Bold firma con clave vacía, así que cualquiera puede fabricar un
+// evento "válido" en un deploy público. Esos eventos pueden mover pedidos del almacén
+// aislado, pero NO deben tocar servicios reales (Meta, WhatsApp, Netlify Forms).
+// Para probar esos envíos en una rama, activar explícitamente MFC_ALLOW_TEST_SIDE_EFFECTS=true
+// (junto con META_TEST_EVENT_CODE para que Meta lo trate como evento de prueba).
+export function externalEffectsAllowed(env = process.env) {
+  const context = String(env?.CONTEXT || "").trim().toLowerCase();
+  if (context === "production") return true;
+  return String(env?.MFC_ALLOW_TEST_SIDE_EFFECTS || "").trim().toLowerCase() === "true";
+}
+
 export function validSignature(rawBody, signature, secret) {
   if (signature == null || signature === "") return false;
   const encoded = Buffer.from(rawBody, "utf8").toString("base64");
@@ -63,6 +74,11 @@ export default async (req, context) => {
   const work = processBoldWebhook(event)
     .then(async (result) => {
       if (result?.duplicate || result?.busy) return;
+
+      if (!externalEffectsAllowed()) {
+        console.warn("Evento Bold procesado sin efectos externos (ambiente no productivo): sin Meta, WhatsApp ni formulario.");
+        return;
+      }
 
       if (result?.outboxKey) {
         try {
