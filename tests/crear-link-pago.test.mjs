@@ -80,6 +80,8 @@ mock.method(globalThis, "fetch", async () => {
 
 process.env.CONTEXT = "branch-deploy";
 process.env.SITE_CANONICAL_ORIGIN = "https://example.test";
+// Netlify siempre define el origen propio del despliegue en ramas y vistas previas.
+process.env.DEPLOY_PRIME_URL = "https://branch-test--example.netlify.app";
 process.env.BOLD_SECRET_KEY = "test-secret-only";
 process.env.BOLD_API_KEY = "test-api-key-only";
 

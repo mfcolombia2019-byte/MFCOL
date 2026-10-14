@@ -53,7 +53,12 @@ async function createOrReuseOrder(body) {
   const idempotencyKey = String(body?.idempotencyKey || "").trim();
   if (!IDEM.test(idempotencyKey)) throw new Error("Falta una clave de idempotencia válida");
 
-  const cart = validateCart(body?.items);
+  // Productos creados/ajustados desde el panel admin (precio, activo, productos nuevos).
+  const overrides = {};
+  for (const p of await listJson("products/")) {
+    if (p?.id) overrides[p.id] = p;
+  }
+  const cart = validateCart(body?.items, overrides);
   const paymentMethod = String(body?.paymentMethod || "").trim();
   if (!PAYMENT_METHODS.has(paymentMethod)) throw new Error("Medio de pago no válido");
 

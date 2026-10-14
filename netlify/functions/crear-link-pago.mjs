@@ -12,24 +12,43 @@ function env(name) {
     : process.env[name];
 }
 
-function canonicalOrigin() {
-  const isProduction = String(env("CONTEXT") || "").toLowerCase() === "production";
+function httpsOrigin(candidate) {
+  const raw = String(candidate || "").trim().replace(/\/+$/, "");
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" ? u.origin : "";
+  } catch {
+    return "";
+  }
+}
 
-  const candidates = isProduction
-    ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
-    : [env("SITE_CANONICAL_ORIGIN"), env("DEPLOY_PRIME_URL"), env("URL")];
+// Origen HTTPS al que Bold devuelve al cliente (redirectionUrl y originUrl).
+// - Producción: dominio canónico (SITE_CANONICAL_ORIGIN) o, si falta, URL.
+// - Cualquier otro despliegue (vista previa, rama, etc.): únicamente el origen
+//   del propio despliegue que Netlify define (DEPLOY_PRIME_URL, luego
+//   DEPLOY_URL), y nunca un origen de producción. En estos contextos URL es el
+//   dominio principal del sitio y SITE_CANONICAL_ORIGIN suele ser el dominio
+//   productivo, así que no se usan como respaldo: devolver "" es preferible a
+//   enviar un pago de prueba a la tienda real.
+// `read` se inyecta para poder probar la selección sin tocar el entorno.
+export function canonicalOrigin(read = env) {
+  const isProduction = String(read("CONTEXT") || "").trim().toLowerCase() === "production";
 
-  for (const candidate of candidates) {
-    const raw = String(candidate || "").trim().replace(/\/+$/, "");
-    if (!raw) continue;
+  if (isProduction) {
+    return httpsOrigin(read("SITE_CANONICAL_ORIGIN")) || httpsOrigin(read("URL"));
+  }
 
-    try {
-      const u = new URL(raw);
-      if (u.protocol !== "https:") continue;
-      return u.origin;
-    } catch {
-      continue;
-    }
+  const productionHosts = new Set(
+    [read("SITE_CANONICAL_ORIGIN"), read("URL")]
+      .map(httpsOrigin)
+      .filter(Boolean)
+      .map(origin => new URL(origin).hostname)
+  );
+
+  for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL")]) {
+    const origin = httpsOrigin(candidate);
+    if (origin && !productionHosts.has(new URL(origin).hostname)) return origin;
   }
 
   return "";
@@ -120,7 +139,13 @@ export default async (req) => {
 
   const origin = canonicalOrigin();
   if (!origin) {
-    return json({ error: "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos." }, 503);
+    const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
+    console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
+    return json({
+      error: isProduction
+        ? "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos."
+        : "No se pudo determinar el dominio HTTPS de este despliegue para el retorno del pago."
+    }, 503);
   }
 
   const boldApiKey = String(env("BOLD_API_KEY") || "").trim();

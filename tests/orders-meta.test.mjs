@@ -179,6 +179,8 @@ assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: nu
 assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: -1 }), /precio.*configurado/i);
 assert.throws(() => validateProductPrice({ name: "Producto de prueba", price: Number.NaN }), /precio.*configurado/i);
 assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "33", color: "Negro", qty: 1 }]), /Talla inválida/);
+assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: 1.6 }]), /Cantidad inválida/);
+assert.throws(() => validateCart([{ id: "mule-de-tacon-alto-con-tres-tiras", size: "36", color: "Negro", qty: "1.6" }]), /Cantidad inválida/);
 
 console.log("checkout server-authority tests: PASS");
 

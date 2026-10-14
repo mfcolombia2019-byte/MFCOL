@@ -35,3 +35,45 @@ var PRODUCTS = [
     {id:"mule-nude-con-tacon-escultural-transparente",name:"Mule nude con tacón escultural transparente",cat:"Punta abierta · Tira transparente · Tacón escultural",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-123.jpg","Mule nude con tira transparente y tacón escultural, vista en uso"],["assets/foto-124.jpg","Mule nude con tira transparente y tacón escultural, vista lateral"],["assets/foto-125.jpg","Par de mules nude con tira transparente y tacón escultural"]],colors:["Nude"],facts:["Nude","Punta abierta","Tira transparente","Tacón escultural","34","35","36","37","38","39","40"],desc:"Mule nude abierto en el talón, con punta abierta, tira transparente sobre los dedos y tacón transparente de diseño escultural."},
     {id:"sandalia-nude-de-cuna-tipo-corcho-con-tiras-anudadas",name:"Sandalia nude de cuña tipo corcho con tiras anudadas",cat:"Punta abierta · Plataforma alta · Correa al tobillo",group:"plataformas",price:219900,isNew:false,imgs:[["assets/foto-126.jpg","Sandalia nude de plataforma tipo corcho con tiras anudadas y correa al tobillo, en uso"],["assets/foto-127.jpg","Sandalia nude de cuña tipo corcho con tiras anudadas, vista lateral"]],colors:["Nude"],facts:["Nude","Punta abierta","Plataforma alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con tiras anudadas en el empeine, correa ajustable al tobillo y plataforma alta con acabado tipo corcho."}
   ];
+
+
+/* Productos creados desde el panel admin (guardados en el servidor).
+   Se agregan al mismo arreglo PRODUCTS para que portada, fichas, búsqueda,
+   colecciones y carrito los traten igual que los del catálogo original. */
+function mfCustomProduct(o) {
+  var cat = String(o.category || "");
+  var facts = (o.colors || []).slice();
+  cat.split("·").forEach(function (part) {
+    part = part.trim();
+    if (part && facts.indexOf(part) < 0) facts.push(part);
+  });
+  ["34", "35", "36", "37", "38", "39", "40"].forEach(function (s) { facts.push(s); });
+  return {
+    id: o.id,
+    name: o.name,
+    cat: cat,
+    group: o.group,
+    price: o.price,
+    isNew: o.isNew === true,
+    imgs: o.imgs || [],
+    colors: o.colors || [],
+    facts: facts,
+    desc: o.desc || "",
+    adminActive: o.active !== false,
+    custom: true
+  };
+}
+
+/* Agrega (o actualiza) los productos del panel. Devuelve true si cambió algo. */
+function mfMergeCustomProducts(list) {
+  var changed = false;
+  (list || []).forEach(function (o) {
+    if (!o || !o.custom || !o.id) return;
+    var next = mfCustomProduct(o);
+    var i = -1;
+    PRODUCTS.forEach(function (p, idx) { if (p.id === o.id) i = idx; });
+    if (i < 0) { PRODUCTS.unshift(next); changed = true; }
+    else if (PRODUCTS[i].custom) { PRODUCTS[i] = next; changed = true; }
+  });
+  return changed;
+}

@@ -21,9 +21,54 @@ export default async (req) => {
       encodeURIComponent(externalReference) + "?is_external_reference=true";
   }
 
-  const res = await fetch(endpoint, {
-    headers: { "Authorization": "x-api-key " + process.env.BOLD_API_KEY }
-  });
-  const data = await res.json().catch(() => ({}));
-  return json(data, res.ok ? 200 : 502);
+  let res;
+  try {
+    res = await fetch(endpoint, {
+      headers: { "Authorization": "x-api-key " + process.env.BOLD_API_KEY }
+    });
+  } catch {
+    return json({ error: "No fue posible conectar con Bold", diagnostic: { stage: "upstream_fetch_failed" } }, 502);
+  }
+
+  const contentType = String(res.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  const bodyText = await res.text().catch(() => "");
+  let data = null;
+  if (bodyText) {
+    try {
+      data = JSON.parse(bodyText);
+    } catch {
+      data = null;
+    }
+  }
+
+  if (!res.ok) {
+    // Do not echo Bold's raw body: it could contain sensitive payment/customer data.
+    const providerCode = data && typeof data === "object"
+      ? String(data.code || data.error_code || "").slice(0, 80)
+      : "";
+    return json({
+      error: "Bold rechazó la consulta",
+      diagnostic: {
+        stage: "bold_api_response",
+        httpStatus: res.status,
+        contentType: contentType || "unknown",
+        responseFormat: data === null ? "non_json_or_empty" : "json",
+        providerCode: providerCode || undefined
+      }
+    }, 502);
+  }
+
+  if (data === null) {
+    return json({
+      error: "Bold devolvió una respuesta que no es JSON",
+      diagnostic: {
+        stage: "bold_api_response",
+        httpStatus: res.status,
+        contentType: contentType || "unknown",
+        responseFormat: "non_json_or_empty"
+      }
+    }, 502);
+  }
+
+  return json(data, 200);
 };
