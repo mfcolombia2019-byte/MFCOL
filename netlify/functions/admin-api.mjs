@@ -42,16 +42,15 @@ export default async (req) => {
   if (action === "save-product") {
     const id = safeId(body.id);
     if (!id) return json({ error: "ID de producto inválido" }, 400);
-    const product = {
-      id,
-      name: String(body.name || "").trim().slice(0, 120),
-      price: body.price === "" || body.price == null ? null : Math.round(Number(body.price)),
-      active: body.active !== false,
-      category: String(body.category || "").slice(0, 80),
-      stock: body.stock === "" || body.stock == null ? null : Math.max(0, Math.round(Number(body.stock))),
-      updatedAt: new Date().toISOString()
-    };
-    if (product.price != null && (!Number.isFinite(product.price) || product.price < 0)) return json({ error: "Precio inválido" }, 400);
+    // Fase 2: los precios son de solo lectura. El checkout valida contra _catalog.mjs y no
+    // sigue los precios del panel; aceptarlos aquí permitiría mostrar un precio y cobrar otro.
+    if (body.price !== undefined) return json({ error: "Los precios son de solo lectura en el panel." }, 403);
+    // Se fusiona con el registro existente: guardar solo "active" no borra otros campos.
+    const current = (await getJson("products/" + id, null)) || {};
+    const product = { ...current, id, updatedAt: new Date().toISOString() };
+    if (body.name !== undefined) product.name = String(body.name || "").trim().slice(0, 120);
+    if (body.category !== undefined) product.category = String(body.category || "").slice(0, 80);
+    if (body.active !== undefined) product.active = body.active !== false;
     await store.setJSON("products/" + id, product);
     return json({ ok: true, product });
   }

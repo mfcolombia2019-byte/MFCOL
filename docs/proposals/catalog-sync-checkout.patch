@@ -1,0 +1,135 @@
+diff --git a/index.html b/index.html
+index 334edc7..b94851c 100644
+--- a/index.html
++++ b/index.html
+@@ -4520,6 +4520,11 @@ go(0);run()})();
+       var cfg = await r.json();
+ 
+       var catalogChanged = false;
++      // Productos creados en el panel (solo activos; ya vienen sin costo ni notas internas).
++      (cfg.catalog || []).forEach(function (d) {
++        if (byId(d.id)) return; // el catálogo estático siempre gana
++        PRODUCTS.push(d); catalogChanged = true;
++      });
+       (cfg.products || []).forEach(function (o) {
+         var p = byId(o.id);
+         if (!p) return;
+diff --git a/netlify/functions/_catalog.mjs b/netlify/functions/_catalog.mjs
+index dcc2cd7..f94c99b 100644
+--- a/netlify/functions/_catalog.mjs
++++ b/netlify/functions/_catalog.mjs
+@@ -803,7 +803,10 @@ export function validateProductPrice(product) {
+   }
+   return product.price;
+ }
+-export function validateCart(items) {
++// extraProducts: productos activos creados en el panel, ya leídos por el llamador (este módulo no lee el almacén). Los ids del catálogo estático
++// siempre ganan: un producto del panel nunca puede reemplazar el precio de uno base.
++export function validateCart(items, extraProducts = []) {
++  const extra = new Map((Array.isArray(extraProducts) ? extraProducts : []).map(p => [p.id, p]));
+   if (!Array.isArray(items) || !items.length || items.length > 50) {
+     throw new Error("Carrito inválido");
+   }
+@@ -811,13 +814,17 @@ export function validateCart(items) {
+   let packageCount = 0;
+   const normalized = [];
+   for (const raw of items) {
+-    const product = getCatalogProduct(raw?.id);
++    const product = getCatalogProduct(raw?.id) || extra.get(String(raw?.id ?? ""));
+     if (!product) throw new Error("Producto no disponible");
+     validateProductPrice(product);
+     const qty = Number(raw?.qty);
+     if (!Number.isInteger(qty) || qty < 1 || qty > 20) throw new Error("Cantidad inválida");
+     const size = String(raw?.size ?? "").trim();
+     if (!/^(?:3[4-9]|40)$/.test(size)) throw new Error("Talla inválida");
++    if (extra.get(product.id) === product) {
++      const offered = (product.facts || []).filter(f => /^\d{2}$/.test(String(f)));
++      if (!offered.includes(size)) throw new Error("Talla no disponible para " + product.name);
++    }
+     const colors = Array.isArray(product.colors) ? product.colors : [];
+     const color = raw?.color == null ? null : String(raw.color).trim();
+     if (colors.length && (!color || !colors.includes(color))) throw new Error("Color inválido para " + product.name);
+diff --git a/netlify/functions/orders.mjs b/netlify/functions/orders.mjs
+index b633b28..2f3d364 100644
+--- a/netlify/functions/orders.mjs
++++ b/netlify/functions/orders.mjs
+@@ -1,6 +1,7 @@
+ import crypto from "node:crypto";
+ import { store, getJson, listJson, json, requireAdmin, safeId } from "./_admin.mjs";
+ import { validateCart } from "./_catalog.mjs";
++import { toPublicProduct } from "./_admin-data.mjs";
+ import { mergeClientOrder } from "./_orders.mjs";
+ 
+ const IDEM = /^[A-Za-z0-9_-]{16,120}$/;
+@@ -53,7 +54,8 @@ async function createOrReuseOrder(body) {
+   const idempotencyKey = String(body?.idempotencyKey || "").trim();
+   if (!IDEM.test(idempotencyKey)) throw new Error("Falta una clave de idempotencia válida");
+ 
+-  const cart = validateCart(body?.items);
++  const panelProducts = (await listJson("catalog/")).map(toPublicProduct).filter(Boolean);
++  const cart = validateCart(body?.items, panelProducts);
+   const paymentMethod = String(body?.paymentMethod || "").trim();
+   if (!PAYMENT_METHODS.has(paymentMethod)) throw new Error("Medio de pago no válido");
+ 
+diff --git a/netlify/functions/store-config.mjs b/netlify/functions/store-config.mjs
+index e21d4be..1881d5a 100644
+--- a/netlify/functions/store-config.mjs
++++ b/netlify/functions/store-config.mjs
+@@ -1,4 +1,5 @@
+-import { store } from "./_admin.mjs";
++import { store, listJson } from "./_admin.mjs";
++import { toPublicProduct } from "./_admin-data.mjs";
+ 
+ export default async (req) => {
+   if (req.method !== "GET") return Response.json({ error: "Método no permitido" }, { status: 405 });
+@@ -17,9 +18,10 @@ export default async (req) => {
+     if (r && r.active !== false) reviews.push(r);
+   }
+ 
++  const catalog = (await listJson("catalog/")).map(toPublicProduct).filter(Boolean);
+   const settings = await store.get("settings", { type: "json" });
+   return Response.json(
+-    { products, reviews, settings: settings || {} },
++    { products, reviews, settings: settings || {}, catalog },
+     { headers: { "Cache-Control": "no-store" } }
+   );
+ };
+diff --git a/tests/catalog-sync.test.mjs b/tests/catalog-sync.test.mjs
+new file mode 100644
+index 0000000..0b943c3
+--- /dev/null
++++ b/tests/catalog-sync.test.mjs
+@@ -0,0 +1,33 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { validateCart } from "../netlify/functions/_catalog.mjs";
++import { toPublicProduct } from "../netlify/functions/_admin-data.mjs";
++
++const rec = { id: "producto-nuevo-prueba", source: "panel", status: "activo", name: "Producto nuevo", price: 150000, cost: 77777,
++  imgs: [{ path: "assets/x.jpg", alt: "x" }], colors: ["Negro"], sizes: ["36", "37"], category: "Sandalias", collection: "tacones", order: 1 };
++const extra = [toPublicProduct(rec)];
++
++test("producto del panel activo se valida con su precio del servidor", () => {
++  const c = validateCart([{ id: rec.id, qty: 1, size: "36", color: "Negro", unitPrice: 1 }], extra);
++  assert.equal(c.items[0].unitPrice, 150000);
++  assert.equal(c.subtotal, 150000);
++});
++test("sin extras el producto del panel no existe (comportamiento actual)", () => {
++  assert.throws(() => validateCart([{ id: rec.id, qty: 1, size: "36", color: "Negro" }]), /no disponible/);
++});
++test("talla no ofrecida por el producto del panel se rechaza", () => {
++  assert.throws(() => validateCart([{ id: rec.id, qty: 1, size: "40", color: "Negro" }], extra), /Talla no disponible/);
++});
++test("inactivo o archivado no se acepta", () => {
++  assert.equal(toPublicProduct({ ...rec, status: "inactivo" }), null);
++  assert.equal(toPublicProduct({ ...rec, status: "archivado" }), null);
++});
++test("el catálogo estático gana ante un id repetido", () => {
++  const base = "mule-de-tacon-alto-con-tres-tiras";
++  const c = validateCart([{ id: base, qty: 1, size: "36", color: "Negro" }], [{ id: base, name: "x", price: 1, colors: [], sizes: ["36"] }]);
++  assert.equal(c.items[0].unitPrice, 189900);
++});
++test("el producto público no expone costo, notas ni historial", () => {
++  const j = JSON.stringify(toPublicProduct({ ...rec, notes: "interno", history: [1] }));
++  assert.ok(!/cost|notes|history|77777/.test(j));
++});

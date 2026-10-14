@@ -137,7 +137,27 @@ export default async (req) => {
     return json({ error: "El pago en línea aún no está habilitado para esta tienda." }, 503);
   }
 
-  const origin = canonicalOrigin();
+  // En algunos contextos de Netlify, DEPLOY_PRIME_URL/DEPLOY_URL no llegan
+  // a la función aunque la petición sí provenga del dominio HTTPS del despliegue.
+  // Solo aceptamos como respaldo el origen de la petición si es un host netlify.app
+  // y no coincide con ningún dominio configurado para producción.
+  const requestOrigin = (() => {
+    const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
+    if (isProduction) return "";
+    try {
+      const candidate = new URL(req.url);
+      if (candidate.protocol !== "https:" || !candidate.hostname.endsWith(".netlify.app")) return "";
+      const productionHosts = [env("SITE_CANONICAL_ORIGIN"), env("URL")]
+        .map(httpsOrigin)
+        .filter(Boolean)
+        .map(value => new URL(value).hostname);
+      if (productionHosts.includes(candidate.hostname)) return "";
+      return candidate.origin;
+    } catch {
+      return "";
+    }
+  })();
+  const origin = canonicalOrigin() || requestOrigin;
   if (!origin) {
     const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
     console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
