@@ -803,7 +803,29 @@ export function validateProductPrice(product) {
   }
   return product.price;
 }
-export function validateCart(items) {
+// Combina el catálogo base con lo guardado desde el panel admin:
+// - productos creados en el panel (custom: true)
+// - ajustes de precio / activo sobre los productos base
+// `overrides` es un objeto { [id]: registro guardado en products/<id> }.
+export function resolveProduct(id, overrides = {}) {
+  const key = String(id || "");
+  const ov = overrides && overrides[key];
+  const base = getCatalogProduct(key);
+  if (ov && ov.active === false) return null;
+  if (!base && ov && ov.custom) {
+    return {
+      id: key,
+      name: String(ov.name || ""),
+      price: Number.isFinite(ov.price) ? ov.price : NaN,
+      colors: Array.isArray(ov.colors) ? ov.colors : []
+    };
+  }
+  if (!base) return null;
+  if (ov && Number.isFinite(ov.price) && ov.price >= 0) return { ...base, price: ov.price };
+  return base;
+}
+
+export function validateCart(items, overrides = {}) {
   if (!Array.isArray(items) || !items.length || items.length > 50) {
     throw new Error("Carrito inválido");
   }
@@ -811,7 +833,7 @@ export function validateCart(items) {
   let packageCount = 0;
   const normalized = [];
   for (const raw of items) {
-    const product = getCatalogProduct(raw?.id);
+    const product = resolveProduct(raw?.id, overrides);
     if (!product) throw new Error("Producto no disponible");
     validateProductPrice(product);
     const qty = Number(raw?.qty);
