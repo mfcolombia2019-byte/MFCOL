@@ -11,7 +11,10 @@ function encodeForm(data) {
 export function getBoldWebhookSecret(env = process.env) {
   const context = String(env?.CONTEXT || "").trim().toLowerCase();
   if (context === "production") {
-    return String(env?.BOLD_API_KEY || "");
+    // Bold firma el webhook con la "llave secreta". BOLD_API_KEY es la llave de
+    // identidad: se entrega al navegador para abrir el checkout (crear-link-pago),
+    // por lo que es pública y nunca debe autenticar un webhook.
+    return String(env?.BOLD_SECRET_KEY || "");
   }
   // Bold documents an empty signing key for its test webhook. Non-production
   // deploys use the isolated mfc-admin-nonprod store, so a public test endpoint
@@ -37,18 +40,25 @@ export default async (req, context) => {
   const secret = getBoldWebhookSecret();
 
   if (contextName === "production" && !secret) {
-    console.error("BOLD_API_KEY no está configurada en producción");
+    console.error("BOLD_SECRET_KEY no está configurada en producción");
     return new Response("Configuración de webhook incompleta", { status: 500 });
   }
-  if (!validSignature(rawBody, signature, secret)) return new Response("Firma inválida", { status: 400 });
+  // Registro de diagnóstico: sin cuerpo, firma ni secretos. Antes los rechazos eran silenciosos y
+  // en los registros de Netlify no quedaba rastro de que Bold sí había llamado al endpoint.
+  console.log("bold-webhook: solicitud recibida", JSON.stringify({ context: contextName || "desconocido", bytes: rawBody.length, hasSignature: !!signature }));
+  if (!validSignature(rawBody, signature, secret)) {
+    console.warn("bold-webhook: firma inválida", JSON.stringify({ context: contextName || "desconocido", hasSignature: !!signature, signatureLength: signature.length }));
+    return new Response("Firma inválida", { status: 400 });
+  }
 
   let event;
   try { event = JSON.parse(rawBody); }
-  catch { return new Response("JSON inválido", { status: 400 }); }
+  catch { console.warn("bold-webhook: JSON inválido"); return new Response("JSON inválido", { status: 400 }); }
 
   const eventId = safeEventId(event?.id);
   const allowedTypes = new Set(["SALE_APPROVED", "SALE_REJECTED", "VOID_APPROVED", "VOID_REJECTED"]);
   if (!eventId || !allowedTypes.has(String(event?.type || ""))) {
+    console.warn("bold-webhook: evento inválido", JSON.stringify({ type: String(event?.type || "").slice(0, 40), hasId: !!eventId }));
     return new Response("Evento Bold inválido", { status: 400 });
   }
 
