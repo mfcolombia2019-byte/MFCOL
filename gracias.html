@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>¡Pago recibido! — MF</title>
-<meta name="description" content="Confirmación de pago de tu pedido con MF.">
+<title>Estado de tu pago — MF</title>
+<meta name="description" content="Estado de pago de tu pedido con MF.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F3EFE7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%231A1613'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' fill='%23B08F63' text-anchor='middle'%3EMF%3C/text%3E%3C/svg%3E">
@@ -22,8 +22,11 @@
   .ref{display:block;margin:24px 0 0;padding:16px;border-radius:24px;border:0;background:var(--paper);font-size:13.5px;color:var(--ink)}
   .ref b{font-weight:700;letter-spacing:.02em}
   .summary{display:none}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;width:100%;padding:0 24px;text-decoration:none;font-size:16px;font-weight:600;border:2px solid #111;border-radius:999px;background:#111;color:#fff;margin-top:auto}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;width:100%;padding:0 24px;text-decoration:none;font-family:inherit;font-size:16px;font-weight:600;border:2px solid #111;border-radius:999px;background:#111;color:#fff;margin-top:auto;cursor:pointer}
   .btn:hover{background:transparent;color:#111}
+  .btn[hidden]{display:none}
+  #retryBtn:not([hidden]) + #waBtn{margin-top:12px;background:transparent;color:#111}
+  #retryBtn:not([hidden]) + #waBtn:hover{background:#111;color:#fff}
   .wa-note{display:none}
   .muted-link{display:inline-block;margin-top:16px;color:#555;font-size:13.5px;text-decoration:none}
   .noref{display:none}
@@ -33,121 +36,205 @@
 <body>
   <div class="card">
     <div class="mark" aria-hidden="true">MF</div>
-    <h1>Consultando el estado de tu pago…</h1>
-    <p id="intro">Estamos verificando en el servidor si tu pago fue aprobado. No asumimos que el pago está confirmado hasta recibir esa confirmación.</p>
+    <h1 id="title" aria-live="polite">Consultando el estado de tu pago…</h1>
+    <p id="intro" aria-live="polite">Estamos verificando en el servidor si tu pago fue aprobado. No asumimos que el pago está confirmado hasta recibir esa confirmación.</p>
     <p class="ref" id="refBox" hidden>Referencia de tu pedido: <b id="refNum"></b></p>
 
     <div class="summary" id="resumen"></div>
 
+    <button class="btn" id="retryBtn" type="button" hidden>Verificar de nuevo</button>
     <a class="btn" id="waBtn" href="#" target="_blank" rel="noopener">Hablar por WhatsApp</a>
     <p class="wa-note">Opcional — escríbenos solo si necesitas ayuda con tu pedido.</p>
 
     <a class="muted-link" href="/">Volver a la tienda</a>
   </div>
   <script>
-  (async function () {
+  (function () {
     var WHATSAPP_NUMBER = "573115752334";
+    // Pausa (segundos) entre consultas: ~2,5 minutos en total, cada vez más espaciadas.
+    // El servidor además limita a una consulta a Bold cada 15 s por pedido.
+    var DELAYS_SECONDS = [3, 3, 4, 5, 5, 10, 10, 10, 15, 15, 15, 15, 15, 15, 15];
+    var REQUEST_TIMEOUT_MS = 15000;
+    var VALID_STATUSES = ["pendiente", "aprobado", "rechazado", "anulado"];
+
     var params = new URLSearchParams(window.location.search);
+    // Solo se usa `ref`. Los parámetros que agrega Bold al regresar (bold-tx-status, etc.)
+    // los puede editar cualquiera desde la barra de direcciones: nunca se usan como prueba de pago.
     var ref = params.get("ref") || "";
+    var title = document.getElementById("title");
     var intro = document.getElementById("intro");
-    var title = document.querySelector("h1");
     var resumenEl = document.getElementById("resumen");
     var waBtn = document.getElementById("waBtn");
+    var retryBtn = document.getElementById("retryBtn");
     var refBox = document.getElementById("refBox");
     var refNum = document.getElementById("refNum");
+    var running = false;
+
+    function setText(heading, text) {
+      title.textContent = heading;
+      intro.textContent = text;
+    }
+
+    function setWhatsApp(message) {
+      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+    }
+
+    function sleep(ms) {
+      return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    }
 
     if (!ref) {
-      title.textContent = "Regresaste del proceso de pago";
-      intro.textContent = "No recibimos una referencia de pedido. El estado del pago debe confirmarse desde el servidor.";
+      setText("Regresaste del proceso de pago", "No recibimos una referencia de pedido. El estado del pago debe confirmarse desde el servidor.");
       resumenEl.style.display = "none";
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Regresé del proceso de pago y necesito confirmar el estado de mi pedido.");
+      setWhatsApp("Hola, MF. Regresé del proceso de pago y necesito confirmar el estado de mi pedido.");
       return;
     }
 
     refNum.textContent = ref;
     refBox.hidden = false;
+    setWhatsApp("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
 
-    var data = null;
-    var lastTemporaryError = null;
-    var permanentError = null;
-    var maxAttempts = 8;
-
-    for (var attempts = 1; attempts <= maxAttempts; attempts += 1) {
+    // Resultado de una consulta: { kind: "ok" | "temporary" | "permanent", data?, notFound? }
+    async function fetchStatus() {
+      var controller = new AbortController();
+      var timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
       try {
-        var res = await fetch("/.netlify/functions/order-status?ref=" + encodeURIComponent(ref), { cache: "no-store" });
-
+        var res = await fetch("/.netlify/functions/order-status?ref=" + encodeURIComponent(ref), {
+          cache: "no-store",
+          signal: controller.signal
+        });
         if (res.ok) {
-          var nextData = await res.json().catch(function () { return null; });
-          var validStatuses = ["pendiente", "aprobado", "rechazado", "anulado"];
-          var validReference = nextData && typeof nextData.reference === "string" && nextData.reference.length > 0;
-          var validStatus = nextData && validStatuses.indexOf(nextData.paymentStatus) !== -1;
-
-          if (!validReference || !validStatus) {
-            permanentError = new Error("La respuesta del servidor no contiene un estado de pago válido.");
-            break;
-          }
-
-          if (nextData.reference !== ref) {
-            permanentError = new Error("La referencia devuelta por el servidor no coincide con el pedido.");
-            break;
-          }
-
-          data = nextData;
-          if (data.paymentStatus === "aprobado" || data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") break;
-        } else if (res.status === 429 || res.status >= 500) {
-          lastTemporaryError = new Error("Respuesta temporal del servidor: HTTP " + res.status);
-        } else {
-          permanentError = new Error("No se pudo consultar el pedido (HTTP " + res.status + ").");
-          break;
+          var data = await res.json().catch(function () { return null; });
+          var validReference = data && typeof data.reference === "string" && data.reference.length > 0;
+          var validStatus = data && VALID_STATUSES.indexOf(data.paymentStatus) !== -1;
+          if (!validReference || !validStatus) return { kind: "permanent" };
+          if (data.reference !== ref) return { kind: "permanent" };
+          return { kind: "ok", data: data };
         }
+        if (res.status === 429 || res.status >= 500) return { kind: "temporary" };
+        return { kind: "permanent", notFound: res.status === 404 };
       } catch (error) {
-        lastTemporaryError = error;
+        // Red caída, tiempo agotado o similar: es temporal y no dice nada sobre el pago.
+        return { kind: "temporary" };
+      } finally {
+        clearTimeout(timer);
       }
-
-      if (attempts < maxAttempts) {
-        await new Promise(function (resolve) { setTimeout(resolve, 1500); });
-      }
     }
 
-    if (permanentError) {
-      title.textContent = "No pudimos verificar el pago";
-      intro.textContent = "No fue posible validar de forma segura el estado de tu pedido. El pago no se considera confirmado.";
-      resumenEl.textContent = "Referencia: " + ref;
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
-      return;
-    }
-
-    if (!data) {
-      title.textContent = "No pudimos verificar el pago";
-      intro.textContent = "No fue posible verificar el estado del pedido en este momento. El pago no se considera confirmado.";
-      resumenEl.textContent = "Referencia: " + ref;
-      waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
-      return;
-    }
-
-    if (data.paymentStatus === "aprobado") {
-      title.textContent = "¡Tu pago ha sido aprobado!";
-      intro.textContent = "Gracias por tu compra. En breve recibirás un correo con los detalles de tu pedido.";
-    } else if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") {
-      title.textContent = "Pago no confirmado";
-      intro.textContent = "No pudimos confirmar el pago de este pedido.";
-    } else {
-      title.textContent = "Pedido recibido";
-      intro.textContent = "Tu pedido fue recibido y estamos verificando el estado del pago.";
-    }
-
-    resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
-    var localRaw = localStorage.getItem("mf_order_" + ref);
-    var msg = "Hola, MF. Regresé del proceso de pago (referencia " + ref + "). Estado confirmado por el servidor: " + data.paymentStatus + ".";
-    if (localRaw) {
+    function savedOrder() {
       try {
-        var o = JSON.parse(localRaw);
-        resumenEl.textContent += "\n\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
-        msg += "\n" + (o.pedidoTxt || "") + "\nTotal: " + (o.total || "");
-        if (data.paymentStatus === "aprobado") localStorage.removeItem("mf_order_" + ref);
-      } catch (e) {}
+        var raw = localStorage.getItem("mf_order_" + ref);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
     }
-    waBtn.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+
+    function contactMessage(statusSentence) {
+      var msg = "Hola, MF. Regresé del proceso de pago (referencia " + ref + "). " + statusSentence;
+      var order = savedOrder();
+      if (order) msg += "\n" + (order.pedidoTxt || "") + "\nTotal: " + (order.total || "");
+      return msg;
+    }
+
+    function showWaiting(temporaryProblem) {
+      setText(
+        "Consultando el estado de tu pago…",
+        temporaryProblem
+          ? "No pudimos consultar el estado en este momento. Esto no significa que el pago haya fallado; seguimos intentando."
+          : "Aún no recibimos la confirmación de Bold. Seguimos consultando automáticamente; no cierres esta página."
+      );
+    }
+
+    function showApproved(data) {
+      setText("¡Tu pago ha sido aprobado!", "Gracias por tu compra. En breve recibirás un correo con los detalles de tu pedido.");
+      resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
+      setWhatsApp(contactMessage("Estado confirmado por el servidor: aprobado."));
+      try { localStorage.removeItem("mf_order_" + ref); } catch (e) {}
+    }
+
+    function showNotApproved(data) {
+      setText(
+        "Pago no confirmado",
+        "Bold informó que este pago no fue aprobado. Si lo intentaste de nuevo o crees que es un error, escríbenos por WhatsApp con tu referencia."
+      );
+      resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
+      setWhatsApp(contactMessage("Estado confirmado por el servidor: " + data.paymentStatus + "."));
+    }
+
+    function showStillPending(data, temporaryProblem) {
+      setText(
+        "Estamos esperando la confirmación de tu pago",
+        temporaryProblem
+          ? "No logramos consultar a Bold en los últimos intentos. Esto no significa que el pago haya fallado. Tu pedido quedó registrado y no se da por pagado hasta recibir la confirmación. Puedes verificar de nuevo en unos minutos o escribirnos con tu referencia."
+          : "Todavía no recibimos la confirmación de Bold. Tu pedido quedó registrado y no se da por pagado hasta recibirla. Puedes verificar de nuevo en unos minutos o escribirnos con tu referencia."
+      );
+      resumenEl.textContent = "Referencia: " + data.reference + "\nEstado del pago: " + data.paymentStatus;
+      setWhatsApp(contactMessage("Estado confirmado por el servidor: pendiente."));
+      retryBtn.hidden = false;
+    }
+
+    function showTemporaryFailure() {
+      setText(
+        "No pudimos consultar el estado de tu pago",
+        "Hubo un problema temporal al comunicarnos con el servidor. Esto no significa que el pago haya fallado ni que se haya aprobado. Intenta de nuevo en unos minutos o escríbenos con tu referencia."
+      );
+      resumenEl.textContent = "Referencia: " + ref;
+      setWhatsApp(contactMessage("No pude verificar el estado del pago; necesito confirmarlo."));
+      retryBtn.hidden = false;
+    }
+
+    function showPermanentFailure(result) {
+      setText(
+        "No pudimos verificar el pago",
+        result.notFound
+          ? "No encontramos un pedido con esa referencia. El pago no se considera confirmado."
+          : "No fue posible validar de forma segura el estado de tu pedido. El pago no se considera confirmado."
+      );
+      resumenEl.textContent = "Referencia: " + ref;
+      setWhatsApp("Hola, MF. Necesito confirmar el estado del pedido " + ref + ".");
+    }
+
+    async function checkPayment() {
+      if (running) return;
+      running = true;
+      retryBtn.hidden = true;
+      showWaiting(false);
+
+      var data = null;
+      var temporaryProblem = false;
+
+      for (var attempt = 0; attempt <= DELAYS_SECONDS.length; attempt += 1) {
+        var result = await fetchStatus();
+
+        if (result.kind === "permanent") {
+          showPermanentFailure(result);
+          running = false;
+          return;
+        }
+
+        if (result.kind === "ok") {
+          data = result.data;
+          if (data.paymentStatus === "aprobado") { showApproved(data); running = false; return; }
+          if (data.paymentStatus === "rechazado" || data.paymentStatus === "anulado") { showNotApproved(data); running = false; return; }
+          // verification = "recent" no aporta información nueva: se conserva el último resultado.
+          if (data.verification === "unavailable") temporaryProblem = true;
+          else if (data.verification === "checked") temporaryProblem = false;
+        } else {
+          temporaryProblem = true;
+        }
+
+        showWaiting(temporaryProblem);
+        if (attempt < DELAYS_SECONDS.length) await sleep(DELAYS_SECONDS[attempt] * 1000);
+      }
+
+      if (data) showStillPending(data, temporaryProblem);
+      else showTemporaryFailure();
+      running = false;
+    }
+
+    retryBtn.addEventListener("click", checkPayment);
+    checkPayment();
   })();
   </script>
 </body>

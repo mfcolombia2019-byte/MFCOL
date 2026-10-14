@@ -12,24 +12,43 @@ function env(name) {
     : process.env[name];
 }
 
-function canonicalOrigin() {
-  const isProduction = String(env("CONTEXT") || "").toLowerCase() === "production";
+function httpsOrigin(candidate) {
+  const raw = String(candidate || "").trim().replace(/\/+$/, "");
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" ? u.origin : "";
+  } catch {
+    return "";
+  }
+}
 
-  const candidates = isProduction
-    ? [env("SITE_CANONICAL_ORIGIN"), env("URL")]
-    : [env("SITE_CANONICAL_ORIGIN"), env("DEPLOY_PRIME_URL"), env("URL")];
+// Origen HTTPS al que Bold devuelve al cliente (redirectionUrl y originUrl).
+// - Producción: dominio canónico (SITE_CANONICAL_ORIGIN) o, si falta, URL.
+// - Cualquier otro despliegue (vista previa, rama, etc.): únicamente el origen
+//   del propio despliegue que Netlify define (DEPLOY_PRIME_URL, luego
+//   DEPLOY_URL), y nunca un origen de producción. En estos contextos URL es el
+//   dominio principal del sitio y SITE_CANONICAL_ORIGIN suele ser el dominio
+//   productivo, así que no se usan como respaldo: devolver "" es preferible a
+//   enviar un pago de prueba a la tienda real.
+// `read` se inyecta para poder probar la selección sin tocar el entorno.
+export function canonicalOrigin(read = env) {
+  const isProduction = String(read("CONTEXT") || "").trim().toLowerCase() === "production";
 
-  for (const candidate of candidates) {
-    const raw = String(candidate || "").trim().replace(/\/+$/, "");
-    if (!raw) continue;
+  if (isProduction) {
+    return httpsOrigin(read("SITE_CANONICAL_ORIGIN")) || httpsOrigin(read("URL"));
+  }
 
-    try {
-      const u = new URL(raw);
-      if (u.protocol !== "https:") continue;
-      return u.origin;
-    } catch {
-      continue;
-    }
+  const productionHosts = new Set(
+    [read("SITE_CANONICAL_ORIGIN"), read("URL")]
+      .map(httpsOrigin)
+      .filter(Boolean)
+      .map(origin => new URL(origin).hostname)
+  );
+
+  for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL")]) {
+    const origin = httpsOrigin(candidate);
+    if (origin && !productionHosts.has(new URL(origin).hostname)) return origin;
   }
 
   return "";
@@ -40,6 +59,12 @@ async function associateBoldLink(reference, paymentLink) {
   const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) throw new Error("Pedido no encontrado");
   if (current.data.boldPaymentLink && current.data.paymentLink) {
+    if (
+      current.data.boldPaymentLink !== paymentLink ||
+      current.data.paymentLink !== "https://checkout.bold.co/" + paymentLink
+    ) {
+      throw new Error("El pedido ya tiene asociado otro enlace de Bold");
+    }
     return current.data;
   }
 
@@ -59,6 +84,30 @@ async function associateBoldLink(reference, paymentLink) {
   return next;
 }
 
+async function ensureBoldLinkMapping(reference, paymentLink) {
+  const key = "bold-links/" + paymentLink;
+  const existing = await store.get(key, { type: "json", consistency: "strong" });
+
+  if (existing?.reference) {
+    if (existing.reference !== reference) {
+      throw new Error("El enlace de Bold ya está asociado a otro pedido");
+    }
+    return existing;
+  }
+
+  const mapping = {
+    reference,
+    createdAt: new Date().toISOString()
+  };
+  const result = await store.setJSON(key, mapping, { onlyIfNew: true });
+
+  if (result?.modified) return mapping;
+
+  const latest = await store.get(key, { type: "json", consistency: "strong" });
+  if (latest?.reference === reference) return latest;
+
+  throw new Error("No se pudo confirmar la asociación del enlace Bold");
+}
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
@@ -90,7 +139,13 @@ export default async (req) => {
 
   const origin = canonicalOrigin();
   if (!origin) {
-    return json({ error: "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos." }, 503);
+    const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
+    console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
+    return json({
+      error: isProduction
+        ? "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos."
+        : "No se pudo determinar el dominio HTTPS de este despliegue para el retorno del pago."
+    }, 503);
   }
 
   const boldApiKey = String(env("BOLD_API_KEY") || "").trim();
@@ -127,6 +182,12 @@ export default async (req) => {
   });
 
   if (order.boldPaymentLink && order.paymentLink) {
+    try {
+      await ensureBoldLinkMapping(reference, order.boldPaymentLink);
+    } catch (error) {
+      console.error("No se pudo confirmar la asociación del enlace Bold:", error);
+      return json({ error: "No se pudo confirmar la asociación del enlace de pago" }, 503);
+    }
     const itemNames = Array.isArray(order.items) ? order.items.map(i => i.name).filter(Boolean) : [];
     const description = ("MF Colombia · " + itemNames.slice(0, 3).join(" · ")).slice(0, 100);
     return json({
@@ -164,15 +225,59 @@ export default async (req) => {
   }
 
   const paymentLink = String(data.payload.payment_link);
-  const saved = await associateBoldLink(reference, paymentLink);
+  let saved;
+
+  try {
+    saved = await associateBoldLink(reference, paymentLink);
+  } catch (error) {
+    console.error("No se pudo asociar el enlace de Bold:", error);
+
+    try {
+      const latest = await store.get("orders/" + reference, {
+        type: "json",
+        consistency: "strong"
+      });
+
+      if (!latest) {
+        return json({ error: "Pedido no encontrado" }, 404);
+      }
+
+      if (
+        latest.boldPaymentLink &&
+        latest.paymentLink &&
+        (
+          latest.boldPaymentLink !== paymentLink ||
+          latest.paymentLink !== "https://checkout.bold.co/" + paymentLink
+        )
+      ) {
+        return json({
+          error: "El pedido ya tiene asociado otro enlace de pago"
+        }, 409);
+      }
+    } catch (readError) {
+      console.error("No se pudo verificar el estado del pedido:", readError);
+    }
+
+    return json({
+      error: "No se pudo confirmar la asociación del enlace de pago"
+    }, 503);
+  }
 
   // Bold's API Link webhook documentation identifies metadata.reference as the
   // generated LNK_* payment link. Keep an explicit mapping so the webhook can
   // resolve the original order without trusting browser data.
-  await store.setJSON("bold-links/" + paymentLink, {
-    reference,
-    createdAt: new Date().toISOString()
-  });
+  if (
+    saved.boldPaymentLink !== paymentLink ||
+    saved.paymentLink !== "https://checkout.bold.co/" + paymentLink
+  ) {
+    return json({ error: "El pedido ya tiene asociado otro enlace de pago" }, 409);
+  }
+  try {
+    await ensureBoldLinkMapping(reference, paymentLink);
+  } catch (error) {
+    console.error("No se pudo confirmar la asociación del enlace Bold:", error);
+    return json({ error: "No se pudo confirmar la asociación del enlace de pago" }, 503);
+  }
 
   const embedded = buildEmbedded(description, total);
 

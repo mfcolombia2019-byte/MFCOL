@@ -1,6 +1,6 @@
 /* Catálogo compartido de productos MF. Fuente única para portada y páginas de colección. */
 var PRODUCTS = [
-    {id:"sandalia-slide-de-plataforma-alta-en-cuatro-colores",name:"Sandalia slide de plataforma alta",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:5000,isNew:true,cardBg:"#f3dede",imgs:[["assets/plataforma-slide-negro.jpg","Sandalia slide de plataforma alta en color negro"],["assets/plataforma-slide-blanco.jpg","Sandalia slide de plataforma alta en color blanco"],["assets/plataforma-slide-rosa.jpg","Sandalia slide de plataforma alta en color rosa"],["assets/plataforma-slide-verde.jpg","Sandalia slide de plataforma alta en color verde"]],colors:["Negro","Blanco","Rosa","Verde"],facts:["Negro","Blanco","Rosa","Verde","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con una tira ancha sobre el empeine y plataforma alta de perfil redondeado. Disponible en negro, blanco, rosa y verde."},
+    {id:"sandalia-slide-de-plataforma-alta-en-cuatro-colores",name:"Sandalia slide de plataforma alta",cat:"Punta abierta · Plataforma alta · Estilo slide",group:"plataformas",price:190000,isNew:true,cardBg:"#f3dede",imgs:[["assets/plataforma-slide-negro.jpg","Sandalia slide de plataforma alta en color negro"],["assets/plataforma-slide-blanco.jpg","Sandalia slide de plataforma alta en color blanco"],["assets/plataforma-slide-rosa.jpg","Sandalia slide de plataforma alta en color rosa"],["assets/plataforma-slide-verde.jpg","Sandalia slide de plataforma alta en color verde"]],colors:["Negro","Blanco","Rosa","Verde"],facts:["Negro","Blanco","Rosa","Verde","Punta abierta","Plataforma alta","Estilo slide","34","35","36","37","38","39","40"],desc:"Sandalia abierta tipo slide con una tira ancha sobre el empeine y plataforma alta de perfil redondeado. Disponible en negro, blanco, rosa y verde."},
     {id:"mule-de-tacon-alto-con-tres-tiras",name:"Mule de tacón alto con tres tiras",cat:"Punta cuadrada · Tacón tipo aguja",group:"tacones",price:189900,isNew:false,imgs:[["assets/foto-001.jpg","Sandalia mule de tacón alto en color negro"],["assets/foto-002.jpg","Sandalia mule de tacón alto en color blanco"],["assets/foto-003.jpg","Sandalia mule de tacón alto en color nude"],["assets/foto-004.jpg","Sandalia mule de tacón alto en color plateado"]],colors:["Negro","Blanco","Nude","Plateado"],facts:["Negro","Blanco","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","34","35","36","37","38","39","40"],desc:"Sandalia mule de tacón alto con punta cuadrada, tres tiras y diseño abierto en el talón. Disponible en cuatro colores."},
     {id:"sandalia-de-plataforma-con-correa-al-tobillo",name:"Sandalia de plataforma con correa al tobillo",cat:"Punta abierta · Tacón ancho · Plataforma alta · Sintético mate",group:"plataformas",price:239900,isNew:false,imgs:[["assets/foto-005.jpg","Sandalia de plataforma blanca con tira al tobillo"],["assets/foto-006.jpg","Sandalia negra de plataforma con correa al tobillo"],["assets/foto-007.jpg","Sandalia negra de plataforma, vista lateral"],["assets/foto-008.jpg","Sandalias de plataforma en blanco y negro"]],colors:["Negro","Blanco"],facts:["Negro","Blanco","Punta abierta","Tacón ancho","Plataforma alta","Sintético mate","34","35","36","37","38","39","40"],desc:"Sandalia de plataforma en material sintético mate, con punta abierta, tira ancha en el empeine y correa ajustable al tobillo con hebilla. Disponible en negro y blanco."},
     {id:"sandalia-de-tacon-alto-con-tiras-finas",name:"Sandalia de tacón alto con tiras finas",cat:"Punta cuadrada · Tacón tipo aguja · Correa al tobillo",group:"tacones",price:199900,isNew:false,imgs:[["assets/foto-009.jpg","Sandalias de tacón alto en negro y nude"],["assets/foto-010.jpg","Detalle de sandalia de tacón alto color nude"],["assets/foto-011.jpg","Sandalia nude de tacón alto puesta"],["assets/foto-012.jpg","Sandalia plateada de tacón alto puesta"],["assets/foto-013.jpg","Sandalia negra de tacón alto puesta"]],colors:["Negro","Nude","Plateado"],facts:["Negro","Nude","Plateado","Punta cuadrada","Tacón tipo aguja","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia de tacón alto con punta cuadrada, tira delantera fina y correa ajustable al tobillo con hebilla. Disponible en negro, nude y plateado."},
@@ -35,3 +35,45 @@ var PRODUCTS = [
     {id:"mule-nude-con-tacon-escultural-transparente",name:"Mule nude con tacón escultural transparente",cat:"Punta abierta · Tira transparente · Tacón escultural",group:"tacones",price:239900,isNew:false,imgs:[["assets/foto-123.jpg","Mule nude con tira transparente y tacón escultural, vista en uso"],["assets/foto-124.jpg","Mule nude con tira transparente y tacón escultural, vista lateral"],["assets/foto-125.jpg","Par de mules nude con tira transparente y tacón escultural"]],colors:["Nude"],facts:["Nude","Punta abierta","Tira transparente","Tacón escultural","34","35","36","37","38","39","40"],desc:"Mule nude abierto en el talón, con punta abierta, tira transparente sobre los dedos y tacón transparente de diseño escultural."},
     {id:"sandalia-nude-de-cuna-tipo-corcho-con-tiras-anudadas",name:"Sandalia nude de cuña tipo corcho con tiras anudadas",cat:"Punta abierta · Plataforma alta · Correa al tobillo",group:"plataformas",price:219900,isNew:false,imgs:[["assets/foto-126.jpg","Sandalia nude de plataforma tipo corcho con tiras anudadas y correa al tobillo, en uso"],["assets/foto-127.jpg","Sandalia nude de cuña tipo corcho con tiras anudadas, vista lateral"]],colors:["Nude"],facts:["Nude","Punta abierta","Plataforma alta","Correa al tobillo","34","35","36","37","38","39","40"],desc:"Sandalia nude de punta abierta con tiras anudadas en el empeine, correa ajustable al tobillo y plataforma alta con acabado tipo corcho."}
   ];
+
+
+/* Productos creados desde el panel admin (guardados en el servidor).
+   Se agregan al mismo arreglo PRODUCTS para que portada, fichas, búsqueda,
+   colecciones y carrito los traten igual que los del catálogo original. */
+function mfCustomProduct(o) {
+  var cat = String(o.category || "");
+  var facts = (o.colors || []).slice();
+  cat.split("·").forEach(function (part) {
+    part = part.trim();
+    if (part && facts.indexOf(part) < 0) facts.push(part);
+  });
+  ["34", "35", "36", "37", "38", "39", "40"].forEach(function (s) { facts.push(s); });
+  return {
+    id: o.id,
+    name: o.name,
+    cat: cat,
+    group: o.group,
+    price: o.price,
+    isNew: o.isNew === true,
+    imgs: o.imgs || [],
+    colors: o.colors || [],
+    facts: facts,
+    desc: o.desc || "",
+    adminActive: o.active !== false,
+    custom: true
+  };
+}
+
+/* Agrega (o actualiza) los productos del panel. Devuelve true si cambió algo. */
+function mfMergeCustomProducts(list) {
+  var changed = false;
+  (list || []).forEach(function (o) {
+    if (!o || !o.custom || !o.id) return;
+    var next = mfCustomProduct(o);
+    var i = -1;
+    PRODUCTS.forEach(function (p, idx) { if (p.id === o.id) i = idx; });
+    if (i < 0) { PRODUCTS.unshift(next); changed = true; }
+    else if (PRODUCTS[i].custom) { PRODUCTS[i] = next; changed = true; }
+  });
+  return changed;
+}

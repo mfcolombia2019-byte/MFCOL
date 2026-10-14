@@ -6,47 +6,129 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Admin — Marlon Footwear</title>
 <style>
-:root{--ink:#111;--muted:#777;--line:#e8e8e8;--paper:#fff;--soft:#f7f7f7;--serif:Georgia,"Times New Roman",serif}
-*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.5 Inter,Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer}
-.shell{max-width:1400px;margin:auto;padding:22px}
-.login{min-height:100svh;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(420px,100%);padding:34px;border:1px solid var(--line)}
-h1,h2,h3{font-family:var(--serif);font-weight:400}.login h1{font-size:38px;margin:0 0 8px}.muted{color:var(--muted)}
-input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;padding:11px 12px;margin:6px 0 12px}textarea{min-height:110px;resize:vertical}
-.btn{border:1px solid #111;background:#111;color:#fff;padding:11px 16px}.btn.light{background:#fff;color:#111}.btn.danger{border-color:#a22;background:#a22}
+:root{--ink:#141414;--muted:#7a7772;--line:#e9e6e1;--paper:#fff;--bg:#faf9f7;--champagne:#b89a6a;--ok:#2f7d4f;--warn:#a3612a;--danger:#a32a2a;--serif:Georgia,"Times New Roman",serif;--sans:Inter,-apple-system,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}
+a{color:inherit}
 .hidden{display:none!important}
-.app-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-family:var(--serif);font-size:30px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--line);background:#fff;padding:9px 12px}.nav button.active{background:#111;color:#fff;border-color:#111}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);padding:18px}.metric b{display:block;font:400 30px var(--serif);margin-top:4px}
-.panel{background:#fff;border:1px solid var(--line);padding:20px;margin-top:16px}.panel h2{margin:0 0 16px;font-size:26px}
-.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 8px;text-align:left;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.status{display:inline-block;padding:4px 7px;background:var(--soft);font-size:11px}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spaced{justify-content:space-between}
-pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monospace;background:var(--soft);padding:12px}
-.toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:12px 15px;display:none;z-index:20}
-@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.shell{padding:14px}.app-head{align-items:flex-start;flex-direction:column}}
+.muted{color:var(--muted)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0}
+
+/* Entrada */
+.login{min-height:100svh;display:grid;place-items:center;padding:20px}
+.login-card{background:var(--paper);width:min(400px,100%);padding:36px 32px;border:1px solid var(--line);border-radius:14px}
+.login-card h1{font-size:34px;margin-bottom:4px}
+.login-card .btn{width:100%;margin-top:4px}
+.mark{display:block;width:34px;height:2px;background:var(--champagne);margin:0 0 18px}
+
+/* Estructura */
+.shell{max-width:1120px;margin:0 auto;padding:0 20px 60px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0 18px}
+.brand{font:400 26px var(--serif);letter-spacing:.01em}
+.brand small{display:block;font:500 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--champagne);margin-top:2px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:26px;overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:11px 16px;color:var(--muted);white-space:nowrap;margin-bottom:-1px}
+.tabs button:hover{color:var(--ink)}
+.tabs button.active{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}
+
+/* Controles */
+label{display:block;font-size:12px;font-weight:600;letter-spacing:.02em;margin:0 0 5px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:var(--paper);padding:10px 12px;border-radius:8px;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--ink)}
+textarea{min-height:96px;resize:vertical}
+input[type=checkbox]{width:auto;accent-color:var(--ink)}
+.field{margin-bottom:16px}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:500;transition:opacity .15s}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.light{background:var(--paper);color:var(--ink);border-color:var(--line)}
+.btn.light:hover{border-color:var(--ink);opacity:1}
+.btn.danger{background:var(--paper);color:var(--danger);border-color:#e6c9c9}
+.btn.sm{padding:6px 12px;font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spaced{justify-content:space-between}
+
+/* Tarjetas */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:24px}
+.panel+.panel{margin-top:16px}
+.panel h2{font-size:24px;margin-bottom:4px}
+.panel .sub{color:var(--muted);margin:0 0 20px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.metric{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.metric span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.metric b{display:block;font:400 34px var(--serif);margin-top:2px}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Productos */
+.toolbar{display:grid;grid-template-columns:1fr 170px auto;gap:10px;margin-bottom:16px}
+.toolbar input,.toolbar select{margin:0}
+.plist{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.prow{display:grid;grid-template-columns:56px 1fr auto auto;gap:14px;align-items:center;padding:10px 14px;background:var(--paper)}
+.prow+.prow{border-top:1px solid var(--line)}
+.prow:hover{background:#fcfbf9}
+.thumb{width:56px;height:56px;border-radius:8px;background:#f1efeb center/cover no-repeat;border:1px solid var(--line)}
+.pname{font-weight:600;line-height:1.3}
+.pmeta{font-size:12px;color:var(--muted)}
+.price{font-variant-numeric:tabular-nums;white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;background:#eef6f0;color:var(--ok);margin-left:6px;vertical-align:1px}
+.badge.off{background:#faeee4;color:var(--warn)}
+.badge.new{background:#f4eee2;color:#8a6d3b}
+.empty{padding:34px 16px;text-align:center;color:var(--muted)}
+
+/* Editor de producto */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0 16px}
+.full{grid-column:1/-1}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-bottom:10px}
+.photo{position:relative;aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:#f1efeb center/cover no-repeat}
+.photo .x{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(20,20,20,.78);color:#fff;font-size:15px;line-height:1;padding:0}
+.photo .main{position:absolute;left:5px;bottom:5px;font-size:10px;font-weight:600;background:rgba(255,255,255,.92);border:0;border-radius:99px;padding:3px 8px}
+.photo.add{display:grid;place-items:center;border-style:dashed;color:var(--muted);cursor:pointer;text-align:center;font-size:12px;padding:8px}
+.photo.add:hover{border-color:var(--ink);color:var(--ink)}
+.photo.busy{opacity:.55}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;padding-top:20px;border-top:1px solid var(--line)}
+.actions .grow{flex:1}
+.notice{background:#f7f3ea;border:1px solid #eadfc7;color:#6b5428;border-radius:10px;padding:11px 14px;margin-bottom:18px;font-size:13px}
+.back{background:none;border:0;padding:0;color:var(--muted);margin-bottom:14px}
+.back:hover{color:var(--ink)}
+
+/* Bold */
+pre{white-space:pre-wrap;word-break:break-word;font:12px/1.55 ui-monospace,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0 0}
+hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:99px;display:none;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.18);max-width:calc(100% - 32px)}
+.toast.err{background:var(--danger)}
+
+@media(max-width:760px){
+  .shell{padding:0 14px 50px}
+  .cards{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .toolbar{grid-template-columns:1fr 1fr}.toolbar input{grid-column:1/-1}.toolbar .btn{grid-column:1/-1}
+  .prow{grid-template-columns:48px 1fr auto;gap:10px}.prow .price{display:none}.thumb{width:48px;height:48px}
+  .panel{padding:18px}
+}
 </style>
 </head>
 <body>
 <div id="login" class="login">
   <form class="login-card" id="loginForm">
+    <span class="mark"></span>
     <h1>Admin</h1>
-    <p class="muted">Marlon Footwear · gestión de tienda</p>
-    <input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required>
-    <button class="btn" style="width:100%">Entrar</button>
-    <p id="loginMsg" class="muted"></p>
+    <p class="muted" style="margin:0 0 22px">Marlon Footwear · gestión de tienda</p>
+    <div class="field"><input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required></div>
+    <button class="btn">Entrar</button>
+    <p id="loginMsg" class="muted" style="margin:12px 0 0"></p>
   </form>
 </div>
 
 <div id="app" class="hidden">
   <div class="shell">
-    <header class="app-head">
-    <div><div class="brand">Marlon Footwear</div><div class="muted">Panel de administración</div></div>
-    <div class="row"><a class="btn light" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light" id="logout">Salir</button></div>
+    <header class="topbar">
+      <div class="brand">Marlon Footwear<small>Panel de administración</small></div>
+      <div class="row"><a class="btn light sm" href="/" target="_blank" rel="noopener">Ver tienda</a><button class="btn light sm" id="logout">Salir</button></div>
     </header>
-    <nav class="nav" id="nav">
+    <nav class="tabs" id="nav">
       <button data-view="dashboard" class="active">Resumen</button>
-      <button data-view="orders">Pedidos</button>
       <button data-view="products">Productos</button>
       <button data-view="settings">Marca</button>
       <button data-view="bold">Bold</button>
@@ -56,40 +138,181 @@ pre{white-space:pre-wrap;word-break:break-word;font:12px/1.5 ui-monospace,monosp
 </div>
 <div id="toast" class="toast"></div>
 
+<script src="/productos.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",2400)}
-async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok)throw new Error(d.error||"Error");return d}
-function showLogin(){ $("#app").classList.add("hidden");$("#login").classList.remove("hidden"); }
-function showApp(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard"); }
+const GROUP_LABEL={plataformas:"Plataformas",tacones:"Tacones"};
+const API="/.netlify/functions/admin-api";
+let toastTimer;
+function toast(m,isErr){const e=$("#toast");e.textContent=m;e.classList.toggle("err",!!isErr);e.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.style.display="none",isErr?4200:2400)}
+async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",...opts});const d=await r.json().catch(()=>({}));if(r.status===401){showLogin();throw new Error("Sesión vencida")}if(!r.ok){const err=new Error(d.error||"Error");if(d.diagnostic)err.diagnostic=d.diagnostic;throw err}return d}
+const post=(body)=>api(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+function showLogin(){$("#app").classList.add("hidden");$("#login").classList.remove("hidden")}
+function showApp(){$("#login").classList.add("hidden");$("#app").classList.remove("hidden");load("dashboard")}
 async function login(){
  const r=await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",password:$("#password").value}),credentials:"same-origin"});
  const d=await r.json().catch(()=>({}));
  if(!r.ok){$("#loginMsg").textContent=d.error||"No se pudo iniciar sesión";return}
- $("#loginMsg").textContent="";
+ $("#loginMsg").textContent="";$("#password").value="";
  showApp();
 }
 $("#loginForm").onsubmit=e=>{e.preventDefault();login()};
 $("#logout").onclick=async()=>{await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"logout"}),credentials:"same-origin"});showLogin()};
+
+/* ---------- Productos: catálogo original + ajustes + productos creados en el panel ---------- */
+let rows=[];
+const imgSrc=u=>u?("/"+String(u).replace(/^\/+/,"")):"";
+async function loadRows(){
+ const d=await api(API+"?section=products");
+ const ov={};(d.products||[]).forEach(p=>ov[p.id]=p);
+ const base=(typeof PRODUCTS!=="undefined"?PRODUCTS:[]).filter(p=>!p.custom).map(p=>{
+  const o=ov[p.id]||{};
+  return{id:p.id,custom:false,name:o.name||p.name,price:o.price!=null?o.price:p.price,category:o.category||p.cat||"",group:p.group,
+   active:o.active!==false,stock:o.stock??null,img:p.imgs&&p.imgs[0]?p.imgs[0][0]:"",isNew:!!p.isNew}});
+ const custom=(d.products||[]).filter(p=>p.custom).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||""))).map(p=>({
+  id:p.id,custom:true,name:p.name,price:p.price,category:p.category||"",group:p.group,active:p.active!==false,stock:p.stock??null,
+  img:p.imgs&&p.imgs[0]?p.imgs[0][0]:"",isNew:!!p.isNew,colors:p.colors||[],desc:p.desc||"",imgs:p.imgs||[]}));
+ rows=[...custom,...base];
+}
+
 async function load(view){
  $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
- const c=$("#content");c.innerHTML='<div class="panel">Cargando…</div>';
+ const c=$("#content");c.innerHTML='<div class="panel muted">Cargando…</div>';
  try{
-  if(view==="dashboard"){const d=await api("/.netlify/functions/admin-api?section=dashboard");c.innerHTML=
-   '<div class="cards"><div class="metric">Pedidos<b>'+d.stats.orders+'</b></div><div class="metric">Pendientes<b>'+d.stats.pending+'</b></div><div class="metric">Pagados<b>'+d.stats.paid+'</b></div><div class="metric">Ingresos<b>'+money(d.stats.revenue)+'</b></div></div>'+
-   '<div class="panel"><h2>Pedidos recientes</h2>'+orderTable(d.recentOrders)+'</div>';return}
-  if(view==="orders"){const d=await api("/.netlify/functions/orders");c.innerHTML='<div class="panel"><div class="row spaced"><h2>Pedidos</h2><button class="btn light" onclick="load(\'orders\')">Actualizar</button></div>'+orderTable(d.orders)+'</div>';return}
-  if(view==="products"){const d=await api("/.netlify/functions/admin-api?section=products");c.innerHTML='<div class="panel"><h2>Ajustes de productos</h2><p class="muted">Los 32 productos actuales siguen en el catálogo. Aquí puedes guardar ajustes por ID sin borrar el catálogo original.</p><form id="productForm" class="form-grid"><div><label>ID del producto</label><input name="id" placeholder="ej. mf-01" required></div><div><label>Nombre opcional</label><input name="name"></div><div><label>Precio</label><input name="price" type="number" min="0"></div><div><label>Stock</label><input name="stock" type="number" min="0"></div><div><label>Categoría</label><input name="category" placeholder="Tacones / Plataformas"></div><div class="row" style="align-self:end"><label><input name="active" type="checkbox" checked> Activo</label></div><div class="full"><button class="btn">Guardar ajuste</button></div></form><div class="table-wrap">'+(d.products.length?'<table class="table"><tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Stock</th></tr>'+d.products.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+money(p.price)+'</td><td>'+esc(p.active?'Activo':'Oculto')+'</td><td>'+esc(p.stock??'—')+'</td></tr>').join('')+'</table>':'<p class="muted">Todavía no hay ajustes guardados.</p>')+'</div></div>';
-   $("#productForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-product",id:f.get("id"),name:f.get("name"),price:f.get("price"),stock:f.get("stock"),category:f.get("category"),active:f.get("active")==="on"})});toast("Producto actualizado");load("products")};return}
-  if(view==="settings"){const d=await api("/.netlify/functions/admin-api?section=settings"),s=d.settings||{};c.innerHTML='<div class="panel"><h2>Marca y contacto</h2><form id="settingsForm"><label>Mensaje de marca</label><input name="brandMessage" value="'+esc(s.brandMessage||"")+'"><label>WhatsApp</label><input name="whatsapp" value="'+esc(s.whatsapp||"")+'"><label>Instagram</label><input name="instagram" value="'+esc(s.instagram||"")+'"><label>Email</label><input name="email" value="'+esc(s.email||"")+'"><button class="btn">Guardar</button></form></div>';$("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/.netlify/functions/admin-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")})});toast("Guardado");};return}
-  if(view==="bold"){c.innerHTML='<div class="panel"><h2>Bold</h2><h3>Crear link de pago</h3><form id="createBoldForm" class="form-grid"><div><label>Total COP</label><input name="total" type="number" min="1000" required></div><div><label>Referencia</label><input name="reference" placeholder="MF..."></div><div class="full"><label>Descripción</label><input name="description" value="Pedido MF Colombia"></div><div class="full"><button class="btn">Crear link seguro</button></div></form><pre id="createBoldResult">Sin link creado.</pre><hr style="border:0;border-top:1px solid var(--line);margin:28px 0"><h3>Consultar pago</h3><form id="boldForm"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."><label>o referencia externa</label><input name="reference" placeholder="MF..."><button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>';$("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{const d=await api("/.netlify/functions/admin-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({total:f.get("total"),reference:f.get("reference"),description:f.get("description")})});$("#createBoldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#createBoldResult").textContent=err.message}};$("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message}};return}
+  if(view==="dashboard"){
+   await loadRows();
+   const visible=rows.filter(r=>r.active).length, hidden=rows.length-visible, mine=rows.filter(r=>r.custom).length;
+   c.innerHTML=`<div class="cards">
+     <div class="metric"><span>Productos en la tienda</span><b>${visible}</b></div>
+     <div class="metric"><span>Ocultos</span><b>${hidden}</b></div>
+     <div class="metric"><span>Cargados desde el panel</span><b>${mine}</b></div></div>
+    <div class="panel cta"><div><h2>Cargar un producto nuevo</h2><p class="sub" style="margin:0">Sube las fotos, pon nombre y precio, y aparece en mfcol.com al instante.</p></div><button class="btn" id="goNew">+ Nuevo producto</button></div>`;
+   $("#goNew").onclick=()=>{$$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view==="products"));editProduct(null)};
+   return}
+  if(view==="products"){await loadRows();renderProducts();return}
+  if(view==="settings"){const d=await api(API+"?section=settings"),s=d.settings||{};
+   c.innerHTML=`<div class="panel" style="max-width:640px"><h2>Marca y contacto</h2><p class="sub">Textos y datos de contacto que se muestran en la tienda.</p>
+    <form id="settingsForm"><div class="field"><label>Mensaje de marca</label><input name="brandMessage" value="${esc(s.brandMessage||"")}"></div>
+    <div class="field"><label>WhatsApp</label><input name="whatsapp" value="${esc(s.whatsapp||"")}" inputmode="numeric"></div>
+    <div class="field"><label>Instagram</label><input name="instagram" value="${esc(s.instagram||"")}"></div>
+    <div class="field"><label>Email</label><input name="email" value="${esc(s.email||"")}"></div>
+    <button class="btn">Guardar</button></form></div>`;
+   $("#settingsForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);
+    try{await post({action:"save-settings",brandMessage:f.get("brandMessage"),whatsapp:f.get("whatsapp"),instagram:f.get("instagram"),email:f.get("email")});toast("Guardado")}catch(err){toast(err.message,true)}};return}
+  if(view==="bold"){
+   c.innerHTML=`<div class="panel" style="max-width:720px"><h2>Bold</h2><p class="sub">Crea links de pago y consulta el estado de un pago.</p>
+    <h3 style="font-size:19px;margin-bottom:12px">Crear link de pago</h3>
+    <form id="createBoldForm" class="form-grid"><div class="field"><label>Total COP</label><input name="total" type="number" min="1000" required></div>
+    <div class="field"><label>Referencia</label><input name="reference" placeholder="MF..."></div>
+    <div class="field full"><label>Descripción</label><input name="description" value="Pedido MF Colombia"></div>
+    <div class="full"><button class="btn">Crear link seguro</button></div></form>
+    <pre id="createBoldResult">Sin link creado.</pre><hr>
+    <h3 style="font-size:19px;margin-bottom:12px">Consultar pago</h3>
+    <form id="boldForm"><div class="field"><label>Link de pago (LNK_...)</label><input name="payment_link" placeholder="LNK_..."></div>
+    <div class="field"><label>o referencia externa</label><input name="reference" placeholder="MF..."></div>
+    <button class="btn">Consultar</button></form><pre id="boldResult">Sin consulta.</pre></div>`;
+   $("#createBoldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{const d=await api("/.netlify/functions/admin-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({total:f.get("total"),reference:f.get("reference"),description:f.get("description")})});$("#createBoldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#createBoldResult").textContent=err.message}};
+   $("#boldForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const q=f.get("payment_link")?("?payment_link="+encodeURIComponent(f.get("payment_link"))):("?reference="+encodeURIComponent(f.get("reference")));try{const d=await api("/.netlify/functions/bold-status"+q);$("#boldResult").textContent=JSON.stringify(d,null,2)}catch(err){$("#boldResult").textContent=err.message+(err.diagnostic?"\nDiagnóstico: "+JSON.stringify(err.diagnostic,null,2):"")}};return}
  }catch(e){c.innerHTML='<div class="panel"><p>'+esc(e.message)+'</p></div>'}
 }
-function orderTable(rows){if(!rows?.length)return'<p class="muted">No hay pedidos todavía.</p>';return'<div class="table-wrap"><table class="table"><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Pedido</th><th>Link de pago</th><th>Acciones</th></tr>'+rows.map(o=>'<tr><td><strong>'+esc(o.reference)+'</strong><br><span class="muted">'+esc(o.createdAt)+'</span></td><td>'+esc(o.name)+'<br>'+esc(o.phone)+'<br>'+esc(o.city)+'</td><td>'+money(o.total)+'</td><td><span class="status">'+esc(o.paymentStatus)+'</span><br>'+esc(o.boldPaymentMethod||o.paymentMethod)+'</td><td><pre>'+esc(o.pedido||"")+'</pre></td><td>'+(o.paymentLink?'<a href="'+esc(o.paymentLink)+'" target="_blank" rel="noopener">Reenviar link</a>':'<span class="muted">—</span>')+'</td><td><select onchange="updateOrder(\''+esc(o.reference)+'\',this.value)"><option value="">Estado…</option><option value="confirmado">Confirmado</option><option value="preparando">Preparando</option><option value="enviado">Enviado</option><option value="entregado">Entregado</option><option value="cancelado">Cancelado</option></select></td></tr>').join('')+'</table></div>'}
-async function updateOrder(ref,status){if(!status)return;await api("/.netlify/functions/orders",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,status})});toast("Pedido actualizado");load("orders")}
 $$("#nav button").forEach(b=>b.addEventListener("click",()=>load(b.dataset.view)));
+
+/* ---------- Lista de productos ---------- */
+function renderProducts(){
+ const c=$("#content");
+ c.innerHTML=`<div class="panel"><div class="row spaced" style="margin-bottom:16px"><div><h2>Productos</h2><p class="sub" style="margin:0">${rows.length} en total · toca uno para editarlo</p></div></div>
+  <div class="toolbar"><input id="q" type="search" placeholder="Buscar producto…"><select id="f"><option value="">Todos</option><option value="plataformas">Plataformas</option><option value="tacones">Tacones</option><option value="hidden">Ocultos</option><option value="custom">Cargados desde el panel</option></select><button class="btn" id="newBtn">+ Nuevo producto</button></div>
+  <div class="plist" id="plist"></div></div>`;
+ const draw=()=>{
+  const q=$("#q").value.trim().toLowerCase(),f=$("#f").value;
+  const list=rows.filter(r=>(!q||(r.name+" "+r.category).toLowerCase().includes(q))&&(!f||(f==="hidden"?!r.active:f==="custom"?r.custom:r.group===f)));
+  $("#plist").innerHTML=list.length?list.map(r=>`<div class="prow"><div class="thumb" style="background-image:url('${esc(imgSrc(r.img))}')"></div>
+    <div><div class="pname">${esc(r.name)}${r.active?"":'<span class="badge off">Oculto</span>'}${r.custom?'<span class="badge new">Nuevo</span>':""}</div><div class="pmeta">${esc(GROUP_LABEL[r.group]||"")}${r.category?" · "+esc(r.category):""}</div></div>
+    <div class="price">${r.price!=null?money(r.price):"—"}</div><button class="btn light sm" data-edit="${esc(r.id)}">Editar</button></div>`).join(""):'<div class="empty">No hay productos con ese filtro.</div>';
+  $$("[data-edit]").forEach(b=>b.onclick=()=>editProduct(b.dataset.edit));
+ };
+ $("#q").oninput=draw;$("#f").onchange=draw;$("#newBtn").onclick=()=>editProduct(null);draw();
+}
+
+/* ---------- Editor: producto nuevo / existente ---------- */
+let editor=null;
+function editProduct(id){
+ const r=id?rows.find(x=>x.id===id):null;
+ editor={id:r?r.id:null,custom:r?r.custom:true,imgs:r&&r.imgs?r.imgs.map(i=>[...i]):[],busy:0};
+ const full=editor.custom; // nuevo o creado desde el panel → se edita todo
+ const c=$("#content");
+ c.innerHTML=`<button class="back" id="back">← Volver a productos</button>
+  <div class="panel" style="max-width:760px"><h2>${r?"Editar producto":"Nuevo producto"}</h2>
+  <p class="sub">${r?esc(r.name):"Completa los datos y guarda. Aparece en la tienda al instante."}</p>
+  ${!full?'<div class="notice">Este producto es del catálogo original: aquí puedes cambiar nombre, precio, categoría y ocultarlo. Sus fotos y colores no se modifican desde el panel.</div>':""}
+  <form id="pForm"><div class="form-grid">
+   <div class="field full"><label>Nombre *</label><input name="name" required maxlength="120" value="${esc(r?r.name:"")}" placeholder="ej. Sandalia de tacón aguja con tiras finas"></div>
+   <div class="field"><label>Precio (COP) *</label><input name="price" type="number" min="1000" step="100" required value="${r&&r.price!=null?r.price:""}" placeholder="199900"><div class="hint" id="priceHint"></div></div>
+   ${full?`<div class="field"><label>Categoría *</label><select name="group" required><option value="">Elegir…</option><option value="plataformas"${r&&r.group==="plataformas"?" selected":""}>Plataformas</option><option value="tacones"${r&&r.group==="tacones"?" selected":""}>Tacones</option></select></div>`:`<div class="field"><label>Stock (opcional)</label><input name="stock" type="number" min="0" value="${r&&r.stock!=null?r.stock:""}"></div>`}
+   <div class="field full"><label>Características</label><input name="category" maxlength="120" value="${esc(r?r.category:"")}" placeholder="ej. Punta abierta · Tacón alto · Correa al tobillo"><div class="hint">Sepáralas con un punto medio (·). Se muestran bajo el nombre.</div></div>
+   ${full?`<div class="field full"><label>Colores disponibles *</label><input name="colors" value="${esc(r?(r.colors||[]).join(", "):"")}" placeholder="ej. Negro, Blanco, Nude"><div class="hint">Separados por coma. Las tallas son 34 a 40.</div></div>
+   <div class="field full"><label>Descripción</label><textarea name="desc" maxlength="600" placeholder="Breve descripción del modelo">${esc(r?r.desc:"")}</textarea></div>
+   <div class="field full"><label>Fotos * <span class="muted" style="font-weight:400">· la primera es la principal</span></label><div class="photos" id="photos"></div><input id="file" type="file" accept="image/*" multiple class="hidden"><div class="hint">JPG o PNG. Se reducen automáticamente. Máximo 8 fotos.</div></div>
+   <div class="field"><label>Stock (opcional)</label><input name="stock" type="number" min="0" value="${r&&r.stock!=null?r.stock:""}"></div>
+   <div class="field" style="align-self:end"><label style="font-weight:500;display:flex;gap:8px;align-items:center;margin:0 0 12px"><input name="isNew" type="checkbox"${r&&r.isNew?" checked":""}> Marcar como “Novedad”</label></div>`:""}
+   <div class="field full"><label style="font-weight:500;display:flex;gap:8px;align-items:center;margin:0"><input name="active" type="checkbox"${!r||r.active?" checked":""}> Visible en la tienda</label></div>
+  </div>
+  <div class="actions"><button class="btn" id="saveBtn">${r?"Guardar cambios":"Publicar producto"}</button><button type="button" class="btn light" id="cancelBtn">Cancelar</button><span class="grow"></span>${r&&r.custom?'<button type="button" class="btn danger" id="delBtn">Eliminar</button>':""}</div></form></div>`;
+ const back=()=>{load("products")};
+ $("#back").onclick=back;$("#cancelBtn").onclick=back;
+ const price=$("#pForm").elements.price,hint=$("#priceHint");
+ const showPrice=()=>{hint.textContent=price.value?money(price.value):""};price.oninput=showPrice;showPrice();
+ if(full){drawPhotos();$("#file").onchange=async e=>{await addPhotos([...e.target.files]);e.target.value=""}}
+ $("#pForm").onsubmit=e=>{e.preventDefault();saveProduct(e.target)};
+ if($("#delBtn"))$("#delBtn").onclick=async()=>{if(!confirm("¿Eliminar este producto? Se borra de la tienda y no se puede deshacer."))return;
+  try{await post({action:"delete-product",id:editor.id});toast("Producto eliminado");load("products")}catch(err){toast(err.message,true)}};
+}
+
+function drawPhotos(){
+ const box=$("#photos");if(!box)return;
+ box.innerHTML=editor.imgs.map((im,i)=>`<div class="photo" style="background-image:url('${esc(im[0])}')"><button type="button" class="x" data-rm="${i}" aria-label="Quitar foto">×</button>${i?`<button type="button" class="main" data-main="${i}">Hacer principal</button>`:""}</div>`).join("")+
+  (editor.imgs.length<8?`<div class="photo add${editor.busy?" busy":""}" id="addPhoto">${editor.busy?"Subiendo…":"+ Agregar foto"}</div>`:"");
+ $$("[data-rm]").forEach(b=>b.onclick=()=>{editor.imgs.splice(+b.dataset.rm,1);drawPhotos()});
+ $$("[data-main]").forEach(b=>b.onclick=()=>{const [m]=editor.imgs.splice(+b.dataset.main,1);editor.imgs.unshift(m);drawPhotos()});
+ const add=$("#addPhoto");if(add)add.onclick=()=>{if(!editor.busy)$("#file").click()};
+}
+
+/* Reduce la foto a máx. 1400 px y la convierte a JPEG antes de subirla. */
+function shrink(file){return new Promise((resolve,reject)=>{
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{const max=1400,k=Math.min(1,max/Math.max(img.width,img.height));
+  const cv=document.createElement("canvas");cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+  const ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,cv.width,cv.height);ctx.drawImage(img,0,0,cv.width,cv.height);
+  URL.revokeObjectURL(url);
+  cv.toBlob(b=>{if(!b)return reject(new Error("No se pudo procesar la foto"));const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(",")[1]);fr.onerror=()=>reject(new Error("No se pudo leer la foto"));fr.readAsDataURL(b)},"image/jpeg",.85)};
+ img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("No se pudo abrir esa foto. Usa JPG o PNG."))};
+ img.src=url})}
+async function addPhotos(files){
+ const room=8-editor.imgs.length;
+ if(files.length>room)toast("Máximo 8 fotos por producto",true);
+ for(const f of files.slice(0,Math.max(0,room))){
+  editor.busy++;drawPhotos();
+  try{const data=await shrink(f);const d=await post({action:"upload-image",data});editor.imgs.push([d.url,""])}
+  catch(err){toast(err.message,true)}
+  editor.busy--;drawPhotos();
+ }
+}
+
+async function saveProduct(form){
+ if(editor.busy){toast("Espera a que terminen de subir las fotos",true);return}
+ const f=new FormData(form),btn=$("#saveBtn");
+ const body={action:editor.id?"save-product":"create-product",id:editor.id,name:f.get("name"),price:f.get("price"),category:f.get("category"),stock:f.get("stock"),active:f.get("active")==="on"};
+ if(editor.custom){
+  if(!editor.imgs.length){toast("Sube al menos una foto",true);return}
+  Object.assign(body,{group:f.get("group"),colors:f.get("colors"),desc:f.get("desc"),isNew:f.get("isNew")==="on",imgs:editor.imgs.map((im,i)=>[im[0],(f.get("name")||"")+" — foto "+(i+1)])});
+ }
+ btn.disabled=true;btn.textContent="Guardando…";
+ try{await post(body);toast(editor.id?"Cambios guardados":"Producto publicado en la tienda");load("products")}
+ catch(err){toast(err.message,true);btn.disabled=false;btn.textContent=editor.id?"Guardar cambios":"Publicar producto"}
+}
+
 (async()=>{const r=await fetch("/.netlify/functions/admin-auth",{credentials:"same-origin"});if(r.ok)showApp()})();
 </script>
 </body>

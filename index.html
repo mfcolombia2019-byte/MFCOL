@@ -2705,6 +2705,65 @@ function trackMetaInitiateCheckout(reference) {
 }
 </style>
 
+
+<style id="mf-color-system">
+/* MF color system — visual-only refinement; preserve catalog and checkout behavior */
+:root{
+  --white:#fff;
+  --black:#111;
+  --text:#111;
+  --muted:#686868;
+  --soft:#f3f3f3;
+  --line:#e5e5e5;
+  --mf-accent:#dfff00;
+}
+body{background:#fff;color:#111}
+.hdr{background:rgba(255,255,255,.97);border-bottom-color:#e5e5e5}
+.btn:not(.btn-light):not(.btn-solid-light){
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.btn:not(.btn-light):not(.btn-solid-light):hover{
+  background:#333!important;
+  color:#fff!important;
+  border-color:#333!important;
+}
+#productGrid.grid .card,
+.grid .card,
+.rail-page .card,
+.rails .rail-page .card{
+  background:#f1f1f1!important;
+}
+.grid .card-body,
+.rail-page .card .card-body,
+.rails .rail-page .card .card-body{
+  background:transparent!important;
+  color:#111!important;
+}
+.grid .card-body h3,
+.grid .card-body .price,
+.rail-page .card h3,
+.rail-page .card .price{
+  color:#111!important;
+}
+.tag{
+  background:var(--mf-accent)!important;
+  color:#111!important;
+}
+.rail-chip[aria-pressed="true"]{
+  background:var(--mf-accent)!important;
+  border-color:#111!important;
+}
+.mfh{background:#fff}
+.mfh-dots button[aria-pressed="true"]{
+  box-shadow:0 0 0 3px var(--mf-accent);
+}
+@media(prefers-reduced-motion:reduce){
+  .grid .card,.btn{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <script>
@@ -3113,6 +3172,13 @@ go(0);run()})();
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var byId = function (id) { return PRODUCTS.filter(function (p) { return p.id === id; })[0]; };
+  var EXCLUSIVE_COLLECTION_IDS = new Set(
+    (window.COLECCIONES && window.COLECCIONES["plataforma-blanca"] && window.COLECCIONES["plataforma-blanca"].ids || [])
+      .map(function (id) { return String(id); })
+  );
+  function isExclusiveCollectionProduct(p) {
+    return !!p && EXCLUSIVE_COLLECTION_IDS.has(String(p.id));
+  }
   var fmt = function (n) { return "$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
   var norm = function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); };
@@ -3328,7 +3394,9 @@ go(0);run()})();
 
   function similarProducts(p) {
     var key = collectionOf(p);
-    return PRODUCTS.filter(function (x) { return collectionOf(x) === key; }).length;
+    return PRODUCTS.filter(function (x) {
+      return !isExclusiveCollectionProduct(x) && collectionOf(x) === key;
+    }).length;
   }
 
   var RAIL_SIZE = 6, RAIL_LABELS = { plataformas: "Plataformas", tacones: "Tacones" };
@@ -3337,7 +3405,9 @@ go(0);run()})();
   var reducedMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function railList(group) {
-    return PRODUCTS.filter(function (p) { return p.group === group && p.adminActive !== false; });
+    return PRODUCTS.filter(function (p) {
+      return p.group === group && p.adminActive !== false && !isExclusiveCollectionProduct(p);
+    });
   }
   function railHTML(group) {
     var list = railList(group), label = RAIL_LABELS[group], pages = Math.max(1, Math.ceil(list.length / RAIL_SIZE)), i, k, out = "";
@@ -3486,9 +3556,11 @@ go(0);run()})();
     if (f) f.qty += qty; else bag.push({ id: id, size: size, color: color || null, qty: qty });
     saveBag(); renderBag(); if (!quiet) toast(qty > 1 ? "Añadido a la bolsa (x" + qty + ")" : "Añadido a la bolsa");
   }
-  // Envío desactivado temporalmente para la prueba de checkout.
+  // Tarifas de envío nacionales según cantidad de paquetes.
   function shippingFeeForPackages(count) {
-    return 0;
+    if (count <= 0) return 0;
+    if (count === 1) return 17000;
+    return 24000;
   }
   function packageLabel(count) { return count + (count === 1 ? " paquete" : " paquetes"); }
 
@@ -3699,7 +3771,9 @@ go(0);run()})();
     var pd = $("#pd"), pending = p.price == null;
     resetProductViewport(pd);
     pd.dataset.product = p.id;
-    var related = PRODUCTS.filter(function(x){ return x.id !== p.id; }).slice(0,4);
+    var related = PRODUCTS.filter(function(x){
+      return x.id !== p.id && !isExclusiveCollectionProduct(x);
+    }).slice(0,4);
     pd.innerHTML =
       '<div class="pd-top">' +
         '<a class="pd-top-logo" href="#inicio" aria-label="Volver al inicio"><svg class="mf-logo brand-logo-black" viewBox="240 254 581 508" fill="currentColor" role="img" aria-label="MF"><polygon points="246,260 426,548 606,260 607,756 570,756 570,388 426,617 283,388 283,756 246,756"/><rect x="606" y="323" width="209" height="37"/><rect x="606" y="521" width="161" height="37"/></svg></a>' +
@@ -4145,7 +4219,9 @@ go(0);run()})();
     if (!q) { sdList.innerHTML = ""; return; }
 
     searchTimer = setTimeout(function () {
-      var res = PRODUCTS.map(function (p) {
+      var res = PRODUCTS.filter(function (p) {
+        return !isExclusiveCollectionProduct(p);
+      }).map(function (p) {
         return { p:p, score:keywordMatchScore(p, q) };
       }).filter(function (x) {
         return x.score > 0;
@@ -4444,11 +4520,14 @@ go(0);run()})();
       var cfg = await r.json();
 
       var catalogChanged = false;
+      // Productos nuevos creados desde el panel admin.
+      if (typeof mfMergeCustomProducts === "function" && mfMergeCustomProducts(cfg.products)) catalogChanged = true;
       (cfg.products || []).forEach(function (o) {
+        if (o.custom) return;
         var p = byId(o.id);
         if (!p) return;
         if (o.name && p.name !== o.name) { p.name = o.name; catalogChanged = true; }
-        if (o.price !== undefined && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
+        if (o.price != null && p.price !== o.price) { p.price = o.price; catalogChanged = true; }
         if (o.category && p.cat !== o.category) { p.cat = o.category; catalogChanged = true; }
         var active = o.active !== false;
         if (p.adminActive !== undefined && p.adminActive !== active) catalogChanged = true;

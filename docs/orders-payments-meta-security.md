@@ -169,3 +169,20 @@ Se mantienen publish="." y functions="netlify/functions". Netlify recomienda man
 tests/orders-meta.test.mjs fue actualizado para probar autoridad server-side del total, validación de carrito, precio no configurado, talla inválida, SALE_APPROVED, importe confirmado, Purchase posterior a aprobación, fbp/fbc, event_id estable y no degradación de aprobado.
 
 Las pruebas reales de Netlify/Blobs, Bold y Meta no se ejecutaron en esta sesión. No hubo eventos reales a Meta.
+
+## Confirmación de pago Bold en retorno (order-status)
+
+Causa del estado "pendiente" tras un pago aprobado: la tienda cobra con el Embedded Checkout / Botón de pagos de Bold, con `orderId` igual a la referencia del pedido MF. `order-status` consultaba las notificaciones de Bold por el ID `LNK_*` del enlace (o por referencia externa solo como respaldo), pero ninguna transacción queda asociada a ese enlace, así que nunca encontraba la aprobación.
+
+Corrección:
+
+- `order-status` consulta primero `GET https://payments.api.bold.co/v2/payment-voucher/<referencia MF>` (documentado para el Botón de pagos, con `x-api-key <llave de identidad>`). Solo `payment_status = APPROVED` aprueba, y únicamente si `total` es igual al del pedido, `reference_id` coincide y existe `transaction_id`.
+- Si esa consulta no da una respuesta utilizable (HTTP, red, formato), usa el servicio de respaldo `GET .../payments/webhook/notifications/<referencia MF>?is_external_reference=true`, aceptando solo `SALE_APPROVED` con `metadata.reference` exacta, moneda COP e importe igual.
+- Los parámetros de retorno (`bold-tx-status`, etc.) nunca se leen en el servidor ni cambian el pedido.
+- La escritura es condicional (`onlyIfMatch`); Meta CAPI y WhatsApp solo se disparan si esa invocación ganó la escritura. La clave de Purchase se deriva de referencia + `transaction_id`, igual que en el webhook, por lo que no hay duplicados.
+- Límite de frecuencia: una consulta a Bold cada 15 s por pedido. La respuesta incluye `verification` (`checked`, `recent`, `unavailable`, `not_applicable`) para que `gracias.html` distinga un error temporal de un pago pendiente.
+- Los logs registran solo etapa y código HTTP, nunca la clave ni datos del pagador.
+
+Origen de retorno (`crear-link-pago.mjs`): en producción se usa `SITE_CANONICAL_ORIGIN` (o `URL`). Fuera de producción solo se usa el origen del propio despliegue (`DEPLOY_PRIME_URL`, luego `DEPLOY_URL`) y nunca un origen de producción; si no hay uno válido no se crea el pago.
+
+Limitaciones: el voucher no informa moneda (se asume COP porque el checkout se crea en el servidor con COP y firma de integridad). Bold indica que el webhook no se envía en pruebas y que sus consultas de respaldo no deben ser la fuente principal.
