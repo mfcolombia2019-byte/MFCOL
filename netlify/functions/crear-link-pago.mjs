@@ -40,7 +40,7 @@ function httpsOrigin(candidate) {
 //   productivo, así que no se usan como respaldo: devolver "" es preferible a
 //   enviar un pago de prueba a la tienda real.
 // `read` se inyecta para poder probar la selección sin tocar el entorno.
-export function canonicalOrigin(read = env) {
+function originFromEnv(read) {
   const isProduction = String(read("CONTEXT") || "").trim().toLowerCase() === "production";
 
   if (isProduction) {
@@ -60,6 +60,59 @@ export function canonicalOrigin(read = env) {
   }
 
   return "";
+}
+
+// En ejecución Netlify solo expone URL, SITE_NAME y SITE_ID a las funciones;
+// CONTEXT y DEPLOY_* existen únicamente durante el build. Por eso, cuando
+// originFromEnv() no encuentra nada, el origen se toma de la propia petición
+// (el dominio con el que el cliente abrió la tienda) y solo se acepta si es:
+//   - HTTPS, sin puerto ni credenciales, y
+//   - el host de SITE_CANONICAL_ORIGIN / URL (dominio real de la tienda), o
+//   - un host de despliegue de ESTE sitio: <algo>--<SITE_NAME>.netlify.app
+//     (Deploy Preview, Branch Deploy o permalink del deploy).
+// Cualquier otro host se rechaza, así el retorno del pago nunca se construye
+// con un dominio que no pertenezca al sitio.
+export function requestOrigin(requestUrl, read = env) {
+  let u;
+  try { u = new URL(String(requestUrl || "").trim()); }
+  catch { return ""; }
+  if (u.protocol !== "https:" || u.port !== "" || u.username || u.password) return "";
+
+  const host = u.hostname.toLowerCase();
+  const knownHosts = [read("SITE_CANONICAL_ORIGIN"), read("URL")]
+    .map(httpsOrigin)
+    .filter(Boolean)
+    .map(origin => new URL(origin).hostname.toLowerCase());
+  if (knownHosts.includes(host)) return u.origin;
+
+  const siteName = String(read("SITE_NAME") || "").trim().toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(siteName)) return "";
+  const suffix = "--" + siteName + ".netlify.app";
+  if (host.length > suffix.length && host.endsWith(suffix) && /^[a-z0-9-]+$/.test(host.slice(0, -suffix.length))) {
+    return u.origin;
+  }
+  return "";
+}
+
+// Devuelve el origen y de dónde salió ("env", "request" o "none").
+export function resolveOrigin(read = env, requestUrl = "") {
+  const fromEnv = originFromEnv(read);
+  if (fromEnv) return { origin: fromEnv, source: "env" };
+  const fromRequest = requestUrl ? requestOrigin(requestUrl, read) : "";
+  if (fromRequest) return { origin: fromRequest, source: "request" };
+  return { origin: "", source: "none" };
+}
+
+export function canonicalOrigin(read = env, requestUrl = "") {
+  return resolveOrigin(read, requestUrl).origin;
+}
+
+// Solo nombre y presencia (true/false) de cada variable: nunca su valor.
+const DIAGNOSTIC_ENV_NAMES = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "SITE_NAME"];
+function envPresence(read = env) {
+  return Object.fromEntries(
+    DIAGNOSTIC_ENV_NAMES.map(name => [name, String(read(name) || "").trim() !== ""])
+  );
 }
 
 async function associateBoldLink(reference, paymentLink) {
@@ -116,7 +169,7 @@ async function ensureBoldLinkMapping(reference, paymentLink) {
 
   throw new Error("No se pudo confirmar la asociación del enlace Bold");
 }
-export default async (req) => {
+export default async (req, context) => {
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
   let body;
@@ -145,16 +198,28 @@ export default async (req) => {
     return json({ error: "El pago en línea aún no está habilitado para esta tienda." }, 503);
   }
 
-  const origin = canonicalOrigin();
+  const { origin, source: originSource } = resolveOrigin(env, req.url);
+  // Contexto de despliegue que informa el runtime (no es secreto) y solo la
+  // presencia de las variables; nunca se registran valores de variables.
+  const runtimeContext = String(context?.deploy?.context || "").trim().toLowerCase() || null;
   if (!origin) {
     const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
-    console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
+    console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.", JSON.stringify({
+      handlerContext: runtimeContext,
+      envPresent: envPresence(),
+      requestProtocolHttps: String(req.url || "").startsWith("https://")
+    }));
     return json({
       error: isProduction
         ? "Falta configurar SITE_CANONICAL_ORIGIN con el dominio HTTPS canónico de la tienda antes de crear pagos."
         : "No se pudo determinar el dominio HTTPS de este despliegue para el retorno del pago."
     }, 503);
   }
+
+  console.info("Bold Embedded Checkout: origen de retorno resuelto.", JSON.stringify({
+    originSource,
+    handlerContext: runtimeContext
+  }));
 
   const boldApiKey = String(env("BOLD_API_KEY") || "").trim();
   if (!boldApiKey) {
