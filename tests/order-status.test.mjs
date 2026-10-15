@@ -153,6 +153,50 @@ test("consulta el estado del Botón de pagos por la referencia del pedido y reco
   }
 });
 
+test("no aprueba un voucher si falta reference_id aunque Bold indique APPROVED", async () => {
+  seedOrder();
+  const fetchMock = mock.method(globalThis, "fetch", async () => new Response(JSON.stringify({
+    link_id: "BTN_TEST",
+    transaction_id: "PAYMENT_NO_REF",
+    total: 5000,
+    payment_status: "APPROVED"
+    // reference_id omitido deliberadamente: no se puede asociar con seguridad al pedido.
+  }), { status: 200, headers: { "Content-Type": "application/json" } }));
+  try {
+    const response = await requestStatus();
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(body.paymentStatus, "pendiente");
+    assert.equal(records.get("orders/MFORDER123").data.paymentStatus, "pendiente");
+    assert.equal(metaEnqueues, 0);
+    assert.equal(whatsappEnqueues, 0);
+  } finally {
+    fetchMock.mock.restore();
+  }
+});
+
+test("no aprueba un voucher cuyo reference_id no coincide exactamente", async () => {
+  seedOrder();
+  const fetchMock = mock.method(globalThis, "fetch", async () => new Response(JSON.stringify({
+    link_id: "BTN_TEST",
+    transaction_id: "PAYMENT_WRONG_REF",
+    total: 5000,
+    reference_id: "MFORDER123-OTHER",
+    payment_status: "APPROVED"
+  }), { status: 200, headers: { "Content-Type": "application/json" } }));
+  try {
+    const response = await requestStatus();
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(body.paymentStatus, "pendiente");
+    assert.equal(records.get("orders/MFORDER123").data.paymentStatus, "pendiente");
+    assert.equal(metaEnqueues, 0);
+    assert.equal(whatsappEnqueues, 0);
+  } finally {
+    fetchMock.mock.restore();
+  }
+});
+
 test("no aprueba un pago cuyo importe o moneda no coinciden", async () => {
   seedOrder();
   const fetchMock = mock.method(globalThis, "fetch", async () => new Response(JSON.stringify({
