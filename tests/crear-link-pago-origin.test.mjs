@@ -184,6 +184,57 @@ test("el checkout de producción conserva el dominio canónico", async () => {
   assert.ok(body.embedded.originUrl.startsWith(PRODUCTION + "/"));
 });
 
+test("usa únicamente Embedded Checkout: no crea ni asocia un API Payment Link LNK_*", async () => {
+  const saved = {};
+  const names = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "BOLD_SECRET_KEY", "BOLD_API_KEY"];
+  for (const name of names) {
+    saved[name] = process.env[name];
+    delete process.env[name];
+  }
+  let upstreamCalls = 0;
+  const fetchMock = mock.method(globalThis, "fetch", async () => {
+    upstreamCalls++;
+    throw new Error("No debe llamar al endpoint de API Payment Links");
+  });
+  try {
+    Object.assign(process.env, {
+      CONTEXT: "branch-deploy",
+      BOLD_SECRET_KEY: "test-secret-only",
+      BOLD_API_KEY: "test-api-key-only",
+      DEPLOY_PRIME_URL: PREVIEW
+    });
+    state.clear();
+    etags.clear();
+    state.set("orders/MFSINGLE1", {
+      reference: "MFSINGLE1",
+      total: 199900,
+      paymentStatus: "pendiente",
+      paymentMethod: "Link de pago (Bold)",
+      items: [{ name: "Producto de prueba" }]
+    });
+    etags.set("orders/MFSINGLE1", '"seed-single"');
+    const response = await handler(new Request(PREVIEW + "/.netlify/functions/crear-link-pago", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reference: "MFSINGLE1" })
+    }));
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(body.reference, "MFSINGLE1");
+    assert.equal(body.embedded.orderId, "MFSINGLE1");
+    assert.equal(body.embedded.redirectionUrl, PREVIEW + "/gracias.html?ref=MFSINGLE1");
+    assert.equal(body.payment_link, undefined);
+    assert.equal(state.has("bold-links/LNK_TEST"), false);
+    assert.equal(upstreamCalls, 0);
+  } finally {
+    fetchMock.mock.restore();
+    for (const name of names) {
+      if (saved[name] === undefined) delete process.env[name];
+      else process.env[name] = saved[name];
+    }
+  }
+});
+
 test("una vista previa sin origen propio válido no crea el pago en lugar de volver a producción", async () => {
   const { status, body } = await createCheckout({
     CONTEXT: "deploy-preview",
