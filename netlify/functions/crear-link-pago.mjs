@@ -7,9 +7,17 @@ import { store, getJson, json } from "./_admin.mjs";
 const safeRef = /^[A-Za-z0-9_-]{1,60}$/;
 
 function env(name) {
-  return typeof Netlify !== "undefined" && Netlify.env
-    ? Netlify.env.get(name)
-    : process.env[name];
+  // Netlify.env exposes configured runtime variables, but system variables
+  // such as CONTEXT and DEPLOY_PRIME_URL may only be present in process.env.
+  if (typeof Netlify !== "undefined" && Netlify.env) {
+    try {
+      const value = Netlify.env.get(name);
+      if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+    } catch {
+      // Fall through to process.env when the runtime API cannot provide it.
+    }
+  }
+  return process.env[name];
 }
 
 function httpsOrigin(candidate) {
