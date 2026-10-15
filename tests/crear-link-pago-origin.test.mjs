@@ -85,6 +85,12 @@ test("fuera de producción usa DEPLOY_URL si falta DEPLOY_PRIME_URL", () => {
   );
 });
 
+test("branch deploy usa origen HTTPS de la petición si faltan las URLs de despliegue", () => {
+  assert.equal(canonicalOrigin(read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION }), "https://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app/.netlify/functions/crear-link-pago"), "https://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app");
+  assert.equal(canonicalOrigin(read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION }), "https://tienda.mfcol.com/.netlify/functions/crear-link-pago"), "");
+  assert.equal(canonicalOrigin(read({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION }), "http://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app/.netlify/functions/crear-link-pago"), "");
+});
+
 test("fuera de producción nunca recurre a URL ni a SITE_CANONICAL_ORIGIN", () => {
   assert.equal(canonicalOrigin(read({ CONTEXT: "deploy-preview", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION })), "");
   assert.equal(canonicalOrigin(read({ SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION })), "", "sin CONTEXT se trata como no producción");
@@ -111,7 +117,7 @@ test("fuera de producción rechaza un origen de despliegue que coincide con prod
 
 async function createCheckout(vars) {
   const saved = {};
-  const names = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "BOLD_SECRET_KEY", "BOLD_API_KEY"];
+  const names = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "BOLD_SECRET_KEY", "BOLD_API_KEY", "REQUEST_ORIGIN"];
   for (const name of names) {
     saved[name] = process.env[name];
     delete process.env[name];
@@ -130,7 +136,8 @@ async function createCheckout(vars) {
       paymentLink: "https://checkout.bold.co/LNK_EXISTING"
     });
     etags.set("orders/MFORIGIN1", '"seed"');
-    const response = await handler(new Request("https://irrelevante.example/.netlify/functions/crear-link-pago", {
+    const requestOrigin = vars.REQUEST_ORIGIN || "https://irrelevante.example";
+    const response = await handler(new Request(requestOrigin + "/.netlify/functions/crear-link-pago", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reference: "MFORIGIN1" })
@@ -143,6 +150,14 @@ async function createCheckout(vars) {
     }
   }
 }
+
+test("el checkout de branch deploy detecta su propio origen HTTPS por la petición", async () => {
+  const { status, body } = await createCheckout({ CONTEXT: "branch-deploy", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION, REQUEST_ORIGIN: "https://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app" });
+  assert.equal(status, 200);
+  assert.equal(body.embedded.redirectionUrl, "https://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app/gracias.html?ref=MFORIGIN1");
+  assert.ok(body.embedded.originUrl.startsWith("https://fix-checkout-page-redirect--comforting-liger-43ac3a.netlify.app/"));
+  assert.ok(!JSON.stringify(body.embedded).includes("tienda.mfcol.com"));
+});
 
 test("el checkout de una vista previa devuelve redirectionUrl y originUrl de la vista previa", async () => {
   const { status, body } = await createCheckout({
