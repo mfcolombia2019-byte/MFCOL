@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { resolveDeployContext } from "./_deploy-context.mjs";
 import { store } from "./_admin.mjs";
 import { processBoldWebhook, safeEventId, webhookInboxKey, ensureInbox } from "./_bold-webhook.mjs";
 import { processOutboxKey } from "./_meta-outbox.mjs";
@@ -8,8 +9,8 @@ function encodeForm(data) {
   return Object.keys(data).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")).join("&");
 }
 
-export function getBoldWebhookSecret(env = process.env) {
-  const context = String(env?.CONTEXT || "").trim().toLowerCase();
+export function getBoldWebhookSecret(env = process.env, contextName = resolveDeployContext(null, env)) {
+  const context = String(contextName || "").trim().toLowerCase();
   if (context === "production") {
     return String(env?.BOLD_API_KEY || "");
   }
@@ -33,8 +34,8 @@ export default async (req, context) => {
 
   const rawBody = await req.text();
   const signature = req.headers.get("x-bold-signature") || "";
-  const contextName = String(process.env.CONTEXT || "").trim().toLowerCase();
-  const secret = getBoldWebhookSecret();
+  const contextName = resolveDeployContext(context);
+  const secret = getBoldWebhookSecret(process.env, contextName);
 
   if (contextName === "production" && !secret) {
     console.error("BOLD_API_KEY no está configurada en producción");
@@ -106,20 +107,25 @@ export default async (req, context) => {
       }
     })
     .catch(async (error) => {
-      console.error("No se pudo procesar webhook Bold:", error);
-      const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
-      if (current && !current.processedAt) {
-        const attempts = Number(current.attempts || 0) + 1;
-        const retryable = attempts < 8;
-        current.status = "error";
-        current.attempts = attempts;
-        current.lastError = String(error?.message || error).slice(0, 1000);
-        current.updatedAt = new Date().toISOString();
-        current.processingAt = "";
-        current.nextAttemptAt = retryable
-          ? new Date(Date.now() + Math.min(60 * 60 * 1000, 30 * 1000 * (2 ** Math.max(0, attempts - 1)))).toISOString()
-          : "";
-        await store.setJSON(inboxKey, current);
+      const message = String(error?.message || "Error desconocido").slice(0, 500);
+      console.error("No se pudo procesar webhook Bold:", message);
+      try {
+        const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
+        if (current && !current.processedAt) {
+          const attempts = Number(current.attempts || 0) + 1;
+          const retryable = attempts < 8;
+          current.status = "error";
+          current.attempts = attempts;
+          current.lastError = message;
+          current.updatedAt = new Date().toISOString();
+          current.processingAt = "";
+          current.nextAttemptAt = retryable
+            ? new Date(Date.now() + Math.min(60 * 60 * 1000, 30 * 1000 * (2 ** Math.max(0, attempts - 1)))).toISOString()
+            : "";
+          await store.setJSON(inboxKey, current);
+        }
+      } catch (persistError) {
+        console.error("No se pudo guardar el error del webhook Bold:", String(persistError?.message || "Error de persistencia").slice(0, 300));
       }
     });
 
