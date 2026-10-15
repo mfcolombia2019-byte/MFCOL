@@ -997,8 +997,7 @@ body:before{
   letter-spacing:.17em;
   text-transform:uppercase;
   color:#888;
-  position:relative;
-}
+  position:relative;}
 .tabs button[aria-pressed=true]{color:#111}
 .tabs button[aria-pressed=true]:after{
   content:"";
@@ -1997,8 +1996,7 @@ body{background:#fff;color:#111}
 .tabs button[aria-pressed="true"]{color:#111!important;border-color:#111!important}
 .count{font-size:10px!important;margin-bottom:18px!important;color:#999!important}
 .grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:48px 18px!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;  gap:48px 18px!important;
 }
 @media(min-width:780px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:62px 24px!important}}
 @media(min-width:1200px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:74px 30px!important}}
@@ -2821,13 +2819,15 @@ go(0);run()})();
       <h2 class="h-sec" id="cat-title">Elige tu silueta.</h2>
     </div>
     <div class="cats reveal">
-      <a class="cat-tile" href="#productos" data-filter="tacones">
+      <a class="cat-tile collection-link" href="/colecciones/tacones" data-collection="tacones">
         <div class="r45" data-slot="cat-tacones" data-alt="Colección de tacones MF"></div>
         <span class="cat-name">Tacones</span>
+        <span class="cat-go">Ver colección</span>
       </a>
-      <a class="cat-tile" href="#productos" data-filter="plataformas">
+      <a class="cat-tile collection-link" href="/colecciones/plataformas" data-collection="plataformas">
         <div class="r45" data-slot="cat-plataformas" data-alt="Colección de plataformas MF"></div>
         <span class="cat-name">Plataformas</span>
+        <span class="cat-go">Ver colección</span>
       </a>
     </div>
   </div>
@@ -2996,7 +2996,6 @@ go(0);run()})();
   <div class="dr-list" id="drList"></div>
   <div class="dr-foot" id="drFoot"></div>
 </dialog>
-
 <dialog class="co" id="co" aria-labelledby="coTitle">
   <div class="co-in">
     <div class="co-head">
@@ -3995,8 +3994,7 @@ go(0);run()})();
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference: orderRef })
-        });
-        var checkoutData = await checkoutRes.json().catch(function () { return {}; });
+        });        var checkoutData = await checkoutRes.json().catch(function () { return {}; });
         if (!checkoutRes.ok || !checkoutData.embedded) {
           throw new Error(checkoutData.error || "No pudimos preparar el pago seguro.");
         }
@@ -4565,6 +4563,36 @@ go(0);run()})();
   prev?.addEventListener('click', () => track.scrollBy({left:-step(), behavior:'smooth'}));
   next?.addEventListener('click', () => track.scrollBy({left:step(), behavior:'smooth'}));
 })();
+</script>
+<style id="mf-premium-frames">
+:root{--mf-surface:#f4f3f0;--mf-r:22px}
+.rails .rail-page .card{background:transparent!important;border-radius:0!important;overflow:visible!important;outline-color:transparent!important}
+.rail-page .card-media{aspect-ratio:1/1!important;border-radius:var(--mf-r)!important;overflow:hidden!important;background:var(--mf-surface)!important;transition:box-shadow .3s}
+.rail-page .card.is-hl .card-media{box-shadow:0 0 0 2px #111!important}
+.rail-page .card-media .media{background:transparent!important}
+.rail-page .card-media img{object-fit:contain!important;padding:2%!important}
+.rails .rail-page .card .card-body{padding:14px 2px 6px!important;gap:2px!important}
+.rail-page .card h3{font-size:16px!important;font-weight:600!important;letter-spacing:-.01em!important;line-height:1.2!important;min-height:0!important}
+.rail-page .card .price{font:500 15px var(--sans)!important;color:#555!important}
+.rail-page .card .tag{border-radius:999px!important;padding:6px 11px!important;font-size:11px!important;background:rgba(255,255,255,.9)!important;top:12px!important;left:12px!important}
+.rail-chip{background:var(--mf-surface)!important;border-width:1.5px!important}
+.rail-chip[aria-pressed="true"]{background:#fff!important}
+.rail-arrow{border-width:1.5px!important}
+.cats{gap:14px!important}
+.cat-tile{border-radius:var(--mf-r)!important;overflow:hidden}
+.cat-go{position:absolute;right:14px;bottom:14px;z-index:2;background:rgba(255,255,255,.92);color:#111;font:600 13px var(--sans);padding:9px 15px;border-radius:999px;transition:background-color .2s,color .2s}
+.cat-tile:hover .cat-go{background:#111;color:#fff}
+.rail-all{display:inline-flex;align-items:center;margin-top:10px;font:600 14px var(--sans);color:#111;text-decoration:none;border:1.5px solid #111;border-radius:999px;padding:8px 16px;transition:background-color .2s,color .2s,opacity .3s}
+.rail-all:hover{background:#111;color:#fff}
+.rail-all.is-leaving{opacity:0}
+.pd-main-media,.pd-main-media>.media{border-radius:var(--mf-r)!important;overflow:hidden!important;background:var(--mf-surface)!important}
+.pd-main-media>.media img{object-fit:contain!important;mix-blend-mode:multiply}
+.pd-gallery-inner .thumb,.spot-thumb{border-radius:14px!important;overflow:hidden}
+</style>
+<script id="mf-collection-links">
+(function(){var G=document.getElementById("productGrid");if(!G)return;
+function add(){G.querySelectorAll(".rail").forEach(function(r){var g=r.dataset.rail,h=r.querySelector(".rail-head > div");if(!g||!h||h.querySelector(".rail-all"))return;var a=document.createElement("a");a.className="rail-all collection-link";a.href="/colecciones/"+g;a.dataset.collection=g;a.textContent="Ver colección";a.setAttribute("aria-label","Ver colección de "+(r.getAttribute("aria-label")||g).toLowerCase());h.appendChild(a)})}
+add();new MutationObserver(add).observe(G,{childList:true,subtree:true})})();
 </script>
 </body>
 </html>
