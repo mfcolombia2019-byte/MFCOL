@@ -104,8 +104,11 @@ async function lookupButtonVoucher(order, apiKey) {
     return { event: null };
   }
   const voucherReference = String(voucher.reference_id ?? "").trim();
-  if (voucherReference && voucherReference !== reference) {
-    console.error("Bold payment-voucher: reference_id no coincide", { reference });
+  if (!voucherReference || voucherReference !== reference) {
+    console.error("Bold payment-voucher: reference_id ausente o no coincide", {
+      reference,
+      hasReferenceId: Boolean(voucherReference)
+    });
     return { event: null };
   }
   const transactionId = String(voucher.transaction_id || "").trim();
