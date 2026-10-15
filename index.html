@@ -3880,6 +3880,14 @@ go(0);run()})();
     else { sub.disabled = true; sub.textContent = "Elige cómo quieres pedir"; }
   }
   function openCheckout(fromRoute) {
+    /* La compra debe navegar realmente a /checkout desde el catálogo.
+       La bolsa ya está persistida en localStorage; al cargar /checkout,
+       la ruta inicial vuelve a abrir este mismo modal sin crear un bucle. */
+    var currentPath = window.location.pathname.replace(/\/+$/, "");
+    if (!fromRoute && currentPath !== "/checkout" && currentPath !== "/bold/checkout") {
+      window.location.assign("/checkout");
+      return;
+    }
     if (!bag.length) {
       renderBag();
       openDlg($("#drawer"));
