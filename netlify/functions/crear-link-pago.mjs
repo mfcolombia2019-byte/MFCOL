@@ -91,9 +91,8 @@ export default async (req) => {
     return json({ error: "El importe del pedido no es válido" }, 409);
   }
 
-  // Embedded Checkout con monto definido siempre necesita la llave secreta.
-  // Validamos esto antes de reutilizar un Link existente para que nunca
-  // devolvamos una respuesta sin la configuración necesaria para abrir Bold.
+  // Embedded Checkout con monto definido necesita la llave secreta.
+  // No se permite abrir el checkout si falta la clave de integridad.
   const boldSecretKey = String(env("BOLD_SECRET_KEY") || "").trim();
   if (!boldSecretKey) {
     console.error("Bold Embedded Checkout: falta BOLD_SECRET_KEY en el entorno.");
