@@ -1,8 +1,8 @@
-// Creates a Bold payment link only for a server-persisted, pending order.
+// Creates a Bold Embedded Checkout configuration for a server-persisted pending order.
 // The browser cannot choose amount, description, reference, or callback URL.
 
 import crypto from "node:crypto";
-import { store, getJson, json } from "./_admin.mjs";
+import { store, json } from "./_admin.mjs";
 
 const safeRef = /^[A-Za-z0-9_-]{1,60}$/;
 
@@ -71,60 +71,6 @@ export function canonicalOrigin(read = env, requestUrl = "") {
   return "";
 }
 
-async function associateBoldLink(reference, paymentLink) {
-  const key = "orders/" + reference;
-  const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
-  if (!current?.data) throw new Error("Pedido no encontrado");
-  if (current.data.boldPaymentLink && current.data.paymentLink) {
-    if (
-      current.data.boldPaymentLink !== paymentLink ||
-      current.data.paymentLink !== "https://checkout.bold.co/" + paymentLink
-    ) {
-      throw new Error("El pedido ya tiene asociado otro enlace de Bold");
-    }
-    return current.data;
-  }
-
-  const next = {
-    ...current.data,
-    paymentLink: "https://checkout.bold.co/" + paymentLink,
-    boldPaymentLink: paymentLink,
-    updatedAt: new Date().toISOString()
-  };
-  const result = await store.setJSON(key, next, { onlyIfMatch: current.etag });
-  if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la asociación del link");
-  if (!result?.modified) {
-    const latest = await store.get(key, { type: "json", consistency: "strong" });
-    if (latest?.boldPaymentLink === paymentLink) return latest;
-    throw new Error("El pedido cambió mientras se asociaba el link");
-  }
-  return next;
-}
-
-async function ensureBoldLinkMapping(reference, paymentLink) {
-  const key = "bold-links/" + paymentLink;
-  const existing = await store.get(key, { type: "json", consistency: "strong" });
-
-  if (existing?.reference) {
-    if (existing.reference !== reference) {
-      throw new Error("El enlace de Bold ya está asociado a otro pedido");
-    }
-    return existing;
-  }
-
-  const mapping = {
-    reference,
-    createdAt: new Date().toISOString()
-  };
-  const result = await store.setJSON(key, mapping, { onlyIfNew: true });
-
-  if (result?.modified) return mapping;
-
-  const latest = await store.get(key, { type: "json", consistency: "strong" });
-  if (latest?.reference === reference) return latest;
-
-  throw new Error("No se pudo confirmar la asociación del enlace Bold");
-}
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
