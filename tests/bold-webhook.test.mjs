@@ -153,13 +153,15 @@ test("firma válida con clave vacía en pruebas y firma inválida", () => {
   assert.equal(webhook.validSignature(body, "not-a-hmac", "test-secret"), false);
 });
 
-test("selección de secreto: vacío solo fuera de producción y contexto runtime explícito", () => {
+test("selección de secreto: llave secreta solo en producción; la llave de identidad nunca firma", () => {
   assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "branch-deploy", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
   assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "deploy-preview", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "");
-  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "identity-key");
-  assert.equal(webhook.getBoldWebhookSecret({ BOLD_API_KEY: "identity-key" }, "production"), "identity-key");
-  assert.equal(webhook.getBoldWebhookSecret({ BOLD_SECRET_KEY: "only-secret-key" }, "production"), "");
-  assert.equal(webhook.getBoldWebhookSecret({ BOLD_API_KEY: "identity-key" }, ""), "");
+  assert.equal(webhook.getBoldWebhookSecret({ CONTEXT: "production", BOLD_API_KEY: "identity-key", BOLD_SECRET_KEY: "prod-secret" }), "prod-secret");
+  assert.equal(webhook.getBoldWebhookSecret({ BOLD_SECRET_KEY: "prod-secret" }, "production"), "prod-secret");
+  assert.equal(webhook.getBoldWebhookSecret({ BOLD_SECRET_KEY: "  prod-secret\n" }, "production"), "prod-secret");
+  // Regresión: con solo la llave de identidad (pública) no hay secreto de firma.
+  assert.equal(webhook.getBoldWebhookSecret({ BOLD_API_KEY: "identity-key" }, "production"), "");
+  assert.equal(webhook.getBoldWebhookSecret({ BOLD_SECRET_KEY: "prod-secret" }, ""), "");
 });
 
 test("JSON malformado y método HTTP", async () => {

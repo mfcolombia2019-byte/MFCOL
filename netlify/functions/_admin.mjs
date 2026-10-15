@@ -1,10 +1,22 @@
 import crypto from "node:crypto";
 import { getStore } from "@netlify/blobs";
+import { storeNameForContext } from "./_deploy-context.mjs";
 
 const deployContext = String(process.env.CONTEXT || "").trim().toLowerCase();
-const storeName = deployContext === "production" ? "mfc-admin" : "mfc-admin-nonprod";
+const storeName = storeNameForContext(deployContext);
 
-export const store = getStore(storeName);
+// Netlify Blobs credentials are injected per invocation and expire. A handle
+// created once at module load can outlive its token in a warm container (the
+// scheduled retry workers fail with "Token expired"), so every operation
+// opens a fresh handle for the same store name. The API surface is unchanged.
+export const store = new Proxy({}, {
+  get(_target, prop) {
+    if (prop === "then") return undefined;
+    const handle = getStore(storeName);
+    const value = handle[prop];
+    return typeof value === "function" ? value.bind(handle) : value;
+  }
+});
 export const APP_STORE_NAME = storeName;
 
 function secret() {

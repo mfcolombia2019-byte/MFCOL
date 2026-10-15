@@ -32,7 +32,12 @@ const {
   buildAdminBoldDescription
 } = await import("../netlify/functions/admin-bold.mjs");
 const { validateTokenOrder } = await import("../netlify/functions/comunidad.mjs");
+const { store: appStore, APP_STORE_NAME } = await import("../netlify/functions/_admin.mjs");
 
+// _admin.mjs abre el handle de Blobs en cada operación (no al importar), así que
+// se ejercita una operación antes de comprobar qué almacén se solicita.
+await appStore.get("probe");
+assert.equal(APP_STORE_NAME, "mfc-admin-nonprod");
 assert.ok(requestedStoreNames.includes("mfc-admin-nonprod"));
 assert.ok(!requestedStoreNames.includes("mfc-admin"));
 
