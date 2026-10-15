@@ -108,6 +108,43 @@ hr{border:0;border-top:1px solid var(--line);margin:26px 0}
   .panel{padding:18px}
 }
 </style>
+
+<style id="mf-admin-centro-control-v2">
+:root{--ink:#101010;--muted:#73736e;--line:#e7e7e2;--paper:#fff;--bg:#f7f7f4;--champagne:#b9d934;--ok:#3e6b20;--warn:#95601d;--danger:#a32a2a}
+body{background:var(--bg);font-size:14px}
+.login-card,.panel,.metric{border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.025)}
+.login-card{border-color:var(--line);padding:38px 34px}
+.mark{height:3px;background:var(--champagne)}
+.brand{font-family:var(--sans);font-weight:750;letter-spacing:-.055em;font-size:24px}
+.brand small{color:#647b16;font-size:10px;letter-spacing:.15em}
+.tabs{gap:8px;border-bottom-color:var(--line)}
+.tabs button{padding:12px 14px}
+.tabs button.active{border-bottom-color:var(--champagne)}
+.btn{border-radius:3px;font-weight:650;transition:background .18s ease,border-color .18s ease,color .18s ease}
+.btn:hover{opacity:1;background:var(--champagne);border-color:var(--champagne);color:#111}
+.btn.light:hover{background:#f0f3e5;border-color:#cddba2;color:#111}
+.panel,.metric{border-color:var(--line)}
+.panel h2{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.04em}
+.metric b{font-family:var(--sans);font-weight:650;letter-spacing:-.05em}
+input,textarea,select{border-radius:3px}
+input:focus,textarea:focus,select:focus{border-color:#8da52a;box-shadow:0 0 0 3px rgba(185,217,52,.16)}
+.plist{border-radius:3px;border-color:var(--line)}
+.prow:hover{background:#fafbf5}
+.thumb,.photo{border-radius:3px}
+.badge{border-radius:3px}
+.notice{border-radius:3px}
+.toast{border-radius:3px}
+@media(max-width:760px){
+ .topbar{align-items:flex-start}
+ .brand{font-size:21px}
+ .login-card{padding:30px 24px}
+ .panel{padding:16px}
+ .metric{padding:17px}
+ .tabs button{padding:11px 12px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
 </head>
 <body>
 <div id="login" class="login">
