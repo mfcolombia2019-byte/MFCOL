@@ -2764,6 +2764,51 @@ body{background:#fff;color:#111}
 }
 </style>
 
+
+<style id="mf-centro-control-v2">
+/* Centro de Control V2 — capa visual; no altera catálogo, carrito ni checkout */
+:root{--mf-accent:#c5e34a;--mf-ink:#101010;--mf-border:#e6e6e2;--mf-paper:#fff}
+.top{background:#111;color:#f7f7f4;padding:9px 14px;letter-spacing:.13em}
+.hdr{background:rgba(255,255,255,.97);border-bottom:1px solid var(--mf-border);box-shadow:0 3px 16px rgba(0,0,0,.025)}
+.hdr-in{min-height:76px}
+.logo{transition:opacity .2s ease}
+.logo:hover{opacity:.72}
+.nav a{transition:color .2s ease,opacity .2s ease}
+.nav a:hover{color:#607b00;opacity:1}
+.btn{border-radius:2px;min-height:48px;font-weight:650;letter-spacing:.09em;transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s ease}
+.btn-solid{background:var(--mf-ink);border-color:var(--mf-ink);color:#fff}
+.btn-solid:hover{background:var(--mf-accent);border-color:var(--mf-accent);color:#111}
+.mf-neon-brand{color:var(--mf-accent);text-shadow:none;letter-spacing:.2em;font-weight:700}
+.mf-hero-overlay{background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.22) 38%,rgba(0,0,0,.72) 100%)}
+.mf-hero-cta{border-bottom-color:var(--mf-accent);font-weight:700}
+.mf-hero-cta span{color:var(--mf-accent)}
+.card-media,.fcard-media{background:#f5f5f2}
+.card-media img,.fcard-media img{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.card h3{font-size:clamp(17px,1.7vw,22px);line-height:1.12;letter-spacing:-.015em}
+.card .cat{letter-spacing:.1em}
+.price{font-weight:650;font-variant-numeric:tabular-nums}
+.chip span{border-radius:2px;transition:background .15s ease,border-color .15s ease}
+.chip input:checked+span{background:#111;border-color:#111;color:#fff;box-shadow:inset 0 -3px 0 var(--mf-accent)}
+.pd-info h2{text-transform:none!important;font-weight:600!important;letter-spacing:-.04em!important}
+.pd-main-media,.pd-gallery-inner .thumb{background:#f5f5f2}
+.drawer,.co-panel{border-radius:0}
+.dr-head,.dr-foot{border-color:var(--mf-border)}
+.dr-head h2{font-family:var(--sans);font-weight:650;letter-spacing:-.03em}
+@media(max-width:819px){
+ .mf-hero-overlay{background:linear-gradient(180deg,rgba(0,0,0,.02) 20%,rgba(0,0,0,.78) 100%)}
+ .mf-hero-content{padding-left:22px;padding-right:22px}
+ .mf-hero-message{max-width:18ch;line-height:.98}
+ .hdr-in{min-height:68px}
+ .grid{gap:34px 10px}
+ .card-body{gap:5px 8px}
+ .card h3{font-size:18px}
+ .btn{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){
+ .btn,.logo,.nav a,.card-media img,.fcard-media img{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <script>
