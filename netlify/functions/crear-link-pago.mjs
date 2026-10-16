@@ -41,24 +41,33 @@ export function canonicalOrigin(read = env, requestUrl = "") {
     return httpsOrigin(read("SITE_CANONICAL_ORIGIN")) || httpsOrigin(read("URL"));
   }
 
+  // En contextos no productivos, nunca aceptar el dominio de producción.
+  // URL identifica el dominio principal del sitio; SITE_CANONICAL_ORIGIN solo
+  // puede servir como fallback aquí si apunta explícitamente a un subdominio
+  // netlify.app (p. ej. el branch deploy), nunca al dominio comercial.
   const productionHosts = new Set(
-    [read("SITE_CANONICAL_ORIGIN"), read("URL")]
+    [read("URL")]
       .map(httpsOrigin)
       .filter(Boolean)
       .map(origin => new URL(origin).hostname)
   );
 
-  for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL")]) {
-    const origin = httpsOrigin(candidate);
-    if (origin && !productionHosts.has(new URL(origin).hostname)) return origin;
-  }
+  const candidates = [
+    read("DEPLOY_PRIME_URL"),
+    read("DEPLOY_URL"),
+    read("SITE_CANONICAL_ORIGIN"),
+    requestUrl
+  ];
 
-  // Netlify enruta por dominio: la petición solo llega por un dominio del sitio.
-  // Aun así se exige *.netlify.app y que no sea de producción.
-  const requestOrigin = httpsOrigin(requestUrl);
-  if (requestOrigin) {
-    const { hostname } = new URL(requestOrigin);
-    if (hostname.endsWith(".netlify.app") && !productionHosts.has(hostname)) return requestOrigin;
+  for (const candidate of candidates) {
+    const origin = httpsOrigin(candidate);
+    if (!origin) continue;
+    const { hostname } = new URL(origin);
+    if (productionHosts.has(hostname)) continue;
+
+    // Los dominios de prueba solo se aceptan bajo netlify.app. Los otros
+    // candidatos (incluido requestUrl) no deben abrir un retorno a producción.
+    if (hostname.endsWith(".netlify.app")) return origin;
   }
 
   return "";
