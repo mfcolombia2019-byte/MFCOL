@@ -17,8 +17,11 @@ export default async (req) => {
     if (!/^LNK_[A-Za-z0-9_-]+$/.test(paymentLink)) return json({ error: "payment_link inválido" }, 400);
     endpoint = "https://integrations.api.bold.co/online/link/v1/" + encodeURIComponent(paymentLink);
   } else {
-    endpoint = "https://integrations.api.bold.co/payments/webhook/notifications/" +
-      encodeURIComponent(externalReference) + "?is_external_reference=true";
+    // La consulta de notificaciones devuelve HTTP 403 con las credenciales
+    // disponibles en este entorno. Consultar primero el voucher del Botón de
+    // pagos, que es la misma fuente autenticada usada por el webhook.
+    endpoint = "https://payments.api.bold.co/v2/payment-voucher/" +
+      encodeURIComponent(externalReference);
   }
 
   let res;
