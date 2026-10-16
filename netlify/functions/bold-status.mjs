@@ -1,10 +1,21 @@
 import { json, requireAdmin } from "./_admin.mjs";
 
+function env(name) {
+  try {
+    if (typeof Netlify !== "undefined" && Netlify?.env?.get) {
+      const value = Netlify.env.get(name);
+      if (value) return String(value).trim();
+    }
+  } catch {}
+  return String(process.env[name] || "").trim();
+}
+
 export default async (req) => {
   const auth = requireAdmin(req);
   if (auth) return auth;
   if (req.method !== "GET") return json({ error: "Método no permitido" }, 405);
-  if (!process.env.BOLD_API_KEY) return json({ error: "Falta BOLD_API_KEY en Netlify" }, 503);
+  const apiKey = env("BOLD_API_KEY");
+  if (!apiKey) return json({ error: "Falta BOLD_API_KEY en Netlify" }, 503);
 
   const url = new URL(req.url);
   const paymentLink = String(url.searchParams.get("payment_link") || "").trim();
@@ -27,7 +38,8 @@ export default async (req) => {
   let res;
   try {
     res = await fetch(endpoint, {
-      headers: { "Authorization": "x-api-key " + process.env.BOLD_API_KEY }
+      headers: { "Authorization": "x-api-key " + apiKey },
+      signal: AbortSignal.timeout(10000)
     });
   } catch {
     return json({ error: "No fue posible conectar con Bold", diagnostic: { stage: "upstream_fetch_failed" } }, 502);
