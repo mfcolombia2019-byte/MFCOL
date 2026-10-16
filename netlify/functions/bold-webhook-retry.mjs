@@ -1,12 +1,8 @@
 import { store } from "./_admin.mjs";
-import { processBoldWebhook } from "./_bold-webhook.mjs";
+import { processBoldWebhook, recordInboxFailure, logBoldEvent } from "./_bold-webhook.mjs";
 
 const STALE_PROCESSING_MS = 10 * 60 * 1000;
 const MAX_PER_RUN = 20;
-
-function retryDelayMs(attempts) {
-  return Math.min(60 * 60 * 1000, 30 * 1000 * (2 ** Math.max(0, attempts - 1)));
-}
 
 export default async () => {
   const { blobs = [] } = await store.list({ prefix: "webhook-inbox/" });
@@ -33,27 +29,14 @@ export default async () => {
     try {
       await processBoldWebhook(item.event);
     } catch (error) {
-      const latest = await store.getWithMetadata(blob.key, { type: "json", consistency: "strong" });
-      if (latest?.data && !latest.data.processedAt) {
-        const attempts = Number(latest.data.attempts || 0) + 1;
-        const retryable = attempts < 8;
-        const failed = {
-          ...latest.data,
-          status: "error",
-          attempts,
-          processingAt: "",
-          updatedAt: new Date().toISOString(),
-          lastError: String(error?.message || error).slice(0, 1000),
-          nextAttemptAt: retryable
-            ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
-            : ""
-        };
-        const written = await store.setJSON(blob.key, failed, { onlyIfMatch: latest.etag });
-        if (written?.modified && !written?.etag) {
-          throw new Error("No se pudo confirmar el estado de reintento del inbox Bold");
-        }
-      }
-      console.error("Reintento de webhook Bold falló:", blob.key, error);
+      const failed = await recordInboxFailure(blob.key, error);
+      logBoldEvent("error", "bold_webhook_retry_failed", {
+        key: blob.key,
+        code: String(error?.code || ""),
+        error: String(error?.message || error).slice(0, 300),
+        attempts: failed?.attempts ?? null,
+        terminal: failed?.terminal ?? null
+      });
     }
     processed++;
   }

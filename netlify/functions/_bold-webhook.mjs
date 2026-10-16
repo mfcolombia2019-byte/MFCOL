@@ -1,6 +1,91 @@
 import { store, getJson } from "./_admin.mjs";
 import { applyBoldPaymentEvent, safeReference } from "./_orders.mjs";
 import { enqueuePurchase } from "./_meta-outbox.mjs";
+import { BoldWebhookError, buildInboxFailure, logBoldEvent } from "./_bold-failure.mjs";
+
+export { BoldWebhookError, buildInboxFailure, logBoldEvent, inboxRetryDelayMs, MAX_INBOX_ATTEMPTS } from "./_bold-failure.mjs";
+
+// Estricto: solo números finitos o texto numérico. null, "", booleanos, arreglos
+// y objetos dan NaN (Number(null) y Number("") serían 0 y se leerían como un
+// importe real de 0).
+export function parseAmount(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : NaN;
+  if (typeof value === "string") {
+    const text = value.trim();
+    return /^\d+(\.\d+)?$/.test(text) ? Number(text) : NaN;
+  }
+  return NaN;
+}
+
+function valueType(value) {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  return typeof value;
+}
+
+function rawValue(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : String(value);
+  if (typeof value === "string") return value.slice(0, 32);
+  return valueType(value);
+}
+
+// Solo importes, moneda, referencia e ids de evento.
+function describeAmounts(reference, event, orderData) {
+  const amount = event?.data?.amount;
+  const bold = parseAmount(amount?.total);
+  const expected = parseAmount(orderData?.total);
+  const boldTotal = Number.isFinite(bold) ? Math.round(bold) : null;
+  const orderTotal = Number.isFinite(expected) ? expected : null;
+  return {
+    reference,
+    eventId: safeEventId(event?.id),
+    eventType: String(event?.type || "").slice(0, 40),
+    currency: String(amount?.currency ?? "").toUpperCase().slice(0, 8),
+    boldTotalRaw: rawValue(amount?.total),
+    boldTotalType: valueType(amount?.total),
+    boldTotal,
+    orderTotalRaw: rawValue(orderData?.total),
+    orderTotalType: valueType(orderData?.total),
+    orderTotal,
+    difference: boldTotal !== null && orderTotal !== null ? boldTotal - orderTotal : null,
+    orderPaymentStatus: String(orderData?.paymentStatus || "").slice(0, 20)
+  };
+}
+
+function rejectAmount(code, message, details) {
+  logBoldEvent("error", "bold_webhook_amount_rejected", { code, ...details });
+  return new BoldWebhookError(code, message, { retryable: false, details });
+}
+
+// Valida importe y moneda del evento contra el total persistido del pedido.
+// No relaja nada: solo distingue la causa y deja los valores comparados.
+export function validateBoldAmount(orderData, event, reference) {
+  const details = describeAmounts(reference, event, orderData);
+  if (details.boldTotal === null) {
+    throw rejectAmount("AMOUNT_INVALID", "Importe o moneda de Bold inválidos", details);
+  }
+  if (details.currency !== "COP") {
+    throw rejectAmount("CURRENCY_INVALID", "Importe o moneda de Bold inválidos", details);
+  }
+  if (details.orderTotal === null) {
+    throw rejectAmount("ORDER_TOTAL_INVALID", "El pedido no tiene un total numérico válido para validar el importe de Bold", details);
+  }
+  if (details.boldTotal !== details.orderTotal) {
+    throw rejectAmount("AMOUNT_MISMATCH", "El importe de Bold no coincide con el pedido", details);
+  }
+  return details.boldTotal;
+}
+
+export async function recordInboxFailure(key, error) {
+  const latest = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
+  if (!latest?.data || latest.data.processedAt) return null;
+  const failed = buildInboxFailure(latest.data, error);
+  const written = await store.setJSON(key, failed, { onlyIfMatch: latest.etag });
+  if (written?.modified && !written?.etag) {
+    throw new Error("No se pudo confirmar el estado de reintento del inbox Bold");
+  }
+  return failed;
+}
 
 function conditionalWriteSucceeded(result) {
   if (!result?.modified) return false;
@@ -80,16 +165,14 @@ async function updateOrderFromWebhook(reference, event) {
   const key = "orders/" + reference;
   for (let attempt = 0; attempt < 3; attempt++) {
     const current = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
-    if (!current?.data) throw new Error("Pedido no encontrado para el webhook");
+    if (!current?.data) {
+      throw new BoldWebhookError("ORDER_NOT_FOUND", "Pedido no encontrado para el webhook", {
+        retryable: true,
+        details: { reference, eventId: safeEventId(event?.id), eventType: String(event?.type || "").slice(0, 40) }
+      });
+    }
 
-    const boldAmount = Math.round(Number(event?.data?.amount?.total));
-    const boldCurrency = String(event?.data?.amount?.currency || "").toUpperCase();
-    if (!Number.isFinite(boldAmount) || boldCurrency !== "COP") {
-      throw new Error("Importe o moneda de Bold inválidos");
-    }
-    if (Number(current.data.total) !== boldAmount) {
-      throw new Error("El importe de Bold no coincide con el pedido");
-    }
+    validateBoldAmount(current.data, event, reference);
 
     const order = applyBoldPaymentEvent(current.data, event, new Date().toISOString());
     const result = await store.setJSON(key, order, { onlyIfMatch: current.etag });

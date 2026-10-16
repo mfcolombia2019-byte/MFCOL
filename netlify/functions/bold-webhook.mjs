@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { store } from "./_admin.mjs";
 import { processBoldWebhook, safeEventId, webhookInboxKey, ensureInbox } from "./_bold-webhook.mjs";
+import { buildInboxFailure, logBoldEvent } from "./_bold-failure.mjs";
 import { processOutboxKey } from "./_meta-outbox.mjs";
 import { sendWhatsAppConfirmationForReference } from "./_whatsapp.mjs";
 
@@ -11,7 +12,12 @@ function encodeForm(data) {
 export function getBoldWebhookSecret(env = process.env) {
   const context = String(env?.CONTEXT || "").trim().toLowerCase();
   if (context === "production") {
-    return String(env?.BOLD_API_KEY || "");
+    // La firma x-bold-signature se calcula con la llave SECRETA del producto Bold
+    // que genera el pago (Botón de pagos / Embedded Checkout / API de Link de
+    // pagos). BOLD_API_KEY es la llave de identidad pública: solo identifica al
+    // comercio en las consultas a la API y nunca firma. Sin respaldo entre llaves:
+    // si falta la secreta, el webhook responde 500 y no procesa nada.
+    return String(env?.BOLD_SECRET_KEY || "").trim();
   }
   // Bold documents an empty signing key for its test webhook. Non-production
   // deploys use the isolated mfc-admin-nonprod store, so a public test endpoint
@@ -37,7 +43,7 @@ export default async (req, context) => {
   const secret = getBoldWebhookSecret();
 
   if (contextName === "production" && !secret) {
-    console.error("BOLD_API_KEY no está configurada en producción");
+    console.error("BOLD_SECRET_KEY no está configurada en producción");
     return new Response("Configuración de webhook incompleta", { status: 500 });
   }
   if (!validSignature(rawBody, signature, secret)) return new Response("Firma inválida", { status: 400 });
@@ -107,19 +113,16 @@ export default async (req, context) => {
     })
     .catch(async (error) => {
       console.error("No se pudo procesar webhook Bold:", error);
+      logBoldEvent("error", "bold_webhook_processing_error", {
+        eventId,
+        code: String(error?.code || ""),
+        error: String(error?.message || "Error desconocido").slice(0, 300)
+      });
       const current = await store.get(inboxKey, { type: "json", consistency: "strong" });
       if (current && !current.processedAt) {
-        const attempts = Number(current.attempts || 0) + 1;
-        const retryable = attempts < 8;
-        current.status = "error";
-        current.attempts = attempts;
-        current.lastError = String(error?.message || error).slice(0, 1000);
-        current.updatedAt = new Date().toISOString();
-        current.processingAt = "";
-        current.nextAttemptAt = retryable
-          ? new Date(Date.now() + Math.min(60 * 60 * 1000, 30 * 1000 * (2 ** Math.max(0, attempts - 1)))).toISOString()
-          : "";
-        await store.setJSON(inboxKey, current);
+        // Los rechazos deterministas (importe, moneda) quedan terminales; los
+        // transitorios se reprograman con backoff. Ver buildInboxFailure.
+        await store.setJSON(inboxKey, buildInboxFailure(current, error));
       }
     });
 
