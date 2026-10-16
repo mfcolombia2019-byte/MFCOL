@@ -86,7 +86,7 @@ test("fuera de producción usa DEPLOY_URL si falta DEPLOY_PRIME_URL", () => {
 });
 
 test("un branch deploy puede usar SITE_CANONICAL_ORIGIN solo si es su dominio netlify.app", () => {
-  const branchOrigin = "https://preview-bold-webhook-hmac-v4--comforting-liger-43ac3a.netlify.app";
+  const branchOrigin = "https://branch-test--example.netlify.app";
   assert.equal(
     canonicalOrigin(read({
       CONTEXT: "branch-deploy",
