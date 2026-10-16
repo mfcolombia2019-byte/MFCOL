@@ -111,14 +111,15 @@ async function recoverAmountFromVoucher(orderData, event, reference) {
   if (
     String(voucher?.payment_status || "").toUpperCase() !== "APPROVED" ||
     !voucherReference || voucherReference !== reference ||
-    !transactionId || (expectedTransaction && transactionId !== expectedTransaction) ||
+    !transactionId ||
     !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(expectedAmount) || amount !== expectedAmount
   ) {
     logBoldEvent("error", "bold_webhook_voucher_recovery_rejected", {
       reference,
       status: String(voucher?.payment_status || "").slice(0, 20),
       referenceMatched: Boolean(voucherReference && voucherReference === reference),
-      transactionMatched: Boolean(transactionId && (!expectedTransaction || transactionId === expectedTransaction)),
+      voucherTransactionPresent: Boolean(transactionId),
+      eventTransactionDiffers: Boolean(expectedTransaction && transactionId && transactionId !== expectedTransaction),
       amountMatched: Number.isFinite(amount) && Number.isFinite(expectedAmount) && amount === expectedAmount
     });
     return event;
