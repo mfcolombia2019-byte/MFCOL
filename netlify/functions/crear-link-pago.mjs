@@ -26,13 +26,15 @@ function httpsOrigin(candidate) {
 // Origen HTTPS al que Bold devuelve al cliente (redirectionUrl y originUrl).
 // - Producción: dominio canónico (SITE_CANONICAL_ORIGIN) o, si falta, URL.
 // - Cualquier otro despliegue (vista previa, rama, etc.): únicamente el origen
-//   del propio despliegue que Netlify define (DEPLOY_PRIME_URL, luego
-//   DEPLOY_URL), y nunca un origen de producción. En estos contextos URL es el
-//   dominio principal del sitio y SITE_CANONICAL_ORIGIN suele ser el dominio
-//   productivo, así que no se usan como respaldo: devolver "" es preferible a
-//   enviar un pago de prueba a la tienda real.
-// `read` se inyecta para poder probar la selección sin tocar el entorno.
-export function canonicalOrigin(read = env) {
+//   del propio despliegue (DEPLOY_PRIME_URL, luego DEPLOY_URL) y, si Netlify no
+//   expone esas variables en tiempo de ejecución, el origen de la propia
+//   petición, aceptado solo si es un dominio *.netlify.app. Nunca un origen de
+//   producción. En estos contextos URL es el dominio principal del sitio y
+//   SITE_CANONICAL_ORIGIN suele ser el dominio productivo, así que no se usan
+//   como respaldo: devolver "" es preferible a enviar un pago de prueba a la
+//   tienda real.
+// `read` y `requestUrl` se inyectan para poder probar la selección sin tocar el entorno.
+export function canonicalOrigin(read = env, requestUrl = "") {
   const isProduction = String(read("CONTEXT") || "").trim().toLowerCase() === "production";
 
   if (isProduction) {
@@ -49,6 +51,14 @@ export function canonicalOrigin(read = env) {
   for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL")]) {
     const origin = httpsOrigin(candidate);
     if (origin && !productionHosts.has(new URL(origin).hostname)) return origin;
+  }
+
+  // Netlify enruta por dominio: la petición solo llega por un dominio del sitio.
+  // Aun así se exige *.netlify.app y que no sea de producción.
+  const requestOrigin = httpsOrigin(requestUrl);
+  if (requestOrigin) {
+    const { hostname } = new URL(requestOrigin);
+    if (hostname.endsWith(".netlify.app") && !productionHosts.has(hostname)) return requestOrigin;
   }
 
   return "";
@@ -137,7 +147,7 @@ export default async (req) => {
     return json({ error: "El pago en línea aún no está habilitado para esta tienda." }, 503);
   }
 
-  const origin = canonicalOrigin();
+  const origin = canonicalOrigin(env, req.url);
   if (!origin) {
     const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
     console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
