@@ -255,7 +255,18 @@ async function updateOrderFromWebhook(reference, event) {
     const order = applyBoldPaymentEvent(current.data, verifiedEvent, new Date().toISOString());
     const result = await store.setJSON(key, order, { onlyIfMatch: current.etag });
     if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la actualización del pedido");
-    if (result?.modified) return order;
+    if (result?.modified) {
+      logBoldEvent("info", "bold_webhook_order_updated", {
+        reference,
+        eventId: safeEventId(verifiedEvent?.id),
+        eventType: String(verifiedEvent?.type || "").slice(0, 40),
+        paymentStatus: String(order?.paymentStatus || "").slice(0, 20),
+        confirmedAmount: parseAmount(order?.confirmedAmount),
+        currency: String(order?.confirmedCurrency || verifiedEvent?.data?.amount?.currency || "").toUpperCase().slice(0, 8),
+        transactionId: String(order?.paymentId || verifiedEvent?.data?.payment_id || "").slice(0, 100)
+      });
+      return order;
+    }
   }
   throw new Error("El pedido cambió durante el procesamiento del webhook");
 }
