@@ -67,6 +67,26 @@ export function buildMetaPurchase(order) {
   };
 }
 
+// Resume el error de Graph API sin incluir el token ni datos personales.
+export function summarizeMetaError(data) {
+  const e = data?.error;
+  if (!e || typeof e !== "object") return null;
+  return {
+    message: String(e.message || "").slice(0, 300),
+    type: String(e.type || "").slice(0, 60),
+    code: Number.isFinite(Number(e.code)) ? Number(e.code) : null,
+    subcode: Number.isFinite(Number(e.error_subcode)) ? Number(e.error_subcode) : null,
+    transient: e.is_transient === true,
+    fbtraceId: String(e.fbtrace_id || "").slice(0, 60)
+  };
+}
+
+function redactToken(text, token) {
+  let out = String(text || "");
+  if (token) out = out.split(token).join("[token]");
+  return out.replace(/access_token=[^&\s"']+/gi, "access_token=[token]");
+}
+
 export async function sendMetaEvent(event) {
   const token = String(process.env.META_CAPI_ACCESS_TOKEN || "");
   let version = String(process.env.META_GRAPH_API_VERSION || "").trim();
@@ -84,21 +104,49 @@ export async function sendMetaEvent(event) {
   const endpoint = "https://graph.facebook.com/" + encodeURIComponent(version) +
     "/" + encodeURIComponent(datasetId) + "/events?access_token=" + encodeURIComponent(token);
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error("Meta CAPI rechazó Purchase (" + response.status + ")");
-    error.metaStatus = response.status;
-    error.metaResponse = data;
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000)
+    });
+  } catch (cause) {
+    // Fallo de red/timeout: reintentable. Nunca se propaga la URL (lleva el token).
+    const error = new Error("Meta CAPI no respondió: " + redactToken(cause?.name || "network_error", token));
+    error.retryable = true;
     throw error;
   }
 
-  return { status: response.status, response: data };
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const meta = summarizeMetaError(data);
+    const detail = meta
+      ? " code=" + meta.code + (meta.subcode ? "/" + meta.subcode : "") + " fbtrace_id=" + meta.fbtraceId + ": " + redactToken(meta.message, token)
+      : "";
+    const error = new Error("Meta CAPI rechazó Purchase (" + response.status + ")" + detail);
+    error.metaStatus = response.status;
+    error.metaError = meta;
+    error.retryable = response.status === 429 || response.status >= 500 || meta?.transient === true;
+    throw error;
+  }
+
+  // Un 2xx sin events_received >= 1 no es una aceptación: no se debe marcar como enviado.
+  const received = Number(data?.events_received);
+  if (!Number.isFinite(received) || received < 1) {
+    const error = new Error("Meta CAPI respondió " + response.status + " sin confirmar events_received >= 1");
+    error.metaStatus = response.status;
+    error.retryable = false;
+    throw error;
+  }
+
+  return {
+    status: response.status,
+    response: data,
+    eventsReceived: received,
+    fbtraceId: String(data?.fbtrace_id || "").slice(0, 60)
+  };
 }
 
 export async function sendMetaPurchase(order) {

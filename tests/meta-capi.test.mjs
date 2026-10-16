@@ -70,7 +70,7 @@ test("sendMetaEvent acepta versión sin prefijo v y la normaliza en el endpoint"
   let requestUrl;
   t.mock.method(globalThis, "fetch", async url => {
     requestUrl = String(url);
-    return { ok: true, status: 200, json: async () => ({}) };
+    return { ok: true, status: 200, json: async () => ({ events_received: 1 }) };
   });
 
   await withMetaEnv({
