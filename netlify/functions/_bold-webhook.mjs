@@ -29,6 +29,29 @@ function rawValue(value) {
   return valueType(value);
 }
 
+// Diagnóstico de esquema sin registrar datos personales ni el cuerpo completo del webhook.
+function describeEventShape(event) {
+  const data = event?.data;
+  const candidates = [
+    ["data.amount.total", data?.amount?.total],
+    ["data.total", data?.total],
+    ["data.transaction.amount", data?.transaction?.amount],
+    ["data.transaction.amount.total", data?.transaction?.amount?.total],
+    ["data.payment.amount", data?.payment?.amount],
+    ["data.payment.amount.total", data?.payment?.amount?.total],
+    ["data.amount.value", data?.amount?.value]
+  ];
+  return {
+    eventId: safeEventId(event?.id),
+    eventType: String(event?.type || "").slice(0, 40),
+    topLevelKeys: Object.keys(event || {}).sort().slice(0, 40),
+    dataKeys: Object.keys(data || {}).sort().slice(0, 60),
+    amountKeys: Object.keys(data?.amount || {}).sort().slice(0, 30),
+    metadataKeys: Object.keys(data?.metadata || {}).sort().slice(0, 30),
+    amountCandidates: candidates.filter(([, value]) => value !== undefined).map(([path, value]) => ({ path, type: valueType(value), value: rawValue(value) }))
+  };
+}
+
 // Solo importes, moneda, referencia e ids de evento.
 function describeAmounts(reference, event, orderData) {
   const amount = event?.data?.amount;
@@ -61,6 +84,9 @@ function rejectAmount(code, message, details) {
 // No relaja nada: solo distingue la causa y deja los valores comparados.
 export function validateBoldAmount(orderData, event, reference) {
   const details = describeAmounts(reference, event, orderData);
+  if (details.boldTotal === null || details.boldTotal === 0) {
+    logBoldEvent("error", "bold_webhook_amount_schema_diagnostic", describeEventShape(event));
+  }
   if (details.boldTotal === null) {
     throw rejectAmount("AMOUNT_INVALID", "Importe o moneda de Bold inválidos", details);
   }
