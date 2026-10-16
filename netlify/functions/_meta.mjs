@@ -81,25 +81,51 @@ export function summarizeMetaError(data) {
   };
 }
 
-function redactToken(text, token) {
+function redactToken(text, ...tokens) {
   let out = String(text || "");
-  if (token) out = out.split(token).join("[token]");
+  for (const token of tokens) {
+    if (token) out = out.split(token).join("[token]");
+  }
   return out.replace(/access_token=[^&\s"']+/gi, "access_token=[token]");
 }
 
+// Las variables de entorno suelen guardarse con un salto de línea final, espacios o
+// comillas. Meta recibe eso tal cual en la URL y responde 400/190, así que se normaliza.
+export function normalizeMetaToken(raw) {
+  let token = String(raw ?? "").trim();
+  const quoted = token.match(/^(["'`])([\s\S]*)\1$/);
+  if (quoted) token = quoted[2].trim();
+  return token;
+}
+
+// Los tokens de Graph API solo usan letras, dígitos y _ - | . (el "|" aparece en tokens de app).
+// Espacios, llaves, comillas o un prefijo "Bearer " indican un valor mal copiado.
+const TOKEN_FORMAT = /^[A-Za-z0-9_|.-]+$/;
+
+function configError(message) {
+  const error = new Error(message);
+  error.retryable = false;
+  error.errorClass = "config";
+  return error;
+}
+
 export async function sendMetaEvent(event) {
-  const token = String(process.env.META_CAPI_ACCESS_TOKEN || "");
+  const rawToken = String(process.env.META_CAPI_ACCESS_TOKEN || "");
+  const token = normalizeMetaToken(rawToken);
   let version = String(process.env.META_GRAPH_API_VERSION || "").trim();
-  const datasetId = String(process.env.META_DATASET_ID || META_DATASET_ID);
-  if (!token) { const error = new Error("Falta META_CAPI_ACCESS_TOKEN"); error.retryable = false; throw error; }
-  if (!/^v?\d+\.\d+$/.test(version)) { const error = new Error("META_GRAPH_API_VERSION inválida"); error.retryable = false; throw error; }
+  const datasetId = String(process.env.META_DATASET_ID || "").trim() || META_DATASET_ID;
+  if (!token) throw configError("Falta META_CAPI_ACCESS_TOKEN");
+  if (!TOKEN_FORMAT.test(token)) {
+    // Nunca se incluye el valor: solo se describe el problema.
+    throw configError("META_CAPI_ACCESS_TOKEN con formato inválido (espacios internos, comillas, llaves o prefijo; debe ser solo el token)");
+  }
+  if (!/^v?\d+\.\d+$/.test(version)) throw configError("META_GRAPH_API_VERSION inválida");
   if (!version.startsWith("v")) version = "v" + version;
-  if (!/^\d+$/.test(datasetId)) { const error = new Error("META_DATASET_ID inválido"); error.retryable = false; throw error; }
+  if (!/^\d+$/.test(datasetId)) throw configError("META_DATASET_ID inválido");
 
   const payload = { data: [event] };
-  if (process.env.META_TEST_EVENT_CODE) {
-    payload.test_event_code = String(process.env.META_TEST_EVENT_CODE);
-  }
+  const testEventCode = String(process.env.META_TEST_EVENT_CODE || "").trim();
+  if (testEventCode) payload.test_event_code = testEventCode;
 
   const endpoint = "https://graph.facebook.com/" + encodeURIComponent(version) +
     "/" + encodeURIComponent(datasetId) + "/events?access_token=" + encodeURIComponent(token);
@@ -114,7 +140,7 @@ export async function sendMetaEvent(event) {
     });
   } catch (cause) {
     // Fallo de red/timeout: reintentable. Nunca se propaga la URL (lleva el token).
-    const error = new Error("Meta CAPI no respondió: " + redactToken(cause?.name || "network_error", token));
+    const error = new Error("Meta CAPI no respondió: " + redactToken(cause?.name || "network_error", token, rawToken));
     error.retryable = true;
     throw error;
   }
@@ -123,12 +149,16 @@ export async function sendMetaEvent(event) {
   if (!response.ok) {
     const meta = summarizeMetaError(data);
     const detail = meta
-      ? " code=" + meta.code + (meta.subcode ? "/" + meta.subcode : "") + " fbtrace_id=" + meta.fbtraceId + ": " + redactToken(meta.message, token)
+      ? " code=" + meta.code + (meta.subcode ? "/" + meta.subcode : "") + " fbtrace_id=" + meta.fbtraceId + ": " + redactToken(meta.message, token, rawToken)
       : "";
     const error = new Error("Meta CAPI rechazó Purchase (" + response.status + ")" + detail);
     error.metaStatus = response.status;
-    error.metaError = meta;
+    // El mensaje de Meta puede repetir fragmentos del token recibido: se limpia también el resumen guardado.
+    error.metaError = meta ? { ...meta, message: redactToken(meta.message, token, rawToken) } : meta;
     error.retryable = response.status === 429 || response.status >= 500 || meta?.transient === true;
+    // 190/102: token inválido, expirado o mal copiado. No es un fallo del evento: se corrige
+    // la configuración y el mismo evento se reenvía (misma event_id, Meta deduplica).
+    if (!error.retryable && (meta?.code === 190 || meta?.code === 102)) error.errorClass = "auth";
     throw error;
   }
 

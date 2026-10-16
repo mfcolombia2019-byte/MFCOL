@@ -18,6 +18,13 @@ function retryDelayMs(attempts) {
   return Math.min(60 * 60 * 1000, Math.max(30 * 1000, 2 ** Math.max(0, attempts - 1) * 30 * 1000));
 }
 
+// Token/configuración incorrectos: reintentar en segundos no sirve. Espera larga (15 min → 2 h)
+// para que el evento guardado se reenvíe solo cuando se corrija la variable, sin duplicarlo
+// (misma event_id y misma clave de outbox).
+function recoveryDelayMs(attempts) {
+  return Math.min(2 * 60 * 60 * 1000, 15 * 60 * 1000 * 2 ** Math.max(0, attempts - 1));
+}
+
 function conditionalOk(result) {
   if (!result?.modified) return false;
   if (!result?.etag) throw new Error("La escritura condicional del outbox no pudo confirmarse");
@@ -60,7 +67,9 @@ export async function enqueuePurchase(order) {
   return { key, created: false, status: winner?.status || "pending", eventId };
 }
 
-export async function processOutboxKey(key) {
+// force: reproceso manual desde el panel admin. Solo omite la espera de nextAttemptAt;
+// un evento ya "sent" o en "processing" activo nunca se vuelve a enviar.
+export async function processOutboxKey(key, { force = false } = {}) {
   const current = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) return { ok: false, skipped: true, reason: "not_found" };
   if (current.data.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
@@ -70,7 +79,7 @@ export async function processOutboxKey(key) {
     const stale = Number.isFinite(processingAt) && now - processingAt >= 10 * 60 * 1000;
     if (!stale) return { ok: false, skipped: true, reason: "busy", key };
   }
-  if (current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
+  if (!force && current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
     return { ok: false, skipped: true, reason: "not_due", key };
   }
 
@@ -122,23 +131,29 @@ export async function processOutboxKey(key) {
     const retryable = error?.retryable === true ||
       (error?.retryable !== false && (status === 429 || status >= 500 || !status));
     const maxAttempts = 8;
+    const errorClass = ["auth", "config"].includes(error?.errorClass) ? error.errorClass : "";
+    const recoverable = !retryable && Boolean(errorClass) && attempts < maxAttempts;
     const failed = {
       ...latest.data,
       status: "error",
       updatedAt: nowIso(),
       processingAt: "",
       lastError: String(error?.message || error).slice(0, 1000),
+      lastErrorClass: errorClass,
       lastHttpStatus: Number.isFinite(status) && status > 0 ? status : 0,
       lastMetaError: error?.metaError || null,
       nextAttemptAt: retryable && attempts < maxAttempts
         ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
-        : ""
+        : recoverable
+          ? new Date(Date.now() + recoveryDelayMs(attempts)).toISOString()
+          : ""
     };
     const written = await outbox.setJSON(key, failed, { onlyIfMatch: latest.etag });
     if (written?.modified && !written?.etag) throw new Error("No se pudo confirmar el error del outbox");
     if (!written?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
     logMetaEvent("error", "meta_capi_failed", {
       key, eventId: failed.eventId, attempts, retryable: retryable && attempts < maxAttempts,
+      errorClass, recoverable, nextAttemptAt: failed.nextAttemptAt,
       httpStatus: failed.lastHttpStatus,
       metaCode: error?.metaError?.code ?? null,
       metaSubcode: error?.metaError?.subcode ?? null,
@@ -146,6 +161,6 @@ export async function processOutboxKey(key) {
       error: failed.lastError
     });
     if (retryable && attempts < maxAttempts) throw error;
-    return { ok: false, key, status: "error", attempts, retryable: false, lastError: failed.lastError };
+    return { ok: false, key, status: "error", attempts, retryable: false, recoverable, lastError: failed.lastError };
   }
 }

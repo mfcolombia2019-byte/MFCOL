@@ -37,6 +37,6 @@ export default async (req) => {
   const key = String(body?.key || "").trim();
   if (!key.startsWith("meta-outbox/")) return json({ error: "Clave inválida" }, 400);
 
-  const result = await processOutboxKey(key);
+  const result = await processOutboxKey(key, { force: true });
   return json({ ok: true, result });
 };
