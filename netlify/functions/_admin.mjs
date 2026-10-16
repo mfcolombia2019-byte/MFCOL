@@ -4,7 +4,18 @@ import { getStore } from "@netlify/blobs";
 const deployContext = String(process.env.CONTEXT || "").trim().toLowerCase();
 const storeName = deployContext === "production" ? "mfc-admin" : "mfc-admin-nonprod";
 
-export const store = getStore(storeName);
+// Netlify Blobs obtiene siteID/token del contexto de ejecución de Functions.
+// No llamar getStore al cargar el módulo: en ese momento el contexto de la
+// solicitud aún puede no estar disponible y producir MissingBlobsEnvironmentError.
+// Este proxy difiere la creación del store hasta que se invoque un método
+// desde el handler. Mantiene la API existente para todos los consumidores.
+export const store = new Proxy(Object.create(null), {
+  get(_target, property) {
+    const instance = getStore(storeName);
+    const value = Reflect.get(instance, property, instance);
+    return typeof value === "function" ? value.bind(instance) : value;
+  }
+});
 export const APP_STORE_NAME = storeName;
 
 function secret() {
