@@ -80,6 +80,56 @@ function rejectAmount(code, message, details) {
   return new BoldWebhookError(code, message, { retryable: false, details });
 }
 
+// Cuando Bold entrega total=0 en el webhook, no se aprueba a ciegas: se consulta
+// el voucher autenticado y se exige estado, referencia, transacción e importe exactos.
+async function recoverAmountFromVoucher(orderData, event, reference) {
+  const raw = parseAmount(event?.data?.amount?.total);
+  if (Number.isFinite(raw) && raw > 0) return event;
+  const apiKey = String(process.env.BOLD_API_KEY || "").trim();
+  if (!apiKey) return event;
+  let response;
+  try {
+    response = await fetch("https://payments.api.bold.co/v2/payment-voucher/" + encodeURIComponent(reference), {
+      method: "GET",
+      headers: { Authorization: "x-api-key " + apiKey },
+      signal: AbortSignal.timeout(8000)
+    });
+  } catch (error) {
+    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, reason: String(error?.name || "network_error") });
+    return event;
+  }
+  if (!response.ok) {
+    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, httpStatus: response.status });
+    return event;
+  }
+  const voucher = await response.json().catch(() => null);
+  const voucherReference = String(voucher?.reference_id ?? "").trim();
+  const transactionId = String(voucher?.transaction_id ?? "").trim();
+  const expectedTransaction = String(event?.data?.payment_id || event?.subject || "").trim();
+  const amount = parseAmount(voucher?.total);
+  const expectedAmount = parseAmount(orderData?.total);
+  if (
+    String(voucher?.payment_status || "").toUpperCase() !== "APPROVED" ||
+    !voucherReference || voucherReference !== reference ||
+    !transactionId || (expectedTransaction && transactionId !== expectedTransaction) ||
+    !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(expectedAmount) || amount !== expectedAmount
+  ) {
+    logBoldEvent("error", "bold_webhook_voucher_recovery_rejected", {
+      reference,
+      status: String(voucher?.payment_status || "").slice(0, 20),
+      referenceMatched: Boolean(voucherReference && voucherReference === reference),
+      transactionMatched: Boolean(transactionId && (!expectedTransaction || transactionId === expectedTransaction)),
+      amountMatched: Number.isFinite(amount) && Number.isFinite(expectedAmount) && amount === expectedAmount
+    });
+    return event;
+  }
+  logBoldEvent("warn", "bold_webhook_amount_recovered_from_voucher", { reference, transactionId, amount });
+  return {
+    ...event,
+    data: { ...event.data, payment_id: transactionId, amount: { currency: "COP", total: amount }, metadata: { ...event.data?.metadata, reference } }
+  };
+}
+
 // Valida importe y moneda del evento contra el total persistido del pedido.
 // No relaja nada: solo distingue la causa y deja los valores comparados.
 export function validateBoldAmount(orderData, event, reference) {
@@ -198,9 +248,10 @@ async function updateOrderFromWebhook(reference, event) {
       });
     }
 
-    validateBoldAmount(current.data, event, reference);
+    const verifiedEvent = await recoverAmountFromVoucher(current.data, event, reference);
+    validateBoldAmount(current.data, verifiedEvent, reference);
 
-    const order = applyBoldPaymentEvent(current.data, event, new Date().toISOString());
+    const order = applyBoldPaymentEvent(current.data, verifiedEvent, new Date().toISOString());
     const result = await store.setJSON(key, order, { onlyIfMatch: current.etag });
     if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la actualización del pedido");
     if (result?.modified) return order;
