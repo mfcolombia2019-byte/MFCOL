@@ -333,6 +333,22 @@ test("importe distinto: no aprueba, registra diagnóstico seguro y el error es t
   assert.equal(keysWith("meta-outbox/").length, 0);
 });
 
+test("importe Bold cero registra solo la estructura del evento para diagnosticar el campo real", async () => {
+  reset();
+  put(ORDER_KEY, order());
+  await deliver(event({}, { currency: "COP", total: 0 }));
+  const diagnostic = logLine("bold_webhook_amount_schema_diagnostic");
+  assert.ok(diagnostic, "debe registrar diagnóstico de estructura cuando Bold informa total 0");
+  assert.equal(diagnostic.eventType, "SALE_APPROVED");
+  assert.ok(Array.isArray(diagnostic.dataKeys));
+  assert.ok(Array.isArray(diagnostic.amountCandidates));
+  const exposed = JSON.stringify(diagnostic);
+  for (const secret of [PAYER, "María", "Pérez", "3001234567", "test-meta-token", "test-wa-token"]) {
+    assert.equal(exposed.includes(secret), false, "el diagnóstico no debe exponer " + secret);
+  }
+  assert.equal(state.get(ORDER_KEY).paymentStatus, "pendiente");
+});
+
 test("importe ausente, nulo, vacío o no numérico se reporta como inválido y no como importe 0", async () => {
   const variants = [
     { currency: "COP", total: null },
