@@ -85,6 +85,26 @@ test("fuera de producción usa DEPLOY_URL si falta DEPLOY_PRIME_URL", () => {
   );
 });
 
+test("un branch deploy puede usar SITE_CANONICAL_ORIGIN solo si es su dominio netlify.app", () => {
+  const branchOrigin = "https://preview-bold-webhook-hmac-v4--comforting-liger-43ac3a.netlify.app";
+  assert.equal(
+    canonicalOrigin(read({
+      CONTEXT: "branch-deploy",
+      URL: PRODUCTION,
+      SITE_CANONICAL_ORIGIN: branchOrigin
+    })),
+    branchOrigin
+  );
+  assert.equal(
+    canonicalOrigin(read({
+      CONTEXT: "branch-deploy",
+      URL: PRODUCTION,
+      SITE_CANONICAL_ORIGIN: PRODUCTION
+    })),
+    ""
+  );
+});
+
 test("fuera de producción nunca recurre a URL ni a SITE_CANONICAL_ORIGIN", () => {
   assert.equal(canonicalOrigin(read({ CONTEXT: "deploy-preview", SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION })), "");
   assert.equal(canonicalOrigin(read({ SITE_CANONICAL_ORIGIN: PRODUCTION, URL: PRODUCTION })), "", "sin CONTEXT se trata como no producción");
