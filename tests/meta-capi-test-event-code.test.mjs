@@ -55,7 +55,7 @@ test("preview con META_TEST_EVENT_CODE: test_event_code va en el nivel superior 
 
 test("el código de prueba se recorta antes de enviarse", async t => {
   const calls = mockMeta(t);
-  await withEnv({ ...baseEnv, CONTEXT: "branch-deploy", META_TEST_EVENT_CODE: "  TEST89021\\n" },
+  await withEnv({ ...baseEnv, CONTEXT: "branch-deploy", META_TEST_EVENT_CODE: "  TEST89021\n" },
     () => sendMetaEvent(purchase));
   assert.equal(calls[0].body.test_event_code, "TEST89021");
 });
