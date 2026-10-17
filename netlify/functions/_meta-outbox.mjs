@@ -6,8 +6,23 @@ import { store as outbox } from "./_admin.mjs";
 
 function nowIso() { return new Date().toISOString(); }
 
+// Mismo formato que logBoldEvent. Solo ids, estados y códigos: nunca token, PII ni payload.
+export function logMetaEvent(level, evt, fields = {}) {
+  const line = JSON.stringify({ evt, ts: nowIso(), ...fields });
+  if (level === "error") console.error(line);
+  else if (level === "warn") console.warn(line);
+  else console.log(line);
+}
+
 function retryDelayMs(attempts) {
   return Math.min(60 * 60 * 1000, Math.max(30 * 1000, 2 ** Math.max(0, attempts - 1) * 30 * 1000));
+}
+
+// Token/configuración incorrectos: reintentar en segundos no sirve. Espera larga (15 min → 2 h)
+// para que el evento guardado se reenvíe solo cuando se corrija la variable, sin duplicarlo
+// (misma event_id y misma clave de outbox).
+function recoveryDelayMs(attempts) {
+  return Math.min(2 * 60 * 60 * 1000, 15 * 60 * 1000 * 2 ** Math.max(0, attempts - 1));
 }
 
 function conditionalOk(result) {
@@ -43,13 +58,18 @@ export async function enqueuePurchase(order) {
 
   const result = await outbox.setJSON(key, record, { onlyIfNew: true });
   if (result?.modified && !result?.etag) throw new Error("No se pudo confirmar la creación del outbox");
-  if (result?.modified) return { key, created: true, status: "pending", eventId };
+  if (result?.modified) {
+    logMetaEvent("info", "meta_capi_enqueued", { key, eventId, reference: record.orderReference });
+    return { key, created: true, status: "pending", eventId };
+  }
 
   const winner = await outbox.get(key, { type: "json", consistency: "strong" });
   return { key, created: false, status: winner?.status || "pending", eventId };
 }
 
-export async function processOutboxKey(key) {
+// force: reproceso manual desde el panel admin. Solo omite la espera de nextAttemptAt;
+// un evento ya "sent" o en "processing" activo nunca se vuelve a enviar.
+export async function processOutboxKey(key, { force = false } = {}) {
   const current = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
   if (!current?.data) return { ok: false, skipped: true, reason: "not_found" };
   if (current.data.status === "sent") return { ok: true, skipped: true, reason: "sent", key };
@@ -59,7 +79,7 @@ export async function processOutboxKey(key) {
     const stale = Number.isFinite(processingAt) && now - processingAt >= 10 * 60 * 1000;
     if (!stale) return { ok: false, skipped: true, reason: "busy", key };
   }
-  if (current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
+  if (!force && current.data.nextAttemptAt && new Date(current.data.nextAttemptAt).getTime() > now) {
     return { ok: false, skipped: true, reason: "not_due", key };
   }
 
@@ -90,11 +110,17 @@ export async function processOutboxKey(key) {
       nextAttemptAt: "",
       lastError: "",
       processingAt: "",
-      metaResponse: result.response
+      metaResponse: result.response,
+      fbtraceId: result.fbtraceId || "",
+      lastHttpStatus: result.status
     };
     const written = await outbox.setJSON(key, sent, { onlyIfMatch: latest.etag });
     if (written?.modified && !written?.etag) throw new Error("No se pudo confirmar Purchase enviado");
     if (!written?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
+    logMetaEvent("info", "meta_capi_sent", {
+      key, eventId: sent.eventId, attempts,
+      httpStatus: result.status, eventsReceived: result.eventsReceived, fbtraceId: result.fbtraceId || ""
+    });
     return { ok: true, key, status: "sent", attempts };
   } catch (error) {
     const latest = await outbox.getWithMetadata(key, { type: "json", consistency: "strong" });
@@ -102,22 +128,39 @@ export async function processOutboxKey(key) {
       throw error;
     }
     const status = Number(error?.metaStatus);
-    const retryable = error?.retryable !== false && (status === 429 || status >= 500 || !status);
+    const retryable = error?.retryable === true ||
+      (error?.retryable !== false && (status === 429 || status >= 500 || !status));
     const maxAttempts = 8;
+    const errorClass = ["auth", "config"].includes(error?.errorClass) ? error.errorClass : "";
+    const recoverable = !retryable && Boolean(errorClass) && attempts < maxAttempts;
     const failed = {
       ...latest.data,
       status: "error",
       updatedAt: nowIso(),
       processingAt: "",
       lastError: String(error?.message || error).slice(0, 1000),
+      lastErrorClass: errorClass,
+      lastHttpStatus: Number.isFinite(status) && status > 0 ? status : 0,
+      lastMetaError: error?.metaError || null,
       nextAttemptAt: retryable && attempts < maxAttempts
         ? new Date(Date.now() + retryDelayMs(attempts)).toISOString()
-        : ""
+        : recoverable
+          ? new Date(Date.now() + recoveryDelayMs(attempts)).toISOString()
+          : ""
     };
     const written = await outbox.setJSON(key, failed, { onlyIfMatch: latest.etag });
     if (written?.modified && !written?.etag) throw new Error("No se pudo confirmar el error del outbox");
     if (!written?.modified) return { ok: false, skipped: true, reason: "lost_race", key };
+    logMetaEvent("error", "meta_capi_failed", {
+      key, eventId: failed.eventId, attempts, retryable: retryable && attempts < maxAttempts,
+      errorClass, recoverable, nextAttemptAt: failed.nextAttemptAt,
+      httpStatus: failed.lastHttpStatus,
+      metaCode: error?.metaError?.code ?? null,
+      metaSubcode: error?.metaError?.subcode ?? null,
+      fbtraceId: error?.metaError?.fbtraceId || "",
+      error: failed.lastError
+    });
     if (retryable && attempts < maxAttempts) throw error;
-    return { ok: false, key, status: "error", attempts, retryable: false };
+    return { ok: false, key, status: "error", attempts, retryable: false, recoverable, lastError: failed.lastError };
   }
 }

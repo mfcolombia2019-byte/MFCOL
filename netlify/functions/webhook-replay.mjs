@@ -1,5 +1,5 @@
 import { store, json, requireAdmin } from "./_admin.mjs";
-import { processBoldWebhook, webhookInboxKey } from "./_bold-webhook.mjs";
+import { processBoldWebhook, webhookInboxKey, recordInboxFailure, BoldWebhookError } from "./_bold-webhook.mjs";
 
 export default async (req) => {
   const auth = requireAdmin(req);
@@ -19,7 +19,12 @@ export default async (req) => {
           reference: item.reference || "",
           receivedAt: item.receivedAt,
           processedAt: item.processedAt || "",
-          lastError: item.lastError || ""
+          lastError: item.lastError || "",
+          lastErrorCode: item.lastErrorCode || "",
+          lastErrorDetail: item.lastErrorDetail || null,
+          attempts: Number(item.attempts || 0),
+          terminal: Boolean(item.terminal),
+          nextAttemptAt: item.nextAttemptAt || ""
         });
       }
     }
@@ -37,6 +42,19 @@ export default async (req) => {
   const item = await store.get(webhookInboxKey(id), { type: "json", consistency: "strong" });
   if (!item?.event) return json({ error: "Evento no encontrado" }, 404);
 
-  const result = await processBoldWebhook(item.event);
-  return json({ ok: true, result });
+  try {
+    const result = await processBoldWebhook(item.event);
+    return json({ ok: true, result });
+  } catch (error) {
+    // La validación no se relaja: se informa el rechazo con su código y los
+    // valores comparados (sin datos del pagador) y se deja constancia en el inbox.
+    await recordInboxFailure(webhookInboxKey(id), error).catch(() => null);
+    const known = error instanceof BoldWebhookError;
+    return json({
+      ok: false,
+      code: known ? error.code : "",
+      error: String(error?.message || error).slice(0, 300),
+      details: known ? error.details : null
+    }, known && !error.retryable ? 409 : 500);
+  }
 };

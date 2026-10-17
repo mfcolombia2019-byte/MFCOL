@@ -1,6 +1,6 @@
 import { store, json } from "./_admin.mjs";
 import { applyBoldPaymentEvent } from "./_orders.mjs";
-import { enqueuePurchase } from "./_meta-outbox.mjs";
+import { enqueuePurchase, processOutboxKey } from "./_meta-outbox.mjs";
 import { enqueueWhatsAppConfirmation, processWhatsAppOutboxKey } from "./_whatsapp.mjs";
 
 const REF = /^[A-Za-z0-9_-]{1,80}$/;
@@ -216,9 +216,13 @@ async function applyVerifiedApproval(order, event) {
   }
 
   try {
-    await enqueuePurchase(next);
+    const queued = await enqueuePurchase(next);
+    // Antes solo se encolaba: sin el barrido programado (que no corre en branch deploys)
+    // el Purchase quedaba "pending" indefinidamente. processOutboxKey es idempotente
+    // (estado sent/processing/not_due) y conserva el CAS del outbox.
+    if (queued?.key) await processOutboxKey(queued.key);
   } catch (error) {
-    console.error("No se pudo encolar Purchase desde la verificación de Bold:", error);
+    console.error("No se pudo encolar/enviar Purchase desde la verificación de Bold:", error);
   }
   try {
     const outbox = await enqueueWhatsAppConfirmation(next);
