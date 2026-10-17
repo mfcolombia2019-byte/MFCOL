@@ -101,6 +101,7 @@ export function normalizeMetaToken(raw) {
 // Los tokens de Graph API solo usan letras, dígitos y _ - | . (el "|" aparece en tokens de app).
 // Espacios, llaves, comillas o un prefijo "Bearer " indican un valor mal copiado.
 const TOKEN_FORMAT = /^[A-Za-z0-9_|.-]+$/;
+const TEST_EVENT_CODE_FORMAT = /^[A-Za-z0-9_-]{1,64}$/;
 
 function configError(message) {
   const error = new Error(message);
@@ -123,8 +124,24 @@ export async function sendMetaEvent(event) {
   if (!version.startsWith("v")) version = "v" + version;
   if (!/^\d+$/.test(datasetId)) throw configError("META_DATASET_ID inválido");
 
-  const payload = { data: [event] };
+  // Mismo criterio que _admin.mjs y bold-webhook.mjs: lo que no es "production" es no productivo.
+  // CONTEXT ausente (pruebas locales) conserva el comportamiento anterior.
+  const context = String(process.env.CONTEXT || "").trim().toLowerCase();
   const testEventCode = String(process.env.META_TEST_EVENT_CODE || "").trim();
+  if (testEventCode && !TEST_EVENT_CODE_FORMAT.test(testEventCode)) {
+    // Nunca se repite el valor en el mensaje.
+    throw configError("META_TEST_EVENT_CODE con formato inválido (solo letras, dígitos, _ y -)");
+  }
+  // Un despliegue no productivo comparte conjunto de datos y token con producción. Sin
+  // test_event_code, Meta aceptaría el evento (HTTP 200, events_received: 1) como conversión
+  // REAL y además no aparecería en "Probar eventos". Se conserva en el outbox y se reenvía
+  // solo cuando la variable llegue al despliegue (error "config" recuperable).
+  if (context && context !== "production" && !testEventCode) {
+    throw configError("META_TEST_EVENT_CODE ausente en un despliegue no productivo; Purchase no se envía a Meta para no registrarlo como evento real");
+  }
+
+  const payload = { data: [event] };
+  // test_event_code va en el nivel superior del cuerpo, nunca dentro del evento.
   if (testEventCode) payload.test_event_code = testEventCode;
 
   const endpoint = "https://graph.facebook.com/" + encodeURIComponent(version) +
@@ -175,7 +192,9 @@ export async function sendMetaEvent(event) {
     status: response.status,
     response: data,
     eventsReceived: received,
-    fbtraceId: String(data?.fbtrace_id || "").slice(0, 60)
+    fbtraceId: String(data?.fbtrace_id || "").slice(0, 60),
+    // true = el evento viajó con test_event_code (solo visible en "Probar eventos").
+    testMode: Boolean(testEventCode)
   };
 }
 
