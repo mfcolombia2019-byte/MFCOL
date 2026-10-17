@@ -102,7 +102,7 @@ test("sin CONTEXT (pruebas locales) se conserva el comportamiento anterior", asy
 test("un código de prueba con formato inválido se rechaza sin llamar a Meta ni repetir el valor", async t => {
   const calls = mockMeta(t);
   await assert.rejects(
-    withEnv({ ...baseEnv, CONTEXT: "branch-deploy", META_TEST_EVENT_CODE: "TEST 89021 \\"x\\"" }, () => sendMetaEvent(purchase)),
+    withEnv({ ...baseEnv, CONTEXT: "branch-deploy", META_TEST_EVENT_CODE: "TEST 89021 invalid" }, () => sendMetaEvent(purchase)),
     error => {
       assert.equal(error.errorClass, "config");
       assert.doesNotMatch(error.message, /89021/);
