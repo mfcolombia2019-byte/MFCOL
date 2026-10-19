@@ -95,14 +95,28 @@ async function recoverAmountFromVoucher(orderData, event, reference) {
       signal: AbortSignal.timeout(8000)
     });
   } catch (error) {
-    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, reason: String(error?.name || "network_error") });
-    return event;
+    const reason = String(error?.name || "network_error").slice(0, 40);
+    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, reason, retryable: true });
+    throw new BoldWebhookError("VOUCHER_UNAVAILABLE", "No se pudo verificar temporalmente el voucher de Bold", {
+      retryable: true,
+      details: { reference, reason }
+    });
   }
   if (!response.ok) {
-    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, httpStatus: response.status });
-    return event;
+    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, httpStatus: response.status, retryable: true });
+    throw new BoldWebhookError("VOUCHER_UNAVAILABLE", "Bold no permitió verificar temporalmente el voucher", {
+      retryable: true,
+      details: { reference, httpStatus: response.status }
+    });
   }
   const voucher = await response.json().catch(() => null);
+  if (!voucher || typeof voucher !== "object" || Array.isArray(voucher)) {
+    logBoldEvent("error", "bold_webhook_voucher_recovery_failed", { reference, reason: "invalid_json", retryable: true });
+    throw new BoldWebhookError("VOUCHER_UNAVAILABLE", "La respuesta temporal del voucher de Bold no es válida", {
+      retryable: true,
+      details: { reference, reason: "invalid_json" }
+    });
+  }
   const voucherReference = String(voucher?.reference_id ?? "").trim();
   const transactionId = String(voucher?.transaction_id ?? "").trim();
   const expectedTransaction = String(event?.data?.payment_id || event?.subject || "").trim();
