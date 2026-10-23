@@ -4,6 +4,7 @@ import { mock, test } from "node:test";
 const records = new Map();
 let nextEtag = 1;
 let metaEnqueues = 0;
+let metaProcessed = [];
 let whatsappEnqueues = 0;
 let whatsappProcesses = 0;
 let fetchHandler = async () => new Response(JSON.stringify({ notifications: [] }), {
@@ -58,7 +59,7 @@ mock.module("../netlify/functions/_meta-outbox.mjs", {
       metaEnqueues++;
       return { key: "meta-test" };
     },
-    async processOutboxKey() { return { ok: true }; }
+    async processOutboxKey(key) { metaProcessed.push(key); return { ok: true }; }
   }
 });
 mock.module("../netlify/functions/_whatsapp.mjs", {
@@ -81,6 +82,7 @@ function seedOrder(reference = "MFORDER123") {
   records.clear();
   nextEtag = 1;
   metaEnqueues = 0;
+  metaProcessed = [];
   whatsappEnqueues = 0;
   whatsappProcesses = 0;
   records.set("orders/" + reference, {
@@ -145,6 +147,7 @@ test("consulta el estado del Botón de pagos por la referencia del pedido y reco
     assert.equal(body.paymentStatus, "aprobado");
     assert.equal(records.get("orders/MFORDER123").data.paymentStatus, "aprobado");
     assert.equal(metaEnqueues, 1);
+    assert.deepEqual(metaProcessed, ["meta-test"]);
     assert.equal(whatsappEnqueues, 1);
     assert.equal(whatsappProcesses, 1);
     assert.equal(fetchMock.mock.callCount(), 1);
@@ -164,6 +167,7 @@ test("no aprueba un pago cuyo importe o moneda no coinciden", async () => {
     assert.equal(body.paymentStatus, "pendiente");
     assert.equal(records.get("orders/MFORDER123").data.paymentStatus, "pendiente");
     assert.equal(metaEnqueues, 0);
+    assert.deepEqual(metaProcessed, []);
     assert.equal(whatsappEnqueues, 0);
   } finally {
     fetchMock.mock.restore();
