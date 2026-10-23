@@ -46,6 +46,49 @@ function summarizeOutbox(item) {
   };
 }
 
+function numOrNull(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Resumen del outbox de Meta. No incluye el evento (datos del cliente), la
+// respuesta completa de Meta ni ningún secreto.
+export function summarizeMetaOutbox(item) {
+  const d = item?.lastErrorDetail && typeof item.lastErrorDetail === "object" ? item.lastErrorDetail : null;
+  return {
+    ...summarizeOutbox(item),
+    // "error" sin próximo intento: el cron no lo reintentará.
+    deadLetter: item?.status === "error" && !item?.nextAttemptAt,
+    eventsReceived: numOrNull(item?.eventsReceived),
+    fbtraceId: String(item?.fbtraceId || d?.fbtraceId || "").slice(0, 80),
+    testEventCodeActive: typeof item?.testEventCodeActive === "boolean" ? item.testEventCodeActive : null,
+    lastMetaStatus: numOrNull(item?.lastMetaStatus),
+    lastErrorDetail: d ? {
+      type: String(d.type || "").slice(0, 80),
+      code: numOrNull(d.code),
+      subcode: numOrNull(d.subcode),
+      message: String(d.message || "").slice(0, 200)
+    } : null
+  };
+}
+
+// Solo presencia (booleanos). Describe el entorno de ESTE deploy, no el de
+// producción, y la presencia de un token no prueba que sea válido.
+export function metaEnvStatus(read = env) {
+  const version = String(read("META_GRAPH_API_VERSION") || "");
+  return {
+    scope: "deploy-actual",
+    capiTokenPresent: Boolean(read("META_CAPI_ACCESS_TOKEN")),
+    capiTokenValidityVerified: false,
+    graphVersionPresent: Boolean(version),
+    graphVersionValidFormat: /^v?\d+\.\d+$/.test(version),
+    testEventCodePresent: Boolean(read("META_TEST_EVENT_CODE")),
+    datasetIdOverridePresent: Boolean(read("META_DATASET_ID")),
+    boldApiKeyPresent: Boolean(read("BOLD_API_KEY"))
+  };
+}
+
 export default async (req) => {
   const headers = { "Cache-Control": "no-store" };
   if (req.method !== "POST") {
@@ -87,7 +130,7 @@ export default async (req) => {
     const { blobs: metaBlobs = [] } = await store.list({ prefix: "meta-outbox/" });
     for (const blob of metaBlobs.slice(0, 500)) {
       const item = await store.get(blob.key, { type: "json", consistency: "strong" });
-      if (item && String(item.orderReference || "") === reference) metaRows.push(summarizeOutbox(item));
+      if (item && String(item.orderReference || "") === reference) metaRows.push(summarizeMetaOutbox(item));
     }
 
     return Response.json({
@@ -106,7 +149,8 @@ export default async (req) => {
       } : { found: false },
       boldInbox: inboxRows,
       whatsappOutbox: whatsapp ? summarizeOutbox(whatsapp) : { found: false },
-      metaOutbox: metaRows
+      metaOutbox: metaRows,
+      metaEnv: metaEnvStatus()
     }, { headers });
   } catch (error) {
     console.error("Error en diagnóstico de pedido:", error);
