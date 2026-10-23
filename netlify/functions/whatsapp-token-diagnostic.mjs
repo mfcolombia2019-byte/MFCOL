@@ -89,7 +89,7 @@ export default async (req) => {
       authenticated: true,
       httpStatus: response.status,
       phoneNumberIdSuffix: String(data.id || phoneNumberId).slice(-4),
-      displayPhoneNumberSuffix: String(data.display_phone_number || "").replace(/\\D/g, "").slice(-4),
+      displayPhoneNumberSuffix: String(data.display_phone_number || "").replace(/\D/g, "").slice(-4),
       verifiedNamePresent: Boolean(data.verified_name),
       qualityRating: String(data.quality_rating || "unavailable")
     }, { headers: { "Cache-Control": "no-store" } });
