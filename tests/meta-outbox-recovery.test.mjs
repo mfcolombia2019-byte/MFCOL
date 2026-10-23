@@ -132,6 +132,20 @@ test("HTTP 200 con events_received=0 no se marca como enviado y queda reintentab
   assert.equal(record.sentAt, undefined);
 });
 
+test("HTTP 200 sin events_received no se marca como enviado y queda reintentable", async t => {
+  const { key } = await queued();
+  t.mock.method(console, "error", () => {});
+  mockMeta(t, () => res({ fbtrace_id: "TRACE_MISSING" }));
+  await assert.rejects(
+    withEnv(GOOD_ENV, () => processOutboxKey(key)),
+    /sin eventos recibidos/
+  );
+  const record = await mockStore.get(key);
+  assert.equal(record.status, "error");
+  assert.ok(record.nextAttemptAt, "debe programarse reintento");
+  assert.equal(record.sentAt, undefined);
+});
+
 test("Meta rechaza el evento (token inválido): error terminal visible, detalle sanitizado y log", async t => {
   const { key } = await queued();
   const logs = t.mock.method(console, "error", () => {});
