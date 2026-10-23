@@ -32,7 +32,7 @@ function httpsOrigin(candidate) {
 //   productivo, así que no se usan como respaldo: devolver "" es preferible a
 //   enviar un pago de prueba a la tienda real.
 // `read` se inyecta para poder probar la selección sin tocar el entorno.
-export function canonicalOrigin(read = env) {
+export function canonicalOrigin(read = env, requestUrl = "") {
   const isProduction = String(read("CONTEXT") || "").trim().toLowerCase() === "production";
 
   if (isProduction) {
@@ -46,7 +46,11 @@ export function canonicalOrigin(read = env) {
       .map(origin => new URL(origin).hostname)
   );
 
-  for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL")]) {
+  // Netlify puede no exponer DEPLOY_PRIME_URL/DEPLOY_URL al runtime de
+  // Functions aunque estén disponibles durante el build. La URL real de la
+  // petición conserva el host HTTPS del Deploy Preview y es un respaldo seguro
+  // siempre que no coincida con el dominio de producción.
+  for (const candidate of [read("DEPLOY_PRIME_URL"), read("DEPLOY_URL"), requestUrl]) {
     const origin = httpsOrigin(candidate);
     if (origin && !productionHosts.has(new URL(origin).hostname)) return origin;
   }
@@ -137,7 +141,7 @@ export default async (req) => {
     return json({ error: "El pago en línea aún no está habilitado para esta tienda." }, 503);
   }
 
-  const origin = canonicalOrigin();
+  const origin = canonicalOrigin(env, req.url);
   if (!origin) {
     const isProduction = String(env("CONTEXT") || "").trim().toLowerCase() === "production";
     console.error("Bold Embedded Checkout: no hay un origen HTTPS válido para el retorno del pago.");
