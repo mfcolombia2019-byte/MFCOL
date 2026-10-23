@@ -109,7 +109,7 @@ test("fuera de producción rechaza un origen de despliegue que coincide con prod
   assert.equal(canonicalOrigin(read({ CONTEXT: "deploy-preview", DEPLOY_PRIME_URL: "no es una url" })), "");
 });
 
-async function createCheckout(vars) {
+async function createCheckout(vars, requestUrl = "https://irrelevante.example/.netlify/functions/crear-link-pago") {
   const saved = {};
   const names = ["CONTEXT", "SITE_CANONICAL_ORIGIN", "URL", "DEPLOY_PRIME_URL", "DEPLOY_URL", "BOLD_SECRET_KEY", "BOLD_API_KEY"];
   for (const name of names) {
@@ -130,7 +130,7 @@ async function createCheckout(vars) {
       paymentLink: "https://checkout.bold.co/LNK_EXISTING"
     });
     etags.set("orders/MFORIGIN1", '"seed"');
-    const response = await handler(new Request("https://irrelevante.example/.netlify/functions/crear-link-pago", {
+    const response = await handler(new Request(requestUrl, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reference: "MFORIGIN1" })
@@ -169,12 +169,24 @@ test("el checkout de producción conserva el dominio canónico", async () => {
   assert.ok(body.embedded.originUrl.startsWith(PRODUCTION + "/"));
 });
 
-test("una vista previa sin origen propio válido no crea el pago en lugar de volver a producción", async () => {
+test("una vista previa usa el host HTTPS de la petición cuando Netlify no expone variables de deploy al runtime", async () => {
   const { status, body } = await createCheckout({
     CONTEXT: "deploy-preview",
     SITE_CANONICAL_ORIGIN: PRODUCTION,
     URL: PRODUCTION
-  });
+  }, PREVIEW + "/.netlify/functions/crear-link-pago");
+  assert.equal(status, 200);
+  assert.equal(body.embedded.redirectionUrl, PREVIEW + "/gracias.html?ref=MFORIGIN1");
+  assert.ok(body.embedded.originUrl.startsWith(PREVIEW + "/"));
+  assert.ok(!JSON.stringify(body.embedded).includes("tienda.mfcol.com"));
+});
+
+test("la petición nunca permite que una vista previa use el dominio de producción como respaldo", async () => {
+  const { status, body } = await createCheckout({
+    CONTEXT: "deploy-preview",
+    SITE_CANONICAL_ORIGIN: PRODUCTION,
+    URL: PRODUCTION
+  }, PRODUCTION + "/.netlify/functions/crear-link-pago");
   assert.equal(status, 503);
   assert.equal(body.embedded, undefined);
   assert.ok(!JSON.stringify(body).includes("tienda.mfcol.com"));

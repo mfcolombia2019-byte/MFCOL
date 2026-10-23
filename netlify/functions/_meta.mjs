@@ -98,6 +98,18 @@ export async function sendMetaEvent(event) {
     throw error;
   }
 
+  // HTTP 2xx no basta: Meta debe confirmar que recibió al menos un evento.
+  const eventsReceived = Number(data?.events_received);
+  if (!Number.isFinite(eventsReceived) || !Number.isInteger(eventsReceived) || eventsReceived < 1) {
+    const error = new Error(
+      "Meta CAPI respondió sin eventos recibidos (events_received=" +
+      String(data?.events_received).slice(0, 20) + ")"
+    );
+    error.metaStatus = response.status;
+    error.metaResponse = data;
+    throw error;
+  }
+
   return { status: response.status, response: data };
 }
 
